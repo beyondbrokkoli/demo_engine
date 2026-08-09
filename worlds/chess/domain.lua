@@ -14,36 +14,39 @@ for y = 1, 8 do
     for x = 1, 8 do loc_cache[y][x] = loc:new(x, y) end
 end
 
--- [NEW] Define how many physical tiles represent one chess square.
--- 1 = 8x8 visual board (64 modifications at Init)
--- 2 = 16x16 visual board (256 modifications at Init)
--- 3 = 24x24 visual board (576 modifications at Init)
--- 4 = 32x32 visual board (1024 modifications at Init)
-local CHUNK_SCALE = 3
+local CHUNK_SCALE = 3 
 
--- [UPDATED] Helper to elevate BIG chunks of the board squared-wise
 local function pop_isometric_chunk(ext_state, app_ctx, chess_x, chess_y, terrain_id, custom_elev)
     local w = app_ctx.cfg_sim.world.map_width
     local h = app_ctx.cfg_sim.world.map_height
     local cx = math.floor(w / 2)
     local cz = math.floor(h / 2)
 
-    -- 1. Calculate the full size of the visual board to keep it perfectly centered
     local visual_board_size = 8 * CHUNK_SCALE
     local board_origin_x = cx - math.floor(visual_board_size / 2)
     local board_origin_z = cz - math.floor(visual_board_size / 2)
 
-    -- 2. Find the root (top-left) tile for THIS specific chunk
     local base_iso_x = board_origin_x + ((chess_x - 1) * CHUNK_SCALE)
     local base_iso_z = board_origin_z + ((chess_y - 1) * CHUNK_SCALE)
 
-    -- Cache the fixed math conversion outside the loop to save CPU cycles
-    local elev_val = Fixed.from_float(custom_elev or 15)
+    -- [AUDIT GUARD: Float vs Fixed-Point]
+    -- Catch redundant fixed-point conversions before they ruin the subtle visual layout
+    local raw_elev = custom_elev or 15.0
+    if raw_elev > 255 then
+        print(string.format("[AUDIT WARN] Suspiciously high float detected in chunk (%d, %d): %s. Forcing subtle baseline.", chess_x, chess_y, tostring(raw_elev)))
+        raw_elev = 15.0
+    end
 
-    -- 3. Loop over the chunk and push to the ring buffer
+    local elev_val = Fixed.from_float(raw_elev)
+
     for dz = 0, CHUNK_SCALE - 1 do
         for dx = 0, CHUNK_SCALE - 1 do
             local tile_idx = (base_iso_z + dz) * w + (base_iso_x + dx)
+
+            -- [AUDIT GUARD: Spatial Boundaries]
+            if tile_idx < 0 or tile_idx >= (w * h) then
+                error(string.format("[FATAL AUDIT] Chunk scaling out of bounds! Tile %d exceeds map limits.", tile_idx))
+            end
 
             local head = ext_state.head_idx
             ext_state.tiles[head].tile_idx = tile_idx
@@ -58,7 +61,6 @@ local function pop_isometric_chunk(ext_state, app_ctx, chess_x, chess_y, terrain
     end
 end
 
--- Updated Init function receives ext_state to paint the board at boot
 function ChessDomain.Init(app_ctx, ext_state)
     local init_state = app_ctx.rts_grid
     local init_map = standard()
@@ -71,8 +73,7 @@ function ChessDomain.Init(app_ctx, ext_state)
             init_state.chess.grid[lua_grid_index - 1] = piece
 
             if piece ~= 0 then
-                -- [UPDATED] Swap to the chunk function
-                pop_isometric_chunk(ext_state, app_ctx, x + 1, y + 1, 15, 15)
+                pop_isometric_chunk(ext_state, app_ctx, x + 1, y + 1, 15, 15.0)
             end
 
             lua_grid_index = lua_grid_index + 1
@@ -80,6 +81,7 @@ function ChessDomain.Init(app_ctx, ext_state)
     end
     init_state.chess.flags = 0x80
     init_state.chess.en_passant = 255
+    print("[AUDIT INIT] Chess Domain mapped successfully to visual buffer.")
 end
 
 function ChessDomain.Poll(app_ctx, cmd_slot)
@@ -134,13 +136,13 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
         end
 
         if not lab_tools.deep_compare(current_lua_map, predicted_map) then
+            -- [AUDIT] Log the delta using the deep_merge pipeline logic
+            print(string.format("[AUDIT PASS] Valid move accepted. Cross-pollinating visual matrix from (%d, %d) to (%d, %d).", f_x, f_y, t_x, t_y))
+
             lab_tools.deep_merge(current_lua_map, predicted_map)
 
-            -- [UPDATED] Swap to the chunk function for flattening
-            pop_isometric_chunk(ext_state, app_ctx, f_x, f_y, 0, 0)
-
-            -- [UPDATED] Swap to the chunk function for highlighting
-            pop_isometric_chunk(ext_state, app_ctx, t_x, t_y, 15)
+            pop_isometric_chunk(ext_state, app_ctx, f_x, f_y, 0, 0.0)
+            pop_isometric_chunk(ext_state, app_ctx, t_x, t_y, 15, 15.0)
 
             lua_grid_index = 1
             for y = 1, 8 do
@@ -150,6 +152,13 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
                 end
             end
             state.chess.flags = is_white_turn and 0x00 or 0x80
+        else
+            print("[AUDIT REJECT] Move generated identical map state.")
+        end
+    else
+        -- [AUDIT] Helpful log for invalid commands pumped from the network
+        if from_idx ~= 0 or to_idx ~= 0 then
+            print(string.format("[AUDIT REJECT] Turn engine declined move vector (%d, %d) -> (%d, %d)", f_x, f_y, t_x, t_y))
         end
     end
 end
