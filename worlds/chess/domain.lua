@@ -132,7 +132,7 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
     -- 4. Trust the oracle. If new_T exists, the move is 100% valid.
     if new_T then
         if app_ctx.rollback_arena.is_rollback_active == 0 then
-            print(string.format("[AUDIT PASS] Valid move accepted. Visually updating (%d, %d) to (%d, %d).", f_x, f_y, t_x, t_y))
+--            print(string.format("[AUDIT PASS] Valid move accepted. Visually updating (%d, %d) to (%d, %d).", f_x, f_y, t_x, t_y))
         end
 
         pop_isometric_chunk(ext_state, app_ctx, f_x, f_y, 0, 0.0)
@@ -150,7 +150,7 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
         state.chess.flags = is_white_turn and 0x00 or 0x80
     else
         if app_ctx.rollback_arena.is_rollback_active == 0 then
-            print(string.format("[AUDIT REJECT] Turn engine declined move vector (%d, %d) -> (%d, %d)", f_x, f_y, t_x, t_y))
+--            print(string.format("[AUDIT REJECT] Turn engine declined move vector (%d, %d) -> (%d, %d)", f_x, f_y, t_x, t_y))
         end
     end
 end
