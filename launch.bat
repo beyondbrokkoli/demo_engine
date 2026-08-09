@@ -36,9 +36,6 @@ if "%GRAPHICAL_CLIENTS%"=="" set GRAPHICAL_CLIENTS=0
 if "%BOT_CLIENTS%"=="" set BOT_CLIENTS=0
 set /A TOTAL_PLAYERS=1 + GRAPHICAL_CLIENTS + BOT_CLIENTS
 
-:: Force clean host log for deterministic waiting
-if exist "logs\host.log" del /F /Q "logs\host.log"
-
 start "Weaver Host" /B cmd /c "bin\boot.exe host %TOTAL_PLAYERS% > logs\host.log 2>&1"
 
 :wait_lobby
