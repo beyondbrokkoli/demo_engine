@@ -3,6 +3,7 @@
 flowchart LR
     %% WeaverEngine Lua Dependencies
     subgraph build
+        build_check_deps_lua["build/check_deps.lua"]
         build_ctx_build_lua["build/ctx_build.lua"]
         build_export_c_hdr_lua["build/export_c_hdr.lua"]
         build_export_glsl_lua["build/export_glsl.lua"]
@@ -10,6 +11,12 @@ flowchart LR
         build_task_headless_lua["build/task_headless.lua"]
         build_task_invariants_lua["build/task_invariants.lua"]
         build_task_shaders_lua["build/task_shaders.lua"]
+    end
+    subgraph game
+        game_attack["game/attack"]
+        game_logic["game/logic"]
+        game_move["game/move"]
+        game_turn["game/turn"]
     end
     subgraph network
         network_lockstep_fsm_core_lua["network/lockstep/fsm_core.lua"]
@@ -64,9 +71,22 @@ flowchart LR
     end
     subgraph tools
         tools_bot_lua["tools/bot.lua"]
+        tools_diagnostic_monitor_lua["tools/diagnostic_monitor.lua"]
+        tools_lab_domain_lua["tools/lab_domain.lua"]
     end
     subgraph worlds
-        worlds_chess_plugin_lua["worlds/chess/plugin.lua"]
+        worlds_chess_domain_lua["worlds/chess/domain.lua"]
+        worlds_chess_plugin_backup_lua["worlds/chess/plugin_backup.lua"]
+        worlds_isometric_domain_lua["worlds/isometric/domain.lua"]
+        worlds_luachess_game_attack_lua["worlds/luachess/game/attack.lua"]
+        worlds_luachess_game_game_lua["worlds/luachess/game/game.lua"]
+        worlds_luachess_game_input_lua["worlds/luachess/game/input.lua"]
+        worlds_luachess_game_logic_lua["worlds/luachess/game/logic.lua"]
+        worlds_luachess_game_move_lua["worlds/luachess/game/move.lua"]
+        worlds_luachess_game_standard_lua["worlds/luachess/game/standard.lua"]
+        worlds_luachess_game_turn_lua["worlds/luachess/game/turn.lua"]
+        worlds_luachess_global_lua["worlds/luachess/global.lua"]
+        worlds_router_plugin_lua["worlds/router_plugin.lua"]
     end
     build_ctx_build_lua --> build_export_c_hdr_lua
     build_ctx_build_lua --> build_export_glsl_lua
@@ -91,7 +111,7 @@ flowchart LR
     network_session_netcode_lua --> network_transport_net_pump_lua
     network_session_netcode_lua --> network_transport_network_lua
     network_session_netcode_lua --> runtime_boot_path_weaver_lua
-    network_session_netcode_lua --> worlds_chess_plugin_lua
+    network_session_netcode_lua --> worlds_router_plugin_lua
     network_transport_net_pump_lua --> network_lockstep_history_buffer_lua
     network_transport_net_pump_lua --> network_lockstep_wire_codec_lua
     network_transport_net_pump_lua --> network_transport_network_lua
@@ -171,6 +191,24 @@ flowchart LR
     tools_bot_lua --> runtime_boot_path_weaver_lua
     tools_bot_lua --> runtime_simulation_game_state_lua
     tools_bot_lua --> ssot_config_sim_lua
-    worlds_chess_plugin_lua --> network_transport_network_lua
-    worlds_chess_plugin_lua --> runtime_services_math_fixed_math_lua
+    tools_diagnostic_monitor_lua --> tools_lab_domain_lua
+    worlds_chess_domain_lua --> tools_lab_domain_lua
+    worlds_chess_domain_lua --> worlds_luachess_global_lua
+    worlds_chess_plugin_backup_lua --> network_transport_network_lua
+    worlds_chess_plugin_backup_lua --> runtime_services_math_fixed_math_lua
+    worlds_isometric_domain_lua --> runtime_services_math_fixed_math_lua
+    worlds_luachess_game_game_lua --> game_logic
+    worlds_luachess_game_game_lua --> game_turn
+    worlds_luachess_game_game_lua --> worlds_luachess_global_lua
+    worlds_luachess_game_input_lua --> worlds_luachess_global_lua
+    worlds_luachess_game_logic_lua --> game_attack
+    worlds_luachess_game_logic_lua --> game_move
+    worlds_luachess_game_logic_lua --> worlds_luachess_global_lua
+    worlds_luachess_game_move_lua --> worlds_luachess_global_lua
+    worlds_luachess_game_standard_lua --> worlds_luachess_global_lua
+    worlds_luachess_game_turn_lua --> game_logic
+    worlds_luachess_game_turn_lua --> worlds_luachess_global_lua
+    worlds_router_plugin_lua --> network_transport_network_lua
+    worlds_router_plugin_lua --> worlds_chess_domain_lua
+    worlds_router_plugin_lua --> worlds_isometric_domain_lua
 ```

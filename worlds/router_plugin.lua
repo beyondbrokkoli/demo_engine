@@ -31,7 +31,8 @@ return function(app_ctx)
                     isometric_domain.ApplyContract(ext_state, commands[p][0], p, app_ctx)
                 end
                 if commands[p][1].opcode == 2 then
-                    chess_domain.ApplyContract(state, commands[p][1], p, app_ctx)
+                    -- CROSS-POLLINATION: Pass ext_state into the chess domain
+                    chess_domain.ApplyContract(state, ext_state, commands[p][1], p, app_ctx)
                 end
             end
         end,

@@ -2,6 +2,7 @@
 local ffi = require("ffi")
 local bit = require("bit")
 local lab_tools = require("tools.lab_domain")
+local Fixed = require("runtime.services.math.fixed_math") -- Need this for elevation
 require("game.turn")
 require("game.standard")
 require("global")
@@ -38,8 +39,33 @@ function ChessDomain.Poll(app_ctx, cmd_slot)
         cmd_slot.opcode = 0
     end
 end
+-- Helper for subtle visual highlights on the external grid
+local function pop_isometric_tile(ext_state, app_ctx, chess_x, chess_y, terrain_id)
+    local w = app_ctx.cfg_sim.world.map_width
+    local h = app_ctx.cfg_sim.world.map_height
+    local cx = math.floor(w / 2)
+    local cz = math.floor(h / 2)
 
-function ChessDomain.ApplyContract(state, cmd, player_id, app_ctx)
+    -- Center the 8x8 board on the main grid
+    local iso_x = (cx - 4) + (chess_x - 1)
+    local iso_y = (cz - 4) + (chess_y - 1)
+    local tile_idx = iso_y * w + iso_x
+
+    local head = ext_state.head_idx
+    ext_state.tiles[head].tile_idx = tile_idx
+
+    -- Implement a subtle, non-invasive visual style
+    ext_state.tiles[head].terrain_type = terrain_id
+    ext_state.tiles[head].elevation = Fixed.from_float(0.5) -- Tiny visual bump, not a pillar
+
+    ext_state.head_idx = (ext_state.head_idx + 1) % 2048
+    if ext_state.modification_count < 2048 then
+        ext_state.modification_count = ext_state.modification_count + 1
+    end
+end
+
+-- Update signature to receive ext_state
+function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
     local packed = cmd.target_pos
     local from_idx = bit.rshift(packed, 8)
     local to_idx = bit.band(packed, 0xFF)
@@ -83,6 +109,12 @@ function ChessDomain.ApplyContract(state, cmd, player_id, app_ctx)
         if not lab_tools.deep_compare(current_lua_map, predicted_map) then
             lab_tools.deep_merge(current_lua_map, predicted_map)
 
+            -- THE CROSS-POLLINATION: The move is legal, render it visually!
+            -- Give the 'from' tile a subtle shadow (terrain 13) and the 'to' tile a subtle glow (terrain 14)
+            pop_isometric_tile(ext_state, app_ctx, f_x, f_y, 13)
+            pop_isometric_tile(ext_state, app_ctx, t_x, t_y, 14)
+
+            -- Write to FFI
             lua_grid_index = 1
             for y = 1, 8 do
                 for x = 1, 8 do
