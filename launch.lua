@@ -74,13 +74,24 @@ local function read_line()
 
         if target == "win" then
             local code = ffi.C._getch()
-            if code == 224 or code == 0 then -- Windows special key prefix
+            if code == 224 or code == 0 then -- Windows CMD/PowerShell special key prefix
                 local ext = ffi.C._getch()
                 if ext == 72 then c = "UP"
                 elseif ext == 80 then c = "DOWN"
                 else c = "IGNORE" end
+            elseif code == 27 then -- MSYS2 / Mintty ANSI escape sequence (\27[A)
+                local bracket = ffi.C._getch()
+                if bracket == 91 then -- '[' (ASCII 91)
+                    local dir = ffi.C._getch()
+                    if dir == 65 then c = "UP"        -- 'A'
+                    elseif dir == 66 then c = "DOWN"  -- 'B'
+                    elseif dir == 67 or dir == 68 then c = "IGNORE" -- Left/Right
+                    else c = "IGNORE" end
+                else
+                    c = "IGNORE"
+                end
             elseif code == 13 then c = "ENTER"
-            elseif code == 8 then c = "BACKSPACE"
+            elseif code == 8 or code == 127 then c = "BACKSPACE" -- Added 127 to catch MSYS2 DEL backspace
             elseif code == 3 then c = "CTRLC"
             else c = string.char(code) end
         else
