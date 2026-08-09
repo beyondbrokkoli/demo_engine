@@ -144,7 +144,7 @@ local function read_line()
                 io.flush()
             end
         elseif c == "TAB" then
-            -- NEW: Autocomplete Logic
+            -- NEW: Smart Autocomplete Logic
             local cmds = {"swarm", "lab", "host", "client", "attach", "clean", "orphans", "exit", "quit", "status"}
             local is_second_word = buf:find(" ")
 
@@ -157,16 +157,31 @@ local function read_line()
                     end
                 end
                 if #matches == 1 then
-                    buf = matches[1] .. " " -- Auto-append space for speed!
+                    buf = matches[1] .. " " -- Auto-append space
                 end
             else
                 -- Complete Arguments (Lobby ID)
-                local cmd, partial_arg = buf:match("^(%S+)%s*(.*)$")
-                if cmd == "client" or cmd == "attach" then
-                    local latest_id = get_latest_lobby_id()
-                    -- Only complete if the ID starts with whatever you've typed so far (if anything)
-                    if latest_id and latest_id:sub(1, #partial_arg) == partial_arg then
-                        buf = cmd .. " " .. latest_id
+                -- Extract the command and whatever follows it
+                local cmd, args_str = buf:match("^(%S+)%s+(.*)$")
+                local latest_id = get_latest_lobby_id()
+
+                if latest_id then
+                    if cmd == "client" then
+                        -- client expects: <lobby_id>
+                        if latest_id:sub(1, #args_str) == args_str then
+                            buf = cmd .. " " .. latest_id
+                        end
+                    elseif cmd == "attach" then
+                        -- attach expects: <bots> <lobby_id>
+                        -- Look for: a number/string, one or more spaces, and an optional partial ID
+                        local bots, space, partial_id = args_str:match("^(%S+)(%s+)(.*)$")
+
+                        -- Only autocomplete if they have typed the bots AND a space
+                        if bots and space then
+                            if latest_id:sub(1, #partial_id) == partial_id then
+                                buf = cmd .. " " .. bots .. space .. latest_id
+                            end
+                        end
                     end
                 end
             end
