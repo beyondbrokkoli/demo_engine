@@ -111,6 +111,7 @@ flowchart LR
     network_session_netcode_lua --> network_transport_net_pump_lua
     network_session_netcode_lua --> network_transport_network_lua
     network_session_netcode_lua --> runtime_boot_path_weaver_lua
+    network_session_netcode_lua --> ssot_config_sim_lua
     network_session_netcode_lua --> worlds_router_plugin_lua
     network_transport_net_pump_lua --> network_lockstep_history_buffer_lua
     network_transport_net_pump_lua --> network_lockstep_wire_codec_lua
@@ -192,6 +193,7 @@ flowchart LR
     tools_bot_lua --> runtime_simulation_game_state_lua
     tools_bot_lua --> ssot_config_sim_lua
     tools_diagnostic_monitor_lua --> tools_lab_domain_lua
+    worlds_chess_domain_lua --> runtime_services_math_fixed_math_lua
     worlds_chess_domain_lua --> tools_lab_domain_lua
     worlds_chess_domain_lua --> worlds_luachess_global_lua
     worlds_chess_plugin_backup_lua --> network_transport_network_lua

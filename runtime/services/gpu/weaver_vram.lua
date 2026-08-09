@@ -23,6 +23,9 @@ function VRAM.init_static_buffers(memory, cfg_sim, total_tiles)
     staging_ptr[48] = 0.0; staging_ptr[49] = 0.0; staging_ptr[50] = 1.0; staging_ptr[51] = 1.0
     staging_ptr[52] = 1.0; staging_ptr[53] = 0.0; staging_ptr[54] = 0.0; staging_ptr[55] = 1.0
 
+    -- Terrain 15 (Indices 60-63): Subtle, non-invasive board highlight
+    staging_ptr[60] = 0.3; staging_ptr[61] = 0.9; staging_ptr[62] = 0.3; staging_ptr[63] = 0.8
+
     memory.TransferAsync(0, "PALETTE_STAGING", "PALETTE_HAVEN", 16384)
 
     local vram_template = ffi.new("RtsTileInstance[?]", total_tiles)

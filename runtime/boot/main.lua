@@ -174,8 +174,16 @@ local function main()
         ffi.fill(visual_canvas, visual_canvas_size, 0)
 
         -- 2. Paint the 24KB sparse simulation state onto the 3MB visual canvas
-        for i = 0, ctx.ssot_render_ptr.modification_count - 1 do
-            local mod = ctx.ssot_render_ptr.tiles[i]
+        local state = ctx.ssot_render_ptr
+        local count = state.modification_count
+
+        -- If the buffer wrapped, the oldest entry is at head_idx. Otherwise, it's at 0.
+        local start_idx = (count < 2048) and 0 or state.head_idx
+
+        for i = 0, count - 1 do
+            local actual_idx = (start_idx + i) % 2048
+            local mod = state.tiles[actual_idx]
+
             -- We paint everything to Layer 0. The renderer and raycaster don't care about network player layers.
             visual_canvas.terrain[0][mod.tile_idx] = mod.terrain_type
             visual_canvas.elevation[0][mod.tile_idx] = mod.elevation
