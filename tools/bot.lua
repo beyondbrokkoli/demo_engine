@@ -89,7 +89,7 @@ local function main()
     local state_size = Game.GetStateSize()
 
     -- host lobby size missing
-    print(string.format("[BOT:%d] Booting Headless Chaos Node (Target Size: %d)...", local_port))
+    print(string.format("[BOT:%d] Booting Headless Chaos Node (Target Size: missing)...", local_port))
 
     local net_engine = net_driver.init(local_port, target_lobby_id, target_lobby_size, state_ptr, state_size)
 
