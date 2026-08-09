@@ -14,10 +14,13 @@ flowchart LR
     node_docs["📁 docs"]
     node_generated["📁 generated"]
     node_host["📁 host"]
+    node_logs["📁 logs"]
     node_network["📁 network"]
+    node_python["📁 python"]
     node_rag["📁 rag"]
     node_render["📁 render"]
     node_runtime["📁 runtime"]
+    node_scripts["📁 scripts"]
     node_server["📁 server"]
     node_shaders["📁 shaders"]
     node_ssot["📁 ssot"]
@@ -25,7 +28,9 @@ flowchart LR
     node_worlds["📁 worlds"]
     node__gitattributes["📄 .gitattributes"]
     node__gitignore["📄 .gitignore"]
+    node_cli_sys_lua["📄 cli_sys.lua"]
     node_launch_bat["📄 launch.bat"]
+    node_launch_lua["📄 launch.lua"]
     node_launch_sh["📄 launch.sh"]
     node_bin_boot_elf["📄 boot.elf"]
     node_bin_boot_exe["📄 boot.exe"]
@@ -38,7 +43,8 @@ flowchart LR
     node_bin_render_frag_spv["📄 render_frag.spv"]
     node_bin_render_vert_spv["📄 render_vert.spv"]
     node_bin_vx_net_dll["📄 vx_net.dll"]
-    node_build_ctx_build_lua["📄 ctx_build.lua"]
+    node_build_build_lua["📄 build.lua"]
+    node_build_check_build_dependencies_lua["📄 check_build_dependencies.lua"]
     node_build_export_c_hdr_lua["📄 export_c_hdr.lua"]
     node_build_export_glsl_lua["📄 export_glsl.lua"]
     node_build_task_c_objects_lua["📄 task_c_objects.lua"]
@@ -55,7 +61,25 @@ flowchart LR
     node_shaders_render_vert["📄 render.vert"]
     node_shaders_shared_glsl["📄 shared.glsl"]
     node_worlds_chess["📁 chess"]
-    node_worlds_chess_plugin_lua["📄 plugin.lua"]
+    node_worlds_isometric["📁 isometric"]
+    node_worlds_luachess["📁 luachess"]
+    node_worlds_router_plugin_lua["📄 router_plugin.lua"]
+    node_worlds_isometric_domain_lua["📄 domain.lua"]
+    node_worlds_luachess_game["📁 game"]
+    node_worlds_luachess_global_lua["📄 global.lua"]
+    node_worlds_luachess_game_attack_lua["📄 attack.lua"]
+    node_worlds_luachess_game_game_lua["📄 game.lua"]
+    node_worlds_luachess_game_input_lua["📄 input.lua"]
+    node_worlds_luachess_game_logic_lua["📄 logic.lua"]
+    node_worlds_luachess_game_move_lua["📄 move.lua"]
+    node_worlds_luachess_game_standard_lua["📄 standard.lua"]
+    node_worlds_luachess_game_turn_lua["📄 turn.lua"]
+    node_worlds_chess_domain_lua["📄 domain.lua"]
+    node_python_ascii_tree_cols_py["📄 ascii_tree_cols.py"]
+    node_python_trace_deps_c_py["📄 trace_deps_c.py"]
+    node_python_trace_deps_glsl_py["📄 trace_deps_glsl.py"]
+    node_python_trace_deps_lua_py["📄 trace_deps_lua.py"]
+    node_python_trace_tree_py["📄 trace_tree.py"]
     node_render_debug["📁 debug"]
     node_render_gpu["📁 gpu"]
     node_render_tenant["📁 tenant"]
@@ -70,6 +94,7 @@ flowchart LR
     node_generated_registry_glsl["📄 registry.glsl"]
     node_generated_ssot_render_h["📄 ssot_render.h"]
     node_generated_ssot_types_h["📄 ssot_types.h"]
+    node_scripts_parse_py["📄 parse.py"]
     node_docs_deps_c_md["📄 deps_c.md"]
     node_docs_deps_glsl_md["📄 deps_glsl.md"]
     node_docs_deps_lua_md["📄 deps_lua.md"]
@@ -133,14 +158,7 @@ flowchart LR
     node_network_transport_net_pump_lua["📄 net_pump.lua"]
     node_network_transport_network_lua["📄 network.lua"]
     node_network_transport_vx_net_c["📄 vx_net.c"]
-    node_tools_ascii_tree_cols_py["📄 ascii_tree_cols.py"]
     node_tools_bot_lua["📄 bot.lua"]
-    node_tools_login_test_sh["📄 login_test.sh"]
-    node_tools_parse_py["📄 parse.py"]
-    node_tools_trace_deps_c_py["📄 trace_deps_c.py"]
-    node_tools_trace_deps_glsl_py["📄 trace_deps_glsl.py"]
-    node_tools_trace_deps_lua_py["📄 trace_deps_lua.py"]
-    node_tools_trace_tree_py["📄 trace_tree.py"]
     node_server_api_py["📄 api.py"]
     node_server_matchmaker_py["📄 matchmaker.py"]
     node_server_models_py["📄 models.py"]
@@ -177,10 +195,13 @@ flowchart LR
     root --> node_docs
     root --> node_generated
     root --> node_host
+    root --> node_logs
     root --> node_network
+    root --> node_python
     root --> node_rag
     root --> node_render
     root --> node_runtime
+    root --> node_scripts
     root --> node_server
     root --> node_shaders
     root --> node_ssot
@@ -188,7 +209,9 @@ flowchart LR
     root --> node_worlds
     root --> node__gitattributes
     root --> node__gitignore
+    root --> node_cli_sys_lua
     root --> node_launch_bat
+    root --> node_launch_lua
     root --> node_launch_sh
     node_bin --> node_bin_boot_elf
     node_bin --> node_bin_boot_exe
@@ -201,7 +224,8 @@ flowchart LR
     node_bin --> node_bin_render_frag_spv
     node_bin --> node_bin_render_vert_spv
     node_bin --> node_bin_vx_net_dll
-    node_build --> node_build_ctx_build_lua
+    node_build --> node_build_build_lua
+    node_build --> node_build_check_build_dependencies_lua
     node_build --> node_build_export_c_hdr_lua
     node_build --> node_build_export_glsl_lua
     node_build --> node_build_task_c_objects_lua
@@ -218,7 +242,25 @@ flowchart LR
     node_shaders --> node_shaders_render_vert
     node_shaders --> node_shaders_shared_glsl
     node_worlds --> node_worlds_chess
-    node_worlds_chess --> node_worlds_chess_plugin_lua
+    node_worlds --> node_worlds_isometric
+    node_worlds --> node_worlds_luachess
+    node_worlds --> node_worlds_router_plugin_lua
+    node_worlds_isometric --> node_worlds_isometric_domain_lua
+    node_worlds_luachess --> node_worlds_luachess_game
+    node_worlds_luachess --> node_worlds_luachess_global_lua
+    node_worlds_luachess_game --> node_worlds_luachess_game_attack_lua
+    node_worlds_luachess_game --> node_worlds_luachess_game_game_lua
+    node_worlds_luachess_game --> node_worlds_luachess_game_input_lua
+    node_worlds_luachess_game --> node_worlds_luachess_game_logic_lua
+    node_worlds_luachess_game --> node_worlds_luachess_game_move_lua
+    node_worlds_luachess_game --> node_worlds_luachess_game_standard_lua
+    node_worlds_luachess_game --> node_worlds_luachess_game_turn_lua
+    node_worlds_chess --> node_worlds_chess_domain_lua
+    node_python --> node_python_ascii_tree_cols_py
+    node_python --> node_python_trace_deps_c_py
+    node_python --> node_python_trace_deps_glsl_py
+    node_python --> node_python_trace_deps_lua_py
+    node_python --> node_python_trace_tree_py
     node_render --> node_render_debug
     node_render --> node_render_gpu
     node_render --> node_render_tenant
@@ -233,6 +275,7 @@ flowchart LR
     node_generated --> node_generated_registry_glsl
     node_generated --> node_generated_ssot_render_h
     node_generated --> node_generated_ssot_types_h
+    node_scripts --> node_scripts_parse_py
     node_docs --> node_docs_deps_c_md
     node_docs --> node_docs_deps_glsl_md
     node_docs --> node_docs_deps_lua_md
@@ -296,14 +339,7 @@ flowchart LR
     node_network_transport --> node_network_transport_net_pump_lua
     node_network_transport --> node_network_transport_network_lua
     node_network_transport --> node_network_transport_vx_net_c
-    node_tools --> node_tools_ascii_tree_cols_py
     node_tools --> node_tools_bot_lua
-    node_tools --> node_tools_login_test_sh
-    node_tools --> node_tools_parse_py
-    node_tools --> node_tools_trace_deps_c_py
-    node_tools --> node_tools_trace_deps_glsl_py
-    node_tools --> node_tools_trace_deps_lua_py
-    node_tools --> node_tools_trace_tree_py
     node_server --> node_server_api_py
     node_server --> node_server_matchmaker_py
     node_server --> node_server_models_py
@@ -341,10 +377,13 @@ flowchart LR
     class node_docs dir
     class node_generated dir
     class node_host dir
+    class node_logs dir
     class node_network dir
+    class node_python dir
     class node_rag dir
     class node_render dir
     class node_runtime dir
+    class node_scripts dir
     class node_server dir
     class node_shaders dir
     class node_ssot dir
@@ -352,7 +391,9 @@ flowchart LR
     class node_worlds dir
     class node__gitattributes file
     class node__gitignore file
+    class node_cli_sys_lua file
     class node_launch_bat file
+    class node_launch_lua file
     class node_launch_sh file
     class node_bin_boot_elf file
     class node_bin_boot_exe file
@@ -365,7 +406,8 @@ flowchart LR
     class node_bin_render_frag_spv file
     class node_bin_render_vert_spv file
     class node_bin_vx_net_dll file
-    class node_build_ctx_build_lua file
+    class node_build_build_lua file
+    class node_build_check_build_dependencies_lua file
     class node_build_export_c_hdr_lua file
     class node_build_export_glsl_lua file
     class node_build_task_c_objects_lua file
@@ -382,7 +424,25 @@ flowchart LR
     class node_shaders_render_vert file
     class node_shaders_shared_glsl file
     class node_worlds_chess dir
-    class node_worlds_chess_plugin_lua file
+    class node_worlds_isometric dir
+    class node_worlds_luachess dir
+    class node_worlds_router_plugin_lua file
+    class node_worlds_isometric_domain_lua file
+    class node_worlds_luachess_game dir
+    class node_worlds_luachess_global_lua file
+    class node_worlds_luachess_game_attack_lua file
+    class node_worlds_luachess_game_game_lua file
+    class node_worlds_luachess_game_input_lua file
+    class node_worlds_luachess_game_logic_lua file
+    class node_worlds_luachess_game_move_lua file
+    class node_worlds_luachess_game_standard_lua file
+    class node_worlds_luachess_game_turn_lua file
+    class node_worlds_chess_domain_lua file
+    class node_python_ascii_tree_cols_py file
+    class node_python_trace_deps_c_py file
+    class node_python_trace_deps_glsl_py file
+    class node_python_trace_deps_lua_py file
+    class node_python_trace_tree_py file
     class node_render_debug dir
     class node_render_gpu dir
     class node_render_tenant dir
@@ -397,6 +457,7 @@ flowchart LR
     class node_generated_registry_glsl file
     class node_generated_ssot_render_h file
     class node_generated_ssot_types_h file
+    class node_scripts_parse_py file
     class node_docs_deps_c_md file
     class node_docs_deps_glsl_md file
     class node_docs_deps_lua_md file
@@ -460,14 +521,7 @@ flowchart LR
     class node_network_transport_net_pump_lua file
     class node_network_transport_network_lua file
     class node_network_transport_vx_net_c file
-    class node_tools_ascii_tree_cols_py file
     class node_tools_bot_lua file
-    class node_tools_login_test_sh file
-    class node_tools_parse_py file
-    class node_tools_trace_deps_c_py file
-    class node_tools_trace_deps_glsl_py file
-    class node_tools_trace_deps_lua_py file
-    class node_tools_trace_tree_py file
     class node_server_api_py file
     class node_server_matchmaker_py file
     class node_server_models_py file
