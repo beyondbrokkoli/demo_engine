@@ -30,7 +30,7 @@ local function pop_isometric_tile(ext_state, app_ctx, chess_x, chess_y, terrain_
     ext_state.tiles[head].tile_idx = tile_idx
     ext_state.tiles[head].terrain_type = terrain_id
 
-    -- Safely applies fixed-point scaling to BOTH custom and default elevations
+    -- This safely defaults to 15 and converts whatever raw number is passed in.
     ext_state.tiles[head].elevation = Fixed.from_float(custom_elev or 15)
 
     ext_state.head_idx = (ext_state.head_idx + 1) % 2048
@@ -54,7 +54,9 @@ function ChessDomain.Init(app_ctx, ext_state)
             -- If a piece exists on this square, map it to the visual grid
             if piece ~= 0 then
                 -- Terrain 15 provides a distinct but subdued board square highlight
-                pop_isometric_tile(ext_state, app_ctx, x + 1, y + 1, Fixed.from_float(15))
+                -- Argument 5 is the Terrain ID (15)
+                -- Argument 6 is the Custom Elevation (15)
+                pop_isometric_tile(ext_state, app_ctx, x + 1, y + 1, 15, 15)
             end
 
             lua_grid_index = lua_grid_index + 1
