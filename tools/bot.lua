@@ -1,8 +1,9 @@
 require("runtime.boot.path_weaver")
--- scripts/bot.lua
+-- tools/bot.lua
 io.stdout:setvbuf("no")
 
 local ffi = require("ffi")
+local bit = require("bit") -- [ADDED] Required to pack the chess coordinates
 
 -- 1. BEDROCK TIMING SUBSYSTEM
 ffi.cdef[[
@@ -38,7 +39,6 @@ else
 end
 
 -- 2. SPARSE SIMULATION MEMORY
--- Dynamically load the exact same state definition and test pattern as the visual client
 local cfg_sim = require("config_sim")
 local app_ctx = { cfg_sim = cfg_sim }
 local Game = require("game_state").init(app_ctx)
@@ -47,7 +47,6 @@ local Game = require("game_state").init(app_ctx)
 local net_driver = require("netcode")
 
 local function main()
-    -- 1. THE SMART FLOODGATE: Auto-detect old vs new CLI formats
     local raw_lobby, raw_size
     if tonumber(arg[1]) and arg[2] then
         raw_lobby = arg[2]
@@ -83,26 +82,36 @@ local function main()
         last_time = current_time
 
         -- [INJECT CHAOS]
-        -- Wait for 240 ticks (~4 seconds) before initiating the spam
-        -- to allow the network lobby to fully stabilize and establish baselines.
         if tick_count > 0 then
-            -- 20% chance per frame to randomly toggle a tile on the 256x256 grid.
-            if math.random() > 0.0  then
+            -- CHANNEL 0: The Isometric Fuzzer
+            -- Dropped the chance to 5% so it doesn't visually drown out the chess moves
+            if math.random() > 0.95 then
                 local random_idx = math.random(0, 65535)
                 net_driver.inject_local_command(net_engine, 1, random_idx)
             end
+
+            -- CHANNEL 1: The Chess Oracle Fuzzer
+            -- Fires constantly. Out of ~4096 combinations, roughly 20-30 are legal at any time.
+            -- This will hit a successful, legal move roughly once every 1-2 seconds.
+            if math.random() > 0.1 then
+                local from_idx = math.random(0, 63)
+                local to_idx = math.random(0, 63)
+
+                -- Pack coordinates: (from_idx << 8) | to_idx
+                local packed_move = bit.bor(bit.lshift(from_idx, 8), to_idx)
+
+                -- Opcode 2 routes straight to the Chess Domain
+                net_driver.inject_local_command(net_engine, 2, packed_move)
+            end
         end
 
-        -- Pump the network engine
         net_driver.pump_network(net_engine, frame_time)
 
-        -- Periodic heartbeat logging to keep the terminal from drowning in prints
         tick_count = tick_count + 1
         if tick_count % 600 == 0 then
             print(string.format("[BOT:%d] Heartbeat - Sparse Mods Tracked: %d", local_port, state_ptr.modification_count))
         end
 
-        -- Sleep to maintain roughly a 60Hz tick rate
         sys_sleep(16)
     end
 end
