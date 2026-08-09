@@ -1,16 +1,5 @@
 ### DEMO ENGINE
 
-Whether you are on Linux (`./launch.sh`) or Windows (`launch.bat`), the syntax is identical.
-
-| Command | Syntax | Description |
-| --- | --- | --- |
-| **Host** | `host [size]` | Creates a new graphical host node. (Default size: 8) |
-| **Client** | `client <lobby_id> [size]` | Joins an existing lobby as a graphical client. |
-| **Attach** | `attach <bot_count> <lobby_id> [size]` | Injects headless chaos bots into an active lobby. |
-| **Lab** | `lab` | Boots a full 8-player local test (4 graphical, 4 headless). |
-| **Swarm** | `swarm [gui_count] [bot_count]` | Custom local cluster testing. |
-| **Clean** | `clean` | Force-kills all running engine processes and frees sockets. |
-
 ```text
 demo_engine/                               ├── rag/
 ├── .gitattributes                         │   ├── ask.py
@@ -36,72 +25,71 @@ demo_engine/                               ├── rag/
 │   ├── task_headless.lua                  │   │   ├── weaver_boot.lua
 │   ├── task_invariants.lua                │   │   └── window_api.lua
 │   └── task_shaders.lua                   │   ├── presentation/
-├── docs/                                  │   │   ├── graphics/
-│   ├── deps_c.md                          │   │   │   ├── compute_pipeline.lua
-│   ├── deps_glsl.md                       │   │   │   ├── graphics_pipeline.lua
-│   ├── deps_lua.md                        │   │   │   ├── renderer.lua
-│   ├── repo_ascii.txt                     │   │   │   └── sequence.lua
-│   └── repo_tree.md                       │   │   └── translation/
-├── generated/                             │   │       ├── pipeline_manifest.lua
-│   ├── registry.glsl                      │   │       └── render_queue.lua
-│   ├── ssot_render.h                      │   ├── services/
-│   └── ssot_types.h                       │   │   ├── gpu/
-├── host/                                  │   │   │   ├── descriptors.lua
-│   ├── boot/                              │   │   │   ├── registry_vk.lua
-│   │   ├── lifecycle.c                    │   │   │   ├── swapchain.lua
-│   │   ├── main.c                         │   │   │   ├── vulkan_core.lua
-│   │   └── main_headless.c                │   │   │   └── weaver_vram.lua
-│   ├── ipc/                               │   │   ├── math/
-│   │   ├── mailbox.c                      │   │   │   ├── fixed_math.lua
-│   │   ├── ring_stream.c                  │   │   │   └── vmath.lua
-│   │   └── sys_sync.c                     │   │   ├── memory/
-│   ├── lua/                               │   │   │   └── memory.lua
-│   │   └── lua_vm.c                       │   │   └── tenants/
-│   ├── runtime/                           │   │       ├── tenant_lifecycle.lua
-│   │   └── main_loop.c                    │   │       └── tenant_registry.lua
-│   ├── state/                             │   ├── shutdown/
-│   │   ├── state_globals.c                │   │   └── teardown.lua
-│   │   └── state_types.c                  │   └── simulation/
-│   ├── tenant/                            │       ├── camera.lua
-│   │   ├── tenant_callbacks.c             │       ├── game_state.lua
-│   │   ├── tenant_callbacks_key.c         │       └── raycast.lua
-│   │   ├── tenant_callbacks_mouse.c       ├── scripts/
-│   │   ├── tenant_callbacks_state.c       │   └── parse.py
-│   │   ├── tenant_input.c                 ├── server/
-│   │   └── tenant_sys.c                   │   ├── api.py
-│   └── threading/                         │   ├── matchmaker.py
-│       ├── thread_lifecycle.c             │   ├── models.py
-│       └── thread_pool.c                  │   ├── relay.py
-├── launch.bat                             │   └── state.py
-├── launch.lua                             ├── shaders/
-├── launch.sh                              │   ├── render.frag
-├── logs/                                  │   ├── render.vert
-├── network/                               │   └── shared.glsl
-│   ├── lockstep/                          ├── ssot/
-│   │   ├── fsm_core.lua                   │   ├── config_gfx.lua
-│   │   ├── fsm_pacing.lua                 │   ├── config_sim.lua
-│   │   ├── fsm_simulator.lua              │   ├── ctx_types.lua
-│   │   ├── history_buffer.lua             │   ├── registry.glsl
-│   │   └── wire_codec.lua                 │   ├── type_math.lua
-│   ├── protocol/                          │   └── type_render.lua
-│   │   ├── config_net.lua                 ├── tools/
-│   │   ├── dkjson.lua                     │   └── bot.lua
-│   │   ├── json_util.lua                  └── worlds/
-│   │   ├── shared_structs.h                   ├── chess/
-│   │   └── structs.lua                        │   └── domain.lua
-│   ├── session/                               ├── isometric/
-│   │   ├── net_utils.lua                      │   └── domain.lua
-│   │   └── netcode.lua                        ├── luachess/
-│   └── transport/                             │   ├── game/
-│       ├── net_pump.lua                       │   │   ├── attack.lua
-│       ├── network.lua                        │   │   ├── game.lua
-│       └── vx_net.c                           │   │   ├── input.lua
-├── nul                                        │   │   ├── logic.lua
+├── cli_sys.lua                            │   │   ├── graphics/
+├── docs/                                  │   │   │   ├── compute_pipeline.lua
+│   ├── deps_c.md                          │   │   │   ├── graphics_pipeline.lua
+│   ├── deps_glsl.md                       │   │   │   ├── renderer.lua
+│   ├── deps_lua.md                        │   │   │   └── sequence.lua
+│   ├── repo_ascii.txt                     │   │   └── translation/
+│   └── repo_tree.md                       │   │       ├── pipeline_manifest.lua
+├── generated/                             │   │       └── render_queue.lua
+│   ├── registry.glsl                      │   ├── services/
+│   ├── ssot_render.h                      │   │   ├── gpu/
+│   └── ssot_types.h                       │   │   │   ├── descriptors.lua
+├── host/                                  │   │   │   ├── registry_vk.lua
+│   ├── boot/                              │   │   │   ├── swapchain.lua
+│   │   ├── lifecycle.c                    │   │   │   ├── vulkan_core.lua
+│   │   ├── main.c                         │   │   │   └── weaver_vram.lua
+│   │   └── main_headless.c                │   │   ├── math/
+│   ├── ipc/                               │   │   │   ├── fixed_math.lua
+│   │   ├── mailbox.c                      │   │   │   └── vmath.lua
+│   │   ├── ring_stream.c                  │   │   ├── memory/
+│   │   └── sys_sync.c                     │   │   │   └── memory.lua
+│   ├── lua/                               │   │   └── tenants/
+│   │   └── lua_vm.c                       │   │       ├── tenant_lifecycle.lua
+│   ├── runtime/                           │   │       └── tenant_registry.lua
+│   │   └── main_loop.c                    │   ├── shutdown/
+│   ├── state/                             │   │   └── teardown.lua
+│   │   ├── state_globals.c                │   └── simulation/
+│   │   └── state_types.c                  │       ├── camera.lua
+│   ├── tenant/                            │       ├── game_state.lua
+│   │   ├── tenant_callbacks.c             │       └── raycast.lua
+│   │   ├── tenant_callbacks_key.c         ├── scripts/
+│   │   ├── tenant_callbacks_mouse.c       │   └── parse.py
+│   │   ├── tenant_callbacks_state.c       ├── server/
+│   │   ├── tenant_input.c                 │   ├── api.py
+│   │   └── tenant_sys.c                   │   ├── matchmaker.py
+│   └── threading/                         │   ├── models.py
+│       ├── thread_lifecycle.c             │   ├── relay.py
+│       └── thread_pool.c                  │   └── state.py
+├── launch.bat                             ├── shaders/
+├── launch.lua                             │   ├── render.frag
+├── launch.sh                              │   ├── render.vert
+├── logs/                                  │   └── shared.glsl
+├── network/                               ├── ssot/
+│   ├── lockstep/                          │   ├── config_gfx.lua
+│   │   ├── fsm_core.lua                   │   ├── config_sim.lua
+│   │   ├── fsm_pacing.lua                 │   ├── ctx_types.lua
+│   │   ├── fsm_simulator.lua              │   ├── registry.glsl
+│   │   ├── history_buffer.lua             │   ├── type_math.lua
+│   │   └── wire_codec.lua                 │   └── type_render.lua
+│   ├── protocol/                          ├── tools/
+│   │   ├── config_net.lua                 │   └── bot.lua
+│   │   ├── dkjson.lua                     └── worlds/
+│   │   ├── json_util.lua                      ├── chess/
+│   │   ├── shared_structs.h                   │   └── domain.lua
+│   │   └── structs.lua                        ├── isometric/
+│   ├── session/                               │   └── domain.lua
+│   │   ├── net_utils.lua                      ├── luachess/
+│   │   └── netcode.lua                        │   ├── game/
+│   └── transport/                             │   │   ├── attack.lua
+│       ├── net_pump.lua                       │   │   ├── game.lua
+│       ├── network.lua                        │   │   ├── input.lua
+│       └── vx_net.c                           │   │   ├── logic.lua
 ├── python/                                    │   │   ├── move.lua
 │   ├── ascii_tree_cols.py                     │   │   ├── standard.lua
 │   ├── trace_deps_c.py                        │   │   └── turn.lua
 │   ├── trace_deps_glsl.py                     │   └── global.lua
 │   ├── trace_deps_lua.py                      └── router_plugin.lua
 │   └── trace_tree.py
-
 ```
