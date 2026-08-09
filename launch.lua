@@ -61,7 +61,21 @@ end
 
 -- RAW INPUT & HISTORY BUFFERING
 local cmd_history = {}
-
+local function get_latest_lobby_id()
+    local last_id = nil
+    -- Non-blocking read of the log to find the most recent ID
+    local f = io.open("logs/host.log", "r")
+    if f then
+        for line in f:lines() do
+            local lobby_id = line:match("LOBBY_ID:%s*(%S+)")
+            if lobby_id then
+                last_id = lobby_id
+            end
+        end
+        f:close()
+    end
+    return last_id
+end
 local function read_line()
     local buf = ""
     local hist_idx = #cmd_history + 1
@@ -74,41 +88,39 @@ local function read_line()
 
         if target == "win" then
             local code = ffi.C._getch()
-            if code == 224 or code == 0 then -- Windows CMD/PowerShell special key prefix
+            if code == 224 or code == 0 then
                 local ext = ffi.C._getch()
                 if ext == 72 then c = "UP"
                 elseif ext == 80 then c = "DOWN"
                 else c = "IGNORE" end
-            elseif code == 27 then -- MSYS2 / Mintty ANSI escape sequence (\27[A)
+            elseif code == 27 then
                 local bracket = ffi.C._getch()
-                if bracket == 91 then -- '[' (ASCII 91)
+                if bracket == 91 then
                     local dir = ffi.C._getch()
-                    if dir == 65 then c = "UP"        -- 'A'
-                    elseif dir == 66 then c = "DOWN"  -- 'B'
-                    elseif dir == 67 or dir == 68 then c = "IGNORE" -- Left/Right
+                    if dir == 65 then c = "UP"
+                    elseif dir == 66 then c = "DOWN"
+                    elseif dir == 67 or dir == 68 then c = "IGNORE"
                     else c = "IGNORE" end
-                else
-                    c = "IGNORE"
-                end
+                else c = "IGNORE" end
             elseif code == 13 then c = "ENTER"
-            elseif code == 8 or code == 127 then c = "BACKSPACE" -- Added 127 to catch MSYS2 DEL backspace
+            elseif code == 8 or code == 127 then c = "BACKSPACE"
+            elseif code == 9 then c = "TAB" -- NEW: Catch Windows TAB
             elseif code == 3 then c = "CTRLC"
             else c = string.char(code) end
         else
-            -- Linux raw byte reading
             local char = io.read(1)
             if not char then c = "EOF"
-            elseif char == "\n" or char == "\r" then c = "ENTER" -- FIX: Catch \r
+            elseif char == "\n" or char == "\r" then c = "ENTER"
             elseif char == "\127" or char == "\8" then c = "BACKSPACE"
+            elseif char == "\t" then c = "TAB" -- NEW: Catch Linux TAB
             elseif char == "\3" then c = "CTRLC"
             elseif char == "\27" then
-                -- Intercept ANSI Escape Sequence (e.g., \27[A)
                 local b = io.read(1)
                 if b == "[" then
                     local d = io.read(1)
                     if d == "A" then c = "UP"
                     elseif d == "B" then c = "DOWN"
-                    elseif d == "C" or d == "D" then c = "IGNORE" -- Swallow Left/Right!
+                    elseif d == "C" or d == "D" then c = "IGNORE"
                     else c = "IGNORE" end
                 else c = "IGNORE" end
             else c = char end
@@ -119,19 +131,49 @@ local function read_line()
             return nil
         elseif c == "ENTER" then
             io.write("\n")
-            buf = buf:gsub("\r", "") -- FIX: Strip invisible carriage returns
+            buf = buf:gsub("\r", "")
 
             if buf ~= "" and cmd_history[#cmd_history] ~= buf then
-                table.insert(cmd_history, buf) -- Save to history
+                table.insert(cmd_history, buf)
             end
             return buf
         elseif c == "BACKSPACE" then
             if #buf > 0 then
                 buf = buf:sub(1, -2)
-                -- \r goes to start of line, \27[K clears to end of line
                 io.write("\r\27[Kweaver> " .. buf)
                 io.flush()
             end
+        elseif c == "TAB" then
+            -- NEW: Autocomplete Logic
+            local cmds = {"swarm", "lab", "host", "client", "attach", "clean", "orphans", "exit", "quit", "status"}
+            local is_second_word = buf:find(" ")
+
+            if not is_second_word then
+                -- Complete base commands
+                local matches = {}
+                for _, cmd in ipairs(cmds) do
+                    if cmd:sub(1, #buf) == buf then
+                        table.insert(matches, cmd)
+                    end
+                end
+                if #matches == 1 then
+                    buf = matches[1] .. " " -- Auto-append space for speed!
+                end
+            else
+                -- Complete Arguments (Lobby ID)
+                local cmd, partial_arg = buf:match("^(%S+)%s*(.*)$")
+                if cmd == "client" or cmd == "attach" then
+                    local latest_id = get_latest_lobby_id()
+                    -- Only complete if the ID starts with whatever you've typed so far (if anything)
+                    if latest_id and latest_id:sub(1, #partial_arg) == partial_arg then
+                        buf = cmd .. " " .. latest_id
+                    end
+                end
+            end
+
+            -- Redraw line with autocomplete
+            io.write("\r\27[Kweaver> " .. buf)
+            io.flush()
         elseif c == "UP" then
             if hist_idx > 1 then
                 hist_idx = hist_idx - 1
@@ -153,7 +195,7 @@ local function read_line()
             end
         elseif c ~= "IGNORE" then
             buf = buf .. c
-            io.write(c) -- Manually echo the character
+            io.write(c)
             io.flush()
         end
     end
