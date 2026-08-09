@@ -122,3 +122,12 @@ function TopologyMap:verify_integrity(expected_state_table)
     end
     return is_valid
 end
+
+-- [ADD THIS TO THE VERY BOTTOM]
+return {
+    deep_copy = deep_copy,
+    deep_compare = deep_compare,
+    deep_merge = deep_merge,
+    walkJson = walkJson,
+    TopologyMap = TopologyMap
+}

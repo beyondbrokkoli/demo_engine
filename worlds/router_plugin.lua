@@ -8,10 +8,12 @@ local chess_domain = require("worlds.chess.domain")
 return function(app_ctx)
     local MAX_PLAYERS = ffi.C.CFG_MAX_PLAYERS
 
-    -- Ensure app_ctx.rts_grid exists before Init is called!
-    -- This assumes your bootloader allocates the LabWorldState and attaches it to app_ctx
+    -- 1. Grab the visual state pointer at boot
+    local boot_ext_state = ffi.cast("GameState*", app_ctx.ext_state_ptr)
+
     isometric_domain.Init(app_ctx)
-    chess_domain.Init(app_ctx)
+    -- 2. Pass it into the Chess Domain so it can paint the initial 8x8 grid
+    chess_domain.Init(app_ctx, boot_ext_state)
 
     return {
         GetStateSize = function() return ffi.sizeof("LabWorldState") end,
@@ -23,16 +25,16 @@ return function(app_ctx)
 
         SimulateTick = function(state_ptr, commands, tick)
             local state = ffi.cast("LabWorldState*", state_ptr)
-            local ext_state = ffi.cast("GameState*", app_ctx.ext_state_ptr)
+            local tick_ext_state = ffi.cast("GameState*", app_ctx.ext_state_ptr)
             state.global_tick = tick
 
             for p = 0, MAX_PLAYERS - 1 do
                 if commands[p][0].opcode == 1 then
-                    isometric_domain.ApplyContract(ext_state, commands[p][0], p, app_ctx)
+                    isometric_domain.ApplyContract(tick_ext_state, commands[p][0], p, app_ctx)
                 end
                 if commands[p][1].opcode == 2 then
-                    -- CROSS-POLLINATION: Pass ext_state into the chess domain
-                    chess_domain.ApplyContract(state, ext_state, commands[p][1], p, app_ctx)
+                    -- 3. Pass it during the simulation loop so valid moves can clear/draw tiles
+                    chess_domain.ApplyContract(state, tick_ext_state, commands[p][1], p, app_ctx)
                 end
             end
         end,
