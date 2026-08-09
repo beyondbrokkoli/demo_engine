@@ -47,22 +47,35 @@ local Game = require("game_state").init(app_ctx)
 local net_driver = require("netcode")
 
 local function main()
-    local raw_lobby, raw_size
-    if tonumber(arg[1]) and arg[2] then
-        raw_lobby = arg[2]
-        raw_size = arg[3]
-    else
-        raw_lobby = arg[1]
-        raw_size = arg[2]
-    end
-
-    if not raw_lobby or not raw_size then
-        print("[FATAL] Invalid boot arguments. Usage: <exe> <lobby_id_or_'host'> <target_size>")
+    -- 1. STRICT FLOODGATE: Enforce exactly 2 arguments
+    if not arg[1] or not arg[2] or arg[3] then
+        print("[FATAL] Invalid argument count. Usage: <exe> <lobby_id_or_'host'> <target_size>")
         os.exit(1)
     end
 
-    local target_lobby_id = (raw_lobby:lower() == "host") and nil or raw_lobby
-    local target_lobby_size = tonumber(raw_size) or 8
+    local raw_lobby = arg[1]
+    local raw_size = arg[2]
+    local is_host = (raw_lobby:lower() == "host")
+
+    -- 2. VALIDATE LOBBY ID (Exactly 4 uppercase hex chars, unless 'host')
+    if not is_host then
+        -- The Lua pattern "^[0-9A-F]+$" ensures only uppercase hex characters exist from start to finish
+        if #raw_lobby ~= 4 or not raw_lobby:match("^[0-9A-F]+$") then
+            print(string.format("[FATAL] Invalid Lobby ID '%s'. Must be exactly 4 uppercase hex characters (e.g., B31F) or 'host'.", raw_lobby))
+            os.exit(1)
+        end
+    end
+
+    -- 3. VALIDATE TARGET SIZE
+    local target_lobby_size = tonumber(raw_size)
+    if not target_lobby_size then
+        print(string.format("[FATAL] Invalid target size '%s'. Must be a numeric value.", raw_size))
+        os.exit(1)
+    end
+
+    local target_lobby_id = is_host and nil or raw_lobby
+
+    -- Force port 0 for OS ephemeral assignment
     local local_port = 0
     math.randomseed(os.time() + tonumber(tostring({}):sub(8), 16))
 
