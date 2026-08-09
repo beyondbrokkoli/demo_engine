@@ -87,7 +87,7 @@ local function read_line()
             -- Linux raw byte reading
             local char = io.read(1)
             if not char then c = "EOF"
-            elseif char == "\n" then c = "ENTER"
+            elseif char == "\n" or char == "\r" then c = "ENTER" -- FIX: Catch \r
             elseif char == "\127" or char == "\8" then c = "BACKSPACE"
             elseif char == "\3" then c = "CTRLC"
             elseif char == "\27" then
@@ -108,6 +108,8 @@ local function read_line()
             return nil
         elseif c == "ENTER" then
             io.write("\n")
+            buf = buf:gsub("\r", "") -- FIX: Strip invisible carriage returns
+
             if buf ~= "" and cmd_history[#cmd_history] ~= buf then
                 table.insert(cmd_history, buf) -- Save to history
             end
@@ -231,9 +233,11 @@ local function main_loop()
     end
 end
 
--- Safely execute the loop. If a Lua crash happens, pcall catches it
--- so we can restore the user's terminal before throwing the error.
-if target == "linux" then os.execute("stty cbreak -echo") end
+-- Safely execute the loop.
+if target == "linux" then 
+    os.execute("stty sane") -- FIX: Heal terminal state first
+    os.execute("stty cbreak -echo") 
+end
 local status, err = pcall(main_loop)
 if target == "linux" then os.execute("stty sane") end
 

@@ -1,4 +1,4 @@
--- staging/weaver_vram.lua
+-- runtime/services/gpu/weaver_vram.lua
 local ffi = require("ffi")
 
 local VRAM = {}
