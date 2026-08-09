@@ -88,7 +88,8 @@ local function main()
     local state_ptr = Game.InitState()
     local state_size = Game.GetStateSize()
 
-    print(string.format("[BOT:%d] Booting Headless Chaos Node (Target Size: %d)...", local_port, target_lobby_size))
+    -- host lobby size missing
+    print(string.format("[BOT:%d] Booting Headless Chaos Node (Target Size: %d)...", local_port))
 
     local net_engine = net_driver.init(local_port, target_lobby_id, target_lobby_size, state_ptr, state_size)
 
