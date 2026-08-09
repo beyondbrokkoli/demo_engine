@@ -22,7 +22,7 @@ local roots = {
     "tools"
 }
 
--- Ensure root is checked first (This handles "worlds.isometric.domain" and "tools.lab_domain")
+-- Ensure root is checked first (This handles "worlds.isometric.domain")
 package.path = "./?.lua;" .. package.path
 
 -- Inject our new DAG into the search path

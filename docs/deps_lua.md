@@ -3,8 +3,8 @@
 flowchart LR
     %% WeaverEngine Lua Dependencies
     subgraph build
-        build_check_deps_lua["build/check_deps.lua"]
-        build_ctx_build_lua["build/ctx_build.lua"]
+        build_build_lua["build/build.lua"]
+        build_check_build_dependencies_lua["build/check_build_dependencies.lua"]
         build_export_c_hdr_lua["build/export_c_hdr.lua"]
         build_export_glsl_lua["build/export_glsl.lua"]
         build_task_c_objects_lua["build/task_c_objects.lua"]
@@ -71,12 +71,9 @@ flowchart LR
     end
     subgraph tools
         tools_bot_lua["tools/bot.lua"]
-        tools_diagnostic_monitor_lua["tools/diagnostic_monitor.lua"]
-        tools_lab_domain_lua["tools/lab_domain.lua"]
     end
     subgraph worlds
         worlds_chess_domain_lua["worlds/chess/domain.lua"]
-        worlds_chess_plugin_backup_lua["worlds/chess/plugin_backup.lua"]
         worlds_isometric_domain_lua["worlds/isometric/domain.lua"]
         worlds_luachess_game_attack_lua["worlds/luachess/game/attack.lua"]
         worlds_luachess_game_game_lua["worlds/luachess/game/game.lua"]
@@ -88,15 +85,15 @@ flowchart LR
         worlds_luachess_global_lua["worlds/luachess/global.lua"]
         worlds_router_plugin_lua["worlds/router_plugin.lua"]
     end
-    build_ctx_build_lua --> build_export_c_hdr_lua
-    build_ctx_build_lua --> build_export_glsl_lua
-    build_ctx_build_lua --> build_task_c_objects_lua
-    build_ctx_build_lua --> build_task_headless_lua
-    build_ctx_build_lua --> build_task_invariants_lua
-    build_ctx_build_lua --> build_task_shaders_lua
-    build_ctx_build_lua --> ssot_config_gfx_lua
-    build_ctx_build_lua --> ssot_config_sim_lua
-    build_ctx_build_lua --> ssot_ctx_types_lua
+    build_build_lua --> build_export_c_hdr_lua
+    build_build_lua --> build_export_glsl_lua
+    build_build_lua --> build_task_c_objects_lua
+    build_build_lua --> build_task_headless_lua
+    build_build_lua --> build_task_invariants_lua
+    build_build_lua --> build_task_shaders_lua
+    build_build_lua --> ssot_config_gfx_lua
+    build_build_lua --> ssot_config_sim_lua
+    build_build_lua --> ssot_ctx_types_lua
     network_lockstep_fsm_core_lua --> network_lockstep_fsm_pacing_lua
     network_lockstep_fsm_core_lua --> network_lockstep_fsm_simulator_lua
     network_lockstep_fsm_simulator_lua --> network_protocol_structs_lua
@@ -192,12 +189,8 @@ flowchart LR
     tools_bot_lua --> runtime_boot_path_weaver_lua
     tools_bot_lua --> runtime_simulation_game_state_lua
     tools_bot_lua --> ssot_config_sim_lua
-    tools_diagnostic_monitor_lua --> tools_lab_domain_lua
     worlds_chess_domain_lua --> runtime_services_math_fixed_math_lua
-    worlds_chess_domain_lua --> tools_lab_domain_lua
     worlds_chess_domain_lua --> worlds_luachess_global_lua
-    worlds_chess_plugin_backup_lua --> network_transport_network_lua
-    worlds_chess_plugin_backup_lua --> runtime_services_math_fixed_math_lua
     worlds_isometric_domain_lua --> runtime_services_math_fixed_math_lua
     worlds_luachess_game_game_lua --> game_logic
     worlds_luachess_game_game_lua --> game_turn

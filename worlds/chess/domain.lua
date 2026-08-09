@@ -1,7 +1,6 @@
 -- worlds/chess/domain.lua
 local ffi = require("ffi")
 local bit = require("bit")
-local lab_tools = require("tools.lab_domain")
 local Fixed = require("runtime.services.math.fixed_math")
 require("game.turn")
 require("game.standard")
