@@ -14,28 +14,47 @@ for y = 1, 8 do
     for x = 1, 8 do loc_cache[y][x] = loc:new(x, y) end
 end
 
--- Helper for subtle visual highlights
-local function pop_isometric_tile(ext_state, app_ctx, chess_x, chess_y, terrain_id, custom_elev)
-    -- [RESTORED]
+-- [NEW] Define how many physical tiles represent one chess square.
+-- 1 = 8x8 visual board (64 modifications at Init)
+-- 2 = 16x16 visual board (256 modifications at Init)
+-- 3 = 24x24 visual board (576 modifications at Init)
+-- 4 = 32x32 visual board (1024 modifications at Init)
+local CHUNK_SCALE = 3
+
+-- [UPDATED] Helper to elevate BIG chunks of the board squared-wise
+local function pop_isometric_chunk(ext_state, app_ctx, chess_x, chess_y, terrain_id, custom_elev)
     local w = app_ctx.cfg_sim.world.map_width
     local h = app_ctx.cfg_sim.world.map_height
     local cx = math.floor(w / 2)
     local cz = math.floor(h / 2)
 
-    local iso_x = (cx - 4) + (chess_x - 1)
-    local iso_y = (cz - 4) + (chess_y - 1)
-    local tile_idx = iso_y * w + iso_x
+    -- 1. Calculate the full size of the visual board to keep it perfectly centered
+    local visual_board_size = 8 * CHUNK_SCALE
+    local board_origin_x = cx - math.floor(visual_board_size / 2)
+    local board_origin_z = cz - math.floor(visual_board_size / 2)
 
-    local head = ext_state.head_idx
-    ext_state.tiles[head].tile_idx = tile_idx
-    ext_state.tiles[head].terrain_type = terrain_id
+    -- 2. Find the root (top-left) tile for THIS specific chunk
+    local base_iso_x = board_origin_x + ((chess_x - 1) * CHUNK_SCALE)
+    local base_iso_z = board_origin_z + ((chess_y - 1) * CHUNK_SCALE)
 
-    -- This safely defaults to 15 and converts whatever raw number is passed in.
-    ext_state.tiles[head].elevation = Fixed.from_float(custom_elev or 15)
+    -- Cache the fixed math conversion outside the loop to save CPU cycles
+    local elev_val = Fixed.from_float(custom_elev or 15)
 
-    ext_state.head_idx = (ext_state.head_idx + 1) % 2048
-    if ext_state.modification_count < 2048 then
-        ext_state.modification_count = ext_state.modification_count + 1
+    -- 3. Loop over the chunk and push to the ring buffer
+    for dz = 0, CHUNK_SCALE - 1 do
+        for dx = 0, CHUNK_SCALE - 1 do
+            local tile_idx = (base_iso_z + dz) * w + (base_iso_x + dx)
+
+            local head = ext_state.head_idx
+            ext_state.tiles[head].tile_idx = tile_idx
+            ext_state.tiles[head].terrain_type = terrain_id
+            ext_state.tiles[head].elevation = elev_val
+
+            ext_state.head_idx = (ext_state.head_idx + 1) % 2048
+            if ext_state.modification_count < 2048 then
+                ext_state.modification_count = ext_state.modification_count + 1
+            end
+        end
     end
 end
 
@@ -51,12 +70,9 @@ function ChessDomain.Init(app_ctx, ext_state)
             local piece = init_map[current_loc] or 0
             init_state.chess.grid[lua_grid_index - 1] = piece
 
-            -- If a piece exists on this square, map it to the visual grid
             if piece ~= 0 then
-                -- Terrain 15 provides a distinct but subdued board square highlight
-                -- Argument 5 is the Terrain ID (15)
-                -- Argument 6 is the Custom Elevation (15)
-                pop_isometric_tile(ext_state, app_ctx, x + 1, y + 1, 15, 15)
+                -- [UPDATED] Swap to the chunk function
+                pop_isometric_chunk(ext_state, app_ctx, x + 1, y + 1, 15, 15)
             end
 
             lua_grid_index = lua_grid_index + 1
@@ -76,8 +92,6 @@ function ChessDomain.Poll(app_ctx, cmd_slot)
     end
 end
 
-
--- Update signature to receive ext_state
 function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
     local packed = cmd.target_pos
     local from_idx = bit.rshift(packed, 8)
@@ -122,14 +136,12 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
         if not lab_tools.deep_compare(current_lua_map, predicted_map) then
             lab_tools.deep_merge(current_lua_map, predicted_map)
 
-            -- CROSS-POLLINATION: Update the visuals!
-            -- 1. Flatten the old 'from' square (Terrain 0, Elevation 0)
-            pop_isometric_tile(ext_state, app_ctx, f_x, f_y, 0, 0)
+            -- [UPDATED] Swap to the chunk function for flattening
+            pop_isometric_chunk(ext_state, app_ctx, f_x, f_y, 0, 0)
 
-            -- 2. Highlight the new 'to' square (Terrain 15, Elevation 0.5)
-            pop_isometric_tile(ext_state, app_ctx, t_x, t_y, 15)
+            -- [UPDATED] Swap to the chunk function for highlighting
+            pop_isometric_chunk(ext_state, app_ctx, t_x, t_y, 15)
 
-            -- Write back to FFI
             lua_grid_index = 1
             for y = 1, 8 do
                 for x = 1, 8 do
