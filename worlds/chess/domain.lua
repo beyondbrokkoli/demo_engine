@@ -14,7 +14,7 @@ for y = 1, 8 do
     for x = 1, 8 do loc_cache[y][x] = loc:new(x, y) end
 end
 
-local CHUNK_SCALE = 3 
+local CHUNK_SCALE = 3
 
 local function pop_isometric_chunk(ext_state, app_ctx, chess_x, chess_y, terrain_id, custom_elev)
     local w = app_ctx.cfg_sim.world.map_width
@@ -99,18 +99,19 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
     local from_idx = bit.rshift(packed, 8)
     local to_idx = bit.band(packed, 0xFF)
 
-    local current_lua_map = {}
+    -- 1. Early exit for empty commands to save CPU cycles
+    if from_idx == 0 and to_idx == 0 then return end
+
     local temp_map = Map:new(0)
     local freshmap = Map:new(false)
     local lua_grid_index = 1
 
+    -- 2. Read directly from FFI memory to feed the oracle
     for y = 0, 7 do
-        current_lua_map[y + 1] = {}
         for x = 0, 7 do
             local current_loc = loc_cache[y + 1][x + 1]
             local piece = state.chess.grid[lua_grid_index - 1]
             temp_map[current_loc] = piece
-            current_lua_map[y + 1][x + 1] = piece
             if piece ~= 0 then freshmap[current_loc] = true end
             lua_grid_index = lua_grid_index + 1
         end
@@ -123,41 +124,33 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
     local f_x, f_y = (from_idx % 8) + 1, math.floor(from_idx / 8) + 1
     local t_x, t_y = (to_idx % 8) + 1, math.floor(to_idx / 8) + 1
 
+    -- 3. Maintain the spatial bounds check
     local new_T = false
     if f_x > 0 and f_x <= 8 and f_y > 0 and f_y <= 8 and t_x > 0 and t_x <= 8 and t_y > 0 and t_y <= 8 then
         new_T = T:make_move(loc_cache[f_y][f_x], loc_cache[t_y][t_x])
     end
 
+    -- 4. Trust the oracle. If new_T exists, the move is 100% valid.
     if new_T then
-        local predicted_map = {}
+        if app_ctx.rollback_arena.is_rollback_active == 0 then
+            print(string.format("[AUDIT PASS] Valid move accepted. Visually updating (%d, %d) to (%d, %d).", f_x, f_y, t_x, t_y))
+        end
+
+        pop_isometric_chunk(ext_state, app_ctx, f_x, f_y, 0, 0.0)
+        pop_isometric_chunk(ext_state, app_ctx, t_x, t_y, 15, 15.0)
+
+        -- 5. Write directly back to FFI memory, bypassing Lua table instantiation entirely!
+        lua_grid_index = 1
         for y = 1, 8 do
-            predicted_map[y] = {}
-            for x = 1, 8 do predicted_map[y][x] = new_T.pos[loc_cache[y][x]] or 0 end
-        end
-
-        if not lab_tools.deep_compare(current_lua_map, predicted_map) then
-            -- [AUDIT] Log the delta using the deep_merge pipeline logic
-            print(string.format("[AUDIT PASS] Valid move accepted. Cross-pollinating visual matrix from (%d, %d) to (%d, %d).", f_x, f_y, t_x, t_y))
-
-            lab_tools.deep_merge(current_lua_map, predicted_map)
-
-            pop_isometric_chunk(ext_state, app_ctx, f_x, f_y, 0, 0.0)
-            pop_isometric_chunk(ext_state, app_ctx, t_x, t_y, 15, 15.0)
-
-            lua_grid_index = 1
-            for y = 1, 8 do
-                for x = 1, 8 do
-                    state.chess.grid[lua_grid_index - 1] = predicted_map[y][x]
-                    lua_grid_index = lua_grid_index + 1
-                end
+            for x = 1, 8 do
+                state.chess.grid[lua_grid_index - 1] = new_T.pos[loc_cache[y][x]] or 0
+                lua_grid_index = lua_grid_index + 1
             end
-            state.chess.flags = is_white_turn and 0x00 or 0x80
-        else
-            print("[AUDIT REJECT] Move generated identical map state.")
         end
+
+        state.chess.flags = is_white_turn and 0x00 or 0x80
     else
-        -- [AUDIT] Helpful log for invalid commands pumped from the network
-        if from_idx ~= 0 or to_idx ~= 0 then
+        if app_ctx.rollback_arena.is_rollback_active == 0 then
             print(string.format("[AUDIT REJECT] Turn engine declined move vector (%d, %d) -> (%d, %d)", f_x, f_y, t_x, t_y))
         end
     end
