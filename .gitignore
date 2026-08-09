@@ -3,7 +3,7 @@ logs/*
 
 # But DO NOT ignore .gitkeep inside logs/
 !logs/.gitkeep
-
+nul
 *.log
 *.bin
 venv

@@ -12,9 +12,9 @@ usage() {
     echo "Usage:"
     echo "  ./launch.sh swarm [graphical_count] [bot_count]  - Spins up a local swarm cluster"
     echo "  ./launch.sh lab                                  - Spins up 4/4 split (4 graphical, 4 bots)"
-    echo "  ./launch.sh host [size]                          - Boots a graphical host node (default size: 8)"
-    echo "  ./launch.sh client [lobby_id] [size]             - Boots a graphical client to join a lobby"
-    echo "  ./launch.sh attach [bot_count] [lobby_id] [size] - Injects headless bots to an existing lobby"
+    echo "  ./launch.sh host [size]                          - Boots a graphical host node"
+    echo "  ./launch.sh client [lobby_id]                    - Boots a graphical client to join a lobby"
+    echo "  ./launch.sh attach [bot_count] [lobby_id]        - Injects headless bots to an existing lobby"
     echo "  ./launch.sh clean                                - Force-kills all active boot and bot processes"
     echo "======================================================="
     exit 1
@@ -44,21 +44,19 @@ case $COMMAND in
         ;;
 
     client)
-        if [ -z "$2" ]; then echo "[ERROR] Usage: client [lobby_id] [size]"; exit 1; fi
+        if [ -z "$2" ]; then echo "[ERROR] Usage: client [lobby_id]"; exit 1; fi
         LOBBY_ID=$2
-        TARGET_SIZE=${3:-8}
-        echo "[SWARM] Booting Graphical Client Node joining Lobby $LOBBY_ID (Size: $TARGET_SIZE)..."
-        ./bin/boot$BIN_EXT "$LOBBY_ID" "$TARGET_SIZE" > logs/client_manual.log 2>&1 &
+        echo "[SWARM] Booting Graphical Client Node joining Lobby $LOBBY_ID..."
+        ./bin/boot$BIN_EXT "$LOBBY_ID" > logs/client_manual.log 2>&1 &
         ;;
 
     attach)
-        if [ -z "$2" ] || [ -z "$3" ]; then echo "[ERROR] Usage: attach [bot_count] [lobby_id] [size]"; exit 1; fi
+        if [ -z "$2" ] || [ -z "$3" ]; then echo "[ERROR] Usage: attach [bot_count] [lobby_id]"; exit 1; fi
         BOT_COUNT=$2
         LOBBY_ID=$3
-        TARGET_SIZE=${4:-8}
-        echo "[SWARM] Injecting $BOT_COUNT Headless Bots to Lobby $LOBBY_ID (Size: $TARGET_SIZE)..."
+        echo "[SWARM] Injecting $BOT_COUNT Headless Bots to Lobby $LOBBY_ID..."
         for ((i=1; i<=BOT_COUNT; i++)); do
-            ./bin/boot_headless$BIN_EXT "$LOBBY_ID" "$TARGET_SIZE" > logs/bot_attach_${i}.log 2>&1 &
+            ./bin/boot_headless$BIN_EXT "$LOBBY_ID" > logs/bot_attach_${i}.log 2>&1 &
             echo " |- Spun up Chaos Bot $i"
         done
         ;;

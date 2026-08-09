@@ -79,9 +79,9 @@ else
 end
 
 local function main()
-    -- 1. STRICT FLOODGATE: Enforce exactly 2 arguments
-    if not arg[1] or not arg[2] or arg[3] then
-        print("[FATAL] Invalid argument count. Usage: <exe> <lobby_id_or_'host'> <target_size>")
+    -- 1. RELAXED FLOODGATE (1 or 2 arguments allowed)
+    if not arg[1] or arg[3] then
+        print("[FATAL] Invalid argument count. Usage: <exe> <lobby_id_or_'host'> [target_size]")
         os.exit(1)
     end
 
@@ -91,7 +91,6 @@ local function main()
 
     -- 2. VALIDATE LOBBY ID (Exactly 4 uppercase hex chars, unless 'host')
     if not is_host then
-        -- The Lua pattern "^[0-9A-F]+$" ensures only uppercase hex characters exist from start to finish
         if #raw_lobby ~= 4 or not raw_lobby:match("^[0-9A-F]+$") then
             print(string.format("[FATAL] Invalid Lobby ID '%s'. Must be exactly 4 uppercase hex characters (e.g., B31F) or 'host'.", raw_lobby))
             os.exit(1)
@@ -99,9 +98,16 @@ local function main()
     end
 
     -- 3. VALIDATE TARGET SIZE
-    local target_lobby_size = tonumber(raw_size)
-    if not target_lobby_size then
-        print(string.format("[FATAL] Invalid target size '%s'. Must be a numeric value.", raw_size))
+    local target_lobby_size = nil
+    if raw_size then
+        target_lobby_size = tonumber(raw_size)
+        if not target_lobby_size then
+            print(string.format("[FATAL] Invalid target size '%s'. Must be a numeric value.", raw_size))
+            os.exit(1)
+        end
+    elseif is_host then
+        -- Host must dictate the lobby size; clients get it from the matchmaker.
+        print("[FATAL] Host must specify target size. Usage: <exe> host <size>")
         os.exit(1)
     end
 

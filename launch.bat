@@ -36,9 +36,9 @@ echo =======================================================
 echo Usage:
 echo    launch.bat swarm [graphical_count] [bot_count]  - Spins up a local swarm cluster
 echo    launch.bat lab                                  - Spins up a 1 graphical / 1 bot split
-echo    launch.bat host [size]                          - Boots a graphical host node (default size: 8)
-echo    launch.bat client [lobby_id] [size]             - Boots a graphical client to join a lobby
-echo    launch.bat attach [bot_count] [lobby_id] [size] - Injects headless bots to an existing lobby
+echo    launch.bat host [size]                          - Boots a graphical host node
+echo    launch.bat client [lobby_id]                    - Boots a graphical client to join a lobby
+echo    launch.bat attach [bot_count] [lobby_id]        - Injects headless bots to an existing lobby
 echo    launch.bat clean                                - Force-kills all active boot and bot processes
 echo =======================================================
 exit /b 1
@@ -69,32 +69,20 @@ echo [SWARM] Host running in background.
 exit /b 0
 
 :client
-if "%~2"=="" echo [ERROR] Usage: launch.bat client [lobby_id] [size] & exit /b 1
+if "%~2"=="" echo [ERROR] Usage: launch.bat client [lobby_id] & exit /b 1
 set LOBBY_ID=%~2
-set TARGET_SIZE=%~3
-if "%TARGET_SIZE%"=="" set TARGET_SIZE=8
-if %TARGET_SIZE% GTR 8 (
-    echo [ERROR] Client target size cannot exceed 8.
-    exit /b 1
-)
-echo [SWARM] Booting Graphical Client Node joining Lobby %LOBBY_ID% (Size: %TARGET_SIZE%)...
-start "Weaver Client" /B cmd /c "bin\boot.exe %LOBBY_ID% %TARGET_SIZE% > logs\client_manual.log 2>&1"
+echo [SWARM] Booting Graphical Client Node joining Lobby %LOBBY_ID%...
+start "Weaver Client" /B cmd /c "bin\boot.exe %LOBBY_ID% > logs\client_manual.log 2>&1"
 exit /b 0
 
 :attach
-if "%~2"=="" echo [ERROR] Usage: launch.bat attach [bot_count] [lobby_id] [size] & exit /b 1
-if "%~3"=="" echo [ERROR] Usage: launch.bat attach [bot_count] [lobby_id] [size] & exit /b 1
+if "%~2"=="" echo [ERROR] Usage: launch.bat attach [bot_count] [lobby_id] & exit /b 1
+if "%~3"=="" echo [ERROR] Usage: launch.bat attach [bot_count] [lobby_id] & exit /b 1
 set BOT_COUNT=%~2
 set LOBBY_ID=%~3
-set TARGET_SIZE=%~4
-if "%TARGET_SIZE%"=="" set TARGET_SIZE=8
-if %TARGET_SIZE% GTR 8 (
-    echo [ERROR] Target lobby size cannot exceed 8.
-    exit /b 1
-)
-echo [SWARM] Injecting %BOT_COUNT% Headless Bots to Lobby %LOBBY_ID% (Size: %TARGET_SIZE%)...
+echo [SWARM] Injecting %BOT_COUNT% Headless Bots to Lobby %LOBBY_ID%...
 for /L %%i in (1, 1, %BOT_COUNT%) do (
-    start "Weaver Bot %%i" /B cmd /c "bin\boot_headless.exe %LOBBY_ID% %TARGET_SIZE% > logs\bot_attach_%%i.log 2>&1"
+    start "Weaver Bot %%i" /B cmd /c "bin\boot_headless.exe %LOBBY_ID% > logs\bot_attach_%%i.log 2>&1"
     echo  ^|- Spun up Chaos Bot %%i
 )
 exit /b 0
