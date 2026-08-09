@@ -2,7 +2,7 @@
 local ffi = require("ffi")
 local bit = require("bit")
 local lab_tools = require("tools.lab_domain")
-local Fixed = require("runtime.services.math.fixed_math") -- Need this for elevation
+local Fixed = require("runtime.services.math.fixed_math")
 require("game.turn")
 require("game.standard")
 require("global")
@@ -14,7 +14,33 @@ for y = 1, 8 do
     for x = 1, 8 do loc_cache[y][x] = loc:new(x, y) end
 end
 
-function ChessDomain.Init(app_ctx)
+-- Helper for subtle visual highlights on the external grid
+local function pop_isometric_tile(ext_state, app_ctx, chess_x, chess_y, terrain_id)
+    local w = app_ctx.cfg_sim.world.map_width
+    local h = app_ctx.cfg_sim.world.map_height
+    local cx = math.floor(w / 2)
+    local cz = math.floor(h / 2)
+
+    local iso_x = (cx - 4) + (chess_x - 1)
+    local iso_y = (cz - 4) + (chess_y - 1)
+    local tile_idx = iso_y * w + iso_x
+
+    local head = ext_state.head_idx
+    ext_state.tiles[head].tile_idx = tile_idx
+
+    -- Using a low 0.5 elevation to maintain a clean, non-invasive visual style
+    -- rather than blocking the view with tall pillars.
+    ext_state.tiles[head].terrain_type = terrain_id
+    ext_state.tiles[head].elevation = Fixed.from_float(0.5)
+
+    ext_state.head_idx = (ext_state.head_idx + 1) % 2048
+    if ext_state.modification_count < 2048 then
+        ext_state.modification_count = ext_state.modification_count + 1
+    end
+end
+
+-- Updated Init function receives ext_state to paint the board at boot
+function ChessDomain.Init(app_ctx, ext_state)
     local init_state = app_ctx.rts_grid
     local init_map = standard()
 
@@ -22,7 +48,15 @@ function ChessDomain.Init(app_ctx)
     for y = 0, 7 do
         for x = 0, 7 do
             local current_loc = loc_cache[y + 1][x + 1]
-            init_state.chess.grid[lua_grid_index - 1] = init_map[current_loc] or 0
+            local piece = init_map[current_loc] or 0
+            init_state.chess.grid[lua_grid_index - 1] = piece
+
+            -- If a piece exists on this square, map it to the visual grid
+            if piece ~= 0 then
+                -- Terrain 15 provides a distinct but subdued board square highlight
+                pop_isometric_tile(ext_state, app_ctx, x + 1, y + 1, 15)
+            end
+
             lua_grid_index = lua_grid_index + 1
         end
     end
@@ -39,30 +73,7 @@ function ChessDomain.Poll(app_ctx, cmd_slot)
         cmd_slot.opcode = 0
     end
 end
--- Helper for subtle visual highlights on the external grid
-local function pop_isometric_tile(ext_state, app_ctx, chess_x, chess_y, terrain_id)
-    local w = app_ctx.cfg_sim.world.map_width
-    local h = app_ctx.cfg_sim.world.map_height
-    local cx = math.floor(w / 2)
-    local cz = math.floor(h / 2)
 
-    -- Center the 8x8 board on the main grid
-    local iso_x = (cx - 4) + (chess_x - 1)
-    local iso_y = (cz - 4) + (chess_y - 1)
-    local tile_idx = iso_y * w + iso_x
-
-    local head = ext_state.head_idx
-    ext_state.tiles[head].tile_idx = tile_idx
-
-    -- Implement a subtle, non-invasive visual style
-    ext_state.tiles[head].terrain_type = terrain_id
-    ext_state.tiles[head].elevation = Fixed.from_float(0.5) -- Tiny visual bump, not a pillar
-
-    ext_state.head_idx = (ext_state.head_idx + 1) % 2048
-    if ext_state.modification_count < 2048 then
-        ext_state.modification_count = ext_state.modification_count + 1
-    end
-end
 
 -- Update signature to receive ext_state
 function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
