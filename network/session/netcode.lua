@@ -25,6 +25,7 @@ local fsm_core = require("fsm_core")
 local net = require("network")
 local create_lab_domain = require("worlds.router_plugin")
 local config_net = require("config_net")
+local config_sim = require("config_sim") -- [ADDED]
 
 local MAX_PLAYERS = ffi.C.CFG_MAX_PLAYERS
 local RING_SIZE   = ffi.C.CFG_RING_SIZE
@@ -52,7 +53,7 @@ function NetCore.init(local_port, target_lobby_id, target_lobby_size, ext_state_
         -- [FIXED] Pass the real config module instead of a hardcoded inline table!
         -- Now DESYNC_SWEEP will properly be 510, matching the deep time machine.
         cfg_net = config_net,
-
+        cfg_sim = config_sim, -- [ADDED]
         net_identity = local_id,
         session_token = session_token,
         rollback_arena = ffi.new("RollbackBuffer"),
@@ -155,18 +156,22 @@ function NetCore.pump_network(engine, dt)
 end
 
 function NetCore.inject_local_command(engine, opcode, target_pos)
-    -- [FIX] THE PRIMING PHASE
-    -- Ignore all inputs for the first 60 ticks (1.0 seconds).
-    -- This allows the UDP network topology to establish consensus baselines
-    -- and jitter buffers without risking a Tick 1 desync.
     if engine.ctx.sim_tick_count < 60 then
         return
     end
 
-    engine.ctx.pending_ui_cmd = {
-        opcode = opcode,
-        target_pos = target_pos
-    }
+    -- [FIXED] Route to the correct mailbox based on opcode
+    if opcode == 1 then
+        engine.ctx.pending_ui_cmd = {
+            opcode = opcode,
+            target_pos = target_pos
+        }
+    elseif opcode == 2 then
+        engine.ctx.pending_chess_cmd = {
+            opcode = opcode,
+            target_pos = target_pos
+        }
+    end
 end
 
 return NetCore

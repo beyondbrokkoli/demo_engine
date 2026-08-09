@@ -14,8 +14,9 @@ for y = 1, 8 do
     for x = 1, 8 do loc_cache[y][x] = loc:new(x, y) end
 end
 
--- Helper for subtle visual highlights on the external grid
-local function pop_isometric_tile(ext_state, app_ctx, chess_x, chess_y, terrain_id)
+-- Helper for subtle visual highlights
+local function pop_isometric_tile(ext_state, app_ctx, chess_x, chess_y, terrain_id, custom_elev)
+    -- [RESTORED]
     local w = app_ctx.cfg_sim.world.map_width
     local h = app_ctx.cfg_sim.world.map_height
     local cx = math.floor(w / 2)
@@ -27,11 +28,10 @@ local function pop_isometric_tile(ext_state, app_ctx, chess_x, chess_y, terrain_
 
     local head = ext_state.head_idx
     ext_state.tiles[head].tile_idx = tile_idx
-
-    -- Using a low 0.5 elevation to maintain a clean, non-invasive visual style
-    -- rather than blocking the view with tall pillars.
     ext_state.tiles[head].terrain_type = terrain_id
-    ext_state.tiles[head].elevation = Fixed.from_float(0.5)
+
+    -- Allow passing a custom elevation, default to 0.5 for active pieces
+    ext_state.tiles[head].elevation = custom_elev or Fixed.from_float(0.5)
 
     ext_state.head_idx = (ext_state.head_idx + 1) % 2048
     if ext_state.modification_count < 2048 then
@@ -120,12 +120,14 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
         if not lab_tools.deep_compare(current_lua_map, predicted_map) then
             lab_tools.deep_merge(current_lua_map, predicted_map)
 
-            -- THE CROSS-POLLINATION: The move is legal, render it visually!
-            -- Give the 'from' tile a subtle shadow (terrain 13) and the 'to' tile a subtle glow (terrain 14)
-            pop_isometric_tile(ext_state, app_ctx, f_x, f_y, 13)
-            pop_isometric_tile(ext_state, app_ctx, t_x, t_y, 14)
+            -- CROSS-POLLINATION: Update the visuals!
+            -- 1. Flatten the old 'from' square (Terrain 0, Elevation 0)
+            pop_isometric_tile(ext_state, app_ctx, f_x, f_y, 0, 0)
 
-            -- Write to FFI
+            -- 2. Highlight the new 'to' square (Terrain 15, Elevation 0.5)
+            pop_isometric_tile(ext_state, app_ctx, t_x, t_y, 15)
+
+            -- Write back to FFI
             lua_grid_index = 1
             for y = 1, 8 do
                 for x = 1, 8 do
