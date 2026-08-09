@@ -23,7 +23,7 @@ local net_utils = require("net_utils")
 local net_pump = require("net_pump")
 local fsm_core = require("fsm_core")
 local net = require("network")
-local create_lab_domain = require("plugin")
+local create_lab_domain = require("worlds.router_plugin")
 local config_net = require("config_net")
 
 local MAX_PLAYERS = ffi.C.CFG_MAX_PLAYERS

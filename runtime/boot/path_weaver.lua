@@ -1,3 +1,4 @@
+-- runtime/boot/path_weaver.lua
 -- Maps the engine's architectural DAG into Lua's flat module resolver
 local roots = {
     "ssot",
@@ -14,15 +15,14 @@ local roots = {
     "network/protocol",
     "network/session",
     "network/transport",
-    "worlds/chess",
-    "worlds/chess/commands",
-    "worlds/chess/frontend",
-    "worlds/chess/rules",
-    "worlds/chess/state",
+
+    -- The new OOP Chess Domain
+    "worlds/luachess",
+
     "tools"
 }
 
--- Ensure root is checked first
+-- Ensure root is checked first (This handles "worlds.isometric.domain" and "tools.lab_domain")
 package.path = "./?.lua;" .. package.path
 
 -- Inject our new DAG into the search path
