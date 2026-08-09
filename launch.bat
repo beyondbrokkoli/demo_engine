@@ -78,7 +78,7 @@ for /L %%i in (1, 1, %BOT_COUNT%) do (
 exit /b 0
 
 :lab
-call :swarm 3 4
+call :swarm 2 2
 exit /b 0
 
 :swarm
