@@ -32,8 +32,8 @@ end
 function Sys.check_orphans()
     print("\n[ORPHANS] Scanning for active Weaver nodes...")
     local count = 0
-    local cmd = Sys.target == "linux" 
-        and "pgrep -a -f 'boot.*\\.elf'" 
+    local cmd = Sys.target == "linux"
+        and "pgrep -a -f 'boot.*\\.elf'"
         or 'tasklist 2>nul | findstr /I "boot.exe boot_headless.exe"'
 
     local f = io.popen(cmd)
