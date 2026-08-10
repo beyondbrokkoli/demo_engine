@@ -29,7 +29,6 @@ local function pop_isometric_chunk(ext_state, app_ctx, chess_x, chess_y, terrain
     local base_iso_z = board_origin_z + ((chess_y - 1) * CHUNK_SCALE)
 
     -- [AUDIT GUARD: Float vs Fixed-Point]
-    -- Catch redundant fixed-point conversions before they ruin the subtle visual layout
     local raw_elev = custom_elev or 15.0
     if raw_elev > 255 then
         print(string.format("[AUDIT WARN] Suspiciously high float detected in chunk (%d, %d): %s. Forcing subtle baseline.", chess_x, chess_y, tostring(raw_elev)))
@@ -47,14 +46,30 @@ local function pop_isometric_chunk(ext_state, app_ctx, chess_x, chess_y, terrain
                 error(string.format("[FATAL AUDIT] Chunk scaling out of bounds! Tile %d exceeds map limits.", tile_idx))
             end
 
-            local head = ext_state.head_idx
-            ext_state.tiles[head].tile_idx = tile_idx
-            ext_state.tiles[head].terrain_type = terrain_id
-            ext_state.tiles[head].elevation = elev_val
+            -- 1. Search for existing tile to prevent ghosting and hash shifting
+            local found_i = -1
+            for i = 0, ext_state.modification_count - 1 do
+                if ext_state.tiles[i].tile_idx == tile_idx then
+                    found_i = i
+                    break
+                end
+            end
 
-            ext_state.head_idx = (ext_state.head_idx + 1) % 2048
-            if ext_state.modification_count < 2048 then
-                ext_state.modification_count = ext_state.modification_count + 1
+            if found_i >= 0 then
+                -- 2A. Update in-place (Rollback safe, head_idx remains static)
+                ext_state.tiles[found_i].terrain_type = terrain_id
+                ext_state.tiles[found_i].elevation = elev_val
+            else
+                -- 2B. Append new tile (Happens only once per visual square)
+                local head = ext_state.head_idx
+                ext_state.tiles[head].tile_idx = tile_idx
+                ext_state.tiles[head].terrain_type = terrain_id
+                ext_state.tiles[head].elevation = elev_val
+
+                ext_state.head_idx = (ext_state.head_idx + 1) % 2048
+                if ext_state.modification_count < 2048 then
+                    ext_state.modification_count = ext_state.modification_count + 1
+                end
             end
         end
     end
@@ -98,14 +113,14 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
     local from_idx = bit.rshift(packed, 8)
     local to_idx = bit.band(packed, 0xFF)
 
-    -- 1. Early exit for empty commands to save CPU cycles
+    -- Early exit for empty commands
     if from_idx == 0 and to_idx == 0 then return end
 
     local temp_map = Map:new(0)
     local freshmap = Map:new(false)
     local lua_grid_index = 1
 
-    -- 2. Read directly from FFI memory to feed the oracle
+    -- Read directly from FFI memory to feed the oracle
     for y = 0, 7 do
         for x = 0, 7 do
             local current_loc = loc_cache[y + 1][x + 1]
@@ -123,35 +138,42 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
     local f_x, f_y = (from_idx % 8) + 1, math.floor(from_idx / 8) + 1
     local t_x, t_y = (to_idx % 8) + 1, math.floor(to_idx / 8) + 1
 
-    -- 3. Maintain the spatial bounds check
     local new_T = false
     if f_x > 0 and f_x <= 8 and f_y > 0 and f_y <= 8 and t_x > 0 and t_x <= 8 and t_y > 0 and t_y <= 8 then
         new_T = T:make_move(loc_cache[f_y][f_x], loc_cache[t_y][t_x])
     end
 
-    -- 4. Trust the oracle. If new_T exists, the move is 100% valid.
+    -- Trust the oracle
     if new_T then
-        if app_ctx.rollback_arena.is_rollback_active == 0 then
---            print(string.format("[AUDIT PASS] Valid move accepted. Visually updating (%d, %d) to (%d, %d).", f_x, f_y, t_x, t_y))
-        end
-
-        pop_isometric_chunk(ext_state, app_ctx, f_x, f_y, 0, 0.0)
-        pop_isometric_chunk(ext_state, app_ctx, t_x, t_y, 15, 15.0)
-
-        -- 5. Write directly back to FFI memory, bypassing Lua table instantiation entirely!
         lua_grid_index = 1
+
+        -- 3. Strict State Diffing
+        -- Compare the old logical map to the new logical map to drive visual updates
         for y = 1, 8 do
             for x = 1, 8 do
-                state.chess.grid[lua_grid_index - 1] = new_T.pos[loc_cache[y][x]] or 0
+                local loc = loc_cache[y][x]
+                local old_piece = temp_map[loc] or 0
+                local new_piece = new_T.pos[loc] or 0
+
+                if old_piece ~= new_piece then
+                    -- Update Logical FFI State
+                    state.chess.grid[lua_grid_index - 1] = new_piece
+
+                    -- Update Visual Buffer
+                    if new_piece == 0 then
+                        -- Square was emptied (Piece left, got captured, or En Passant cleared it)
+                        pop_isometric_chunk(ext_state, app_ctx, x, y, 0, 0.0)
+                    else
+                        -- Square now occupied (Piece arrived, or Castling moved Rook here)
+                        pop_isometric_chunk(ext_state, app_ctx, x, y, 15, 15.0)
+                    end
+                end
+
                 lua_grid_index = lua_grid_index + 1
             end
         end
 
         state.chess.flags = is_white_turn and 0x00 or 0x80
-    else
-        if app_ctx.rollback_arena.is_rollback_active == 0 then
---            print(string.format("[AUDIT REJECT] Turn engine declined move vector (%d, %d) -> (%d, %d)", f_x, f_y, t_x, t_y))
-        end
     end
 end
 
