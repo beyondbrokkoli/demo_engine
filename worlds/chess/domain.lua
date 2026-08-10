@@ -113,27 +113,52 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
     local from_idx = bit.rshift(packed, 8)
     local to_idx = bit.band(packed, 0xFF)
 
-    -- Early exit for empty commands
     if from_idx == 0 and to_idx == 0 then return end
 
     local temp_map = Map:new(0)
     local freshmap = Map:new(false)
     local lua_grid_index = 1
 
-    -- Read directly from FFI memory to feed the oracle
+    local flags = state.chess.flags
+    local is_white_turn = bit.band(flags, 0x80) == 0x80
+    local current_turn = is_white_turn and 1 or 2
+
+    -- [1] DECODE FFI STATE TO LUA
     for y = 0, 7 do
         for x = 0, 7 do
             local current_loc = loc_cache[y + 1][x + 1]
             local piece = state.chess.grid[lua_grid_index - 1]
             temp_map[current_loc] = piece
-            if piece ~= 0 then freshmap[current_loc] = true end
+
+            -- Reconstruct the exact freshmap based on standard piece starting locations
+            if piece == 1 and (y + 1) == 2 then freshmap[current_loc] = true end
+            if piece == -1 and (y + 1) == 7 then freshmap[current_loc] = true end
+            if piece == 8 and (y + 1) == 1 then freshmap[current_loc] = true end
+            if piece == -8 and (y + 1) == 8 then freshmap[current_loc] = true end
+            -- Rooks rely on the castling bits
+            if piece == 4 and (y + 1) == 1 then
+                if x == 7 and bit.band(flags, 0x08) ~= 0 then freshmap[current_loc] = true end -- W_KS
+                if x == 0 and bit.band(flags, 0x04) ~= 0 then freshmap[current_loc] = true end -- W_QS
+            end
+            if piece == -4 and (y + 1) == 8 then
+                if x == 7 and bit.band(flags, 0x02) ~= 0 then freshmap[current_loc] = true end -- B_KS
+                if x == 0 and bit.band(flags, 0x01) ~= 0 then freshmap[current_loc] = true end -- B_QS
+            end
+
             lua_grid_index = lua_grid_index + 1
         end
     end
 
-    local is_white_turn = bit.band(state.chess.flags, 0x80) == 0x80
-    local current_turn = is_white_turn and 1 or 2
-    local T = Turn:new(temp_map, current_turn, freshmap)
+    -- Reconstruct En Passant Token
+    local eptoken = nil
+    if state.chess.en_passant ~= 255 then
+        local ep_x = (state.chess.en_passant % 8) + 1
+        local ep_y = math.floor(state.chess.en_passant / 8) + 1
+        -- White turn means black pawn moved, so target ID is -7. Black turn means white pawn, so 7.
+        eptoken = { x = ep_x, y = ep_y, id = is_white_turn and -7 or 7 }
+    end
+
+    local T = Turn:new(temp_map, current_turn, freshmap, eptoken)
 
     local f_x, f_y = (from_idx % 8) + 1, math.floor(from_idx / 8) + 1
     local t_x, t_y = (to_idx % 8) + 1, math.floor(to_idx / 8) + 1
@@ -143,12 +168,8 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
         new_T = T:make_move(loc_cache[f_y][f_x], loc_cache[t_y][t_x])
     end
 
-    -- Trust the oracle
     if new_T then
         lua_grid_index = 1
-
-        -- 3. Strict State Diffing
-        -- Compare the old logical map to the new logical map to drive visual updates
         for y = 1, 8 do
             for x = 1, 8 do
                 local loc = loc_cache[y][x]
@@ -156,24 +177,39 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
                 local new_piece = new_T.pos[loc] or 0
 
                 if old_piece ~= new_piece then
-                    -- Update Logical FFI State
                     state.chess.grid[lua_grid_index - 1] = new_piece
-
-                    -- Update Visual Buffer
                     if new_piece == 0 then
-                        -- Square was emptied (Piece left, got captured, or En Passant cleared it)
-                        pop_isometric_chunk(ext_state, app_ctx, x, y, 0, 0.0)
+                        pop_isometric_chunk(ext_state, app_ctx, x, y, 0, 0)
                     else
-                        -- Square now occupied (Piece arrived, or Castling moved Rook here)
-                        pop_isometric_chunk(ext_state, app_ctx, x, y, 15, 15.0)
+                        pop_isometric_chunk(ext_state, app_ctx, x, y, 15, 15)
                     end
                 end
-
                 lua_grid_index = lua_grid_index + 1
             end
         end
 
-        state.chess.flags = is_white_turn and 0x00 or 0x80
+        -- [2] ENCODE LUA STATE BACK TO FFI
+        local out_flags = is_white_turn and 0x00 or 0x80
+
+        -- Check the new freshmap to see if castling rights survived this turn
+        if new_T.freshmap[loc_cache[1][5]] then
+            if new_T.freshmap[loc_cache[1][8]] then out_flags = bit.bor(out_flags, 0x08) end
+            if new_T.freshmap[loc_cache[1][1]] then out_flags = bit.bor(out_flags, 0x04) end
+        end
+        if new_T.freshmap[loc_cache[8][5]] then
+            if new_T.freshmap[loc_cache[8][8]] then out_flags = bit.bor(out_flags, 0x02) end
+            if new_T.freshmap[loc_cache[8][1]] then out_flags = bit.bor(out_flags, 0x01) end
+        end
+        state.chess.flags = out_flags
+
+        -- Detect if this move created a new En Passant target
+        local next_ep = 255
+        local moved_pc = temp_map[loc_cache[f_y][f_x]]
+        if math.abs(moved_pc) == 1 and math.abs(f_y - t_y) == 2 then
+            local ep_y = t_y - moved_pc
+            next_ep = (ep_y - 1) * 8 + (t_x - 1)
+        end
+        state.chess.en_passant = next_ep
     end
 end
 
