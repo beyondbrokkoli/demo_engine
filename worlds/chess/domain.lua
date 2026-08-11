@@ -15,6 +15,37 @@ end
 
 local CHUNK_SCALE = 3
 
+local position_history = {}
+
+local function reset_to_standard(state, ext_state, app_ctx)
+    local init_map = standard()
+    local lua_grid_index = 1
+
+    for y = 0, 7 do
+        for x = 0, 7 do
+            local current_loc = loc_cache[y + 1][x + 1]
+            local piece = init_map[current_loc] or 0
+
+            -- Overwrite the FFI struct
+            state.chess.grid[lua_grid_index - 1] = piece
+
+            -- Force update the 3D visual grid
+            if piece == 0 then
+                pop_isometric_chunk(ext_state, app_ctx, x + 1, y + 1, 0, 0)
+            else
+                pop_isometric_chunk(ext_state, app_ctx, x + 1, y + 1, 15, 15.0)
+            end
+
+            lua_grid_index = lua_grid_index + 1
+        end
+    end
+
+    -- Reset metadata
+    state.chess.flags = 0x80
+    state.chess.en_passant = 255
+    print("[CHESS HARNESS] Board reset to standard starting position.")
+end
+
 local function pop_isometric_chunk(ext_state, app_ctx, chess_x, chess_y, terrain_id, custom_elev)
     local w = app_ctx.cfg_sim.world.map_width
     local h = app_ctx.cfg_sim.world.map_height
@@ -76,26 +107,7 @@ local function pop_isometric_chunk(ext_state, app_ctx, chess_x, chess_y, terrain
 end
 
 function ChessDomain.Init(app_ctx, ext_state)
-    local init_state = app_ctx.rts_grid
-    local init_map = standard()
-
-    local lua_grid_index = 1
-    for y = 0, 7 do
-        for x = 0, 7 do
-            local current_loc = loc_cache[y + 1][x + 1]
-            local piece = init_map[current_loc] or 0
-            init_state.chess.grid[lua_grid_index - 1] = piece
-
-            if piece ~= 0 then
-                pop_isometric_chunk(ext_state, app_ctx, x + 1, y + 1, 15, 15.0)
-            end
-
-            lua_grid_index = lua_grid_index + 1
-        end
-    end
-    init_state.chess.flags = 0x80
-    init_state.chess.en_passant = 255
-    print("[AUDIT INIT] Chess Domain mapped successfully to visual buffer.")
+    reset_to_standard(app_ctx.rts_grid, ext_state, app_ctx)
 end
 
 function ChessDomain.Poll(app_ctx, cmd_slot)
@@ -259,6 +271,48 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
         end
         -- Commit the index to memory
         state.chess.en_passant = next_ep
+
+        -- 7. TERMINAL STATE HARNESS (Draws & Mates)
+        local is_terminal = false
+        local terminal_reason = ""
+
+        if new_T.checkmate then
+            is_terminal = true
+            terminal_reason = "Checkmate"
+        elseif new_T.stalemate then
+            is_terminal = true
+            terminal_reason = "Stalemate"
+        elseif new_T.drawCount >= 100 then
+            -- 50 full moves = 100 half-moves without a pawn push or capture
+            is_terminal = true
+            terminal_reason = "50-Move Rule"
+        end
+
+        -- Threefold Repetition Check
+        -- If drawCount resets to 0 (pawn push or capture), we clear the history table.
+        -- Otherwise, we hash the 64-byte grid + the flags byte to create a perfect unique key.
+        if new_T.drawCount == 0 then
+            position_history = {}
+        else
+            -- Hash the 64 squares + the Turn/Castle Flags + the En Passant target square
+             local hash = ffi.string(state.chess.grid, 64) ..
+                 string.char(state.chess.flags) ..
+                 string.char(state.chess.en_passant)
+
+                position_history[hash] = (position_history[hash] or 0) + 1
+
+            if position_history[hash] >= 3 then
+                is_terminal = true
+                terminal_reason = "Threefold Repetition"
+            end
+        end
+
+        -- THE TRIGGER
+        if is_terminal then
+            print(string.format("[CHESS MATCH END] Trigger: %s. Resetting board...", terminal_reason))
+            position_history = {} -- Wipe history
+            reset_to_standard(state, ext_state, app_ctx)
+        end
     end
 end
 
