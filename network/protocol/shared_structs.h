@@ -6,7 +6,7 @@
 
 enum {
     CFG_MAX_PLAYERS = 8,
-    CFG_HISTORY_LEN = 15,      // Tied to LOOKAHEAD_CAP
+    CFG_HISTORY_LEN = 60,      // Tied to LOOKAHEAD_CAP
     CFG_RING_SIZE = 512,
     CFG_MAX_PACKET_SIZE = 4096,
 

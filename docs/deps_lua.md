@@ -28,8 +28,10 @@ flowchart LR
         network_protocol_dkjson_lua["network/protocol/dkjson.lua"]
         network_protocol_json_util_lua["network/protocol/json_util.lua"]
         network_protocol_structs_lua["network/protocol/structs.lua"]
+        network_session_http_client_lua["network/session/http_client.lua"]
         network_session_net_utils_lua["network/session/net_utils.lua"]
         network_session_netcode_lua["network/session/netcode.lua"]
+        network_session_sys_time_lua["network/session/sys_time.lua"]
         network_transport_net_pump_lua["network/transport/net_pump.lua"]
         network_transport_network_lua["network/transport/network.lua"]
     end
@@ -99,6 +101,8 @@ flowchart LR
     network_protocol_json_util_lua --> network_protocol_dkjson_lua
     network_session_net_utils_lua --> network_protocol_config_net_lua
     network_session_net_utils_lua --> network_protocol_json_util_lua
+    network_session_net_utils_lua --> network_session_http_client_lua
+    network_session_net_utils_lua --> network_session_sys_time_lua
     network_session_net_utils_lua --> network_transport_network_lua
     network_session_netcode_lua --> network_lockstep_fsm_core_lua
     network_session_netcode_lua --> network_protocol_config_net_lua
