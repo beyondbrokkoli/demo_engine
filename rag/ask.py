@@ -2,6 +2,7 @@ import os
 import sys
 import requests
 from qdrant_client import QdrantClient
+from openai import OpenAI
 
 # --- Configuration ---
 QDRANT_URL = "http://localhost:6333"
@@ -19,7 +20,8 @@ HETZNER_API_KEY = os.getenv("HETZNER_API_KEY")
 # - "Kimi-K2.7-Code" (Tailored for code execution & logic)
 # - "Qwen/Qwen3.6-35B-A3B-FP8" (Very fast, highly accurate C/systems knowledge)
 # - "DeepSeek-V4-Flash-0731" (512k context window for huge retrieval dumps)
-HETZNER_MODEL = "Kimi-K2.7-Code"
+#HETZNER_MODEL = "Kimi-K2.7-Code"
+HETZNER_MODEL = "Qwen/Qwen3.6-35B-A3B-FP8"
 
 qdrant = QdrantClient(url=QDRANT_URL)
 
@@ -34,7 +36,7 @@ def get_query_vector(text):
     response.raise_for_status()
     return response.json()['data'][0]['embedding']
 
-def search_codebase(query, limit=35):  # <--- BUMPED: Hetzner handles huge contexts easily!
+def search_codebase(query, limit=1):  # <--- BUMPED: Hetzner handles huge contexts easily!
     """Queries Qdrant for relevant modules and formats dependency metadata."""
     query_vector = get_query_vector(query)
     results = qdrant.query_points(
@@ -60,7 +62,7 @@ def search_codebase(query, limit=35):  # <--- BUMPED: Hetzner handles huge conte
     return "\n\n".join(contexts)
 
 def ask_llm(query, context):
-    """Sends the retrieved context and question to Hetzner's API."""
+    """Sends the retrieved context and question to Hetzner's API using the OpenAI SDK."""
     system_prompt = (
         "You are the Lead Systems Architect for the Weaver Engine. You are performing a rigorous "
         "'needle-in-a-haystack' codebase audit. You will be provided with a massive context of C "
@@ -84,26 +86,36 @@ def ask_llm(query, context):
 
     user_prompt = f"RETRIEVED CODE CONTEXT:\n{context}\n\nUSER QUESTION:\n{query}"
 
-    headers = {
-        "Authorization": f"Bearer {HETZNER_API_KEY}",
-        "Content-Type": "application/json"
-    }
+    # The OpenAI client replaces all the raw 'requests' logic
+    client = OpenAI(
+        base_url="https://inference.hetzner.com/api/v1",
+        api_key=HETZNER_API_KEY,
+    )
 
-    payload = {
-        "model": HETZNER_MODEL,  # <--- CRUCIAL: Added missing model parameter
-        "messages": [
+    print("\n🤖 Hetzner is generating response...\n")
+
+    stream = client.chat.completions.create(
+        model=HETZNER_MODEL,
+        messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ],
-        "temperature": 0.1,
-        "max_tokens": 4096,
-        "presence_penalty": 0.0,
-        "frequency_penalty": 0.0
-    }
+        temperature=0.1,
+        max_tokens=4096,
+        stream=True # SDK handles the SSE parsing securely
+    )
 
-    response = requests.post(HETZNER_LLM_URL, headers=headers, json=payload)
-    response.raise_for_status()
-    return response.json()['choices'][0]['message']['content']
+    full_response = ""
+    for chunk in stream:
+        # 1. First, check if the 'choices' list actually exists and isn't empty
+        # 2. Then check if the content inside it is not None
+        if chunk.choices and chunk.choices[0].delta.content is not None:
+            text = chunk.choices[0].delta.content
+            sys.stdout.write(text)
+            sys.stdout.flush()
+            full_response += text
+
+    return full_response
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
