@@ -36,7 +36,7 @@ def get_query_vector(text):
     response.raise_for_status()
     return response.json()['data'][0]['embedding']
 
-def search_codebase(query, limit=1):  # <--- BUMPED: Hetzner handles huge contexts easily!
+def search_codebase(query, limit=35):  # <--- BUMPED: Hetzner handles huge contexts easily!
     """Queries Qdrant for relevant modules and formats dependency metadata."""
     query_vector = get_query_vector(query)
     results = qdrant.query_points(
@@ -86,13 +86,13 @@ def ask_llm(query, context):
 
     user_prompt = f"RETRIEVED CODE CONTEXT:\n{context}\n\nUSER QUESTION:\n{query}"
 
-    # The OpenAI client replaces all the raw 'requests' logic
     client = OpenAI(
         base_url="https://inference.hetzner.com/api/v1",
         api_key=HETZNER_API_KEY,
     )
 
-    print("\n🤖 Hetzner is generating response...\n")
+    print(f"\n🤖 Hetzner ({HETZNER_MODEL}) is thinking...\n")
+    print("--- INTERNAL THOUGHT PROCESS ---")
 
     stream = client.chat.completions.create(
         model=HETZNER_MODEL,
@@ -101,19 +101,36 @@ def ask_llm(query, context):
             {"role": "user", "content": user_prompt}
         ],
         temperature=0.1,
-        max_tokens=4096,
-        stream=True # SDK handles the SSE parsing securely
+        max_tokens=4096, # <--- BUMPED UP to allow for deep thinking
+        stream=True
     )
 
     full_response = ""
+    transitioned_to_content = False
+
     for chunk in stream:
-        # 1. First, check if the 'choices' list actually exists and isn't empty
-        # 2. Then check if the content inside it is not None
-        if chunk.choices and chunk.choices[0].delta.content is not None:
-            text = chunk.choices[0].delta.content
-            sys.stdout.write(text)
-            sys.stdout.flush()
-            full_response += text
+        if chunk.choices:
+            delta = chunk.choices[0].delta
+
+            # 1. Check for Reasoning / Thinking Tokens
+            # The OpenAI SDK might map this as an attribute or put it in model_extra
+            reasoning_chunk = getattr(delta, 'reasoning', None)
+            if reasoning_chunk is None and hasattr(delta, 'model_extra') and delta.model_extra:
+                reasoning_chunk = delta.model_extra.get('reasoning')
+
+            if reasoning_chunk:
+                sys.stdout.write(reasoning_chunk)
+                sys.stdout.flush()
+
+            # 2. Check for the Actual Content Tokens
+            if delta.content is not None:
+                if not transitioned_to_content:
+                    print("\n\n--- FINAL ANSWER ---")
+                    transitioned_to_content = True
+
+                sys.stdout.write(delta.content)
+                sys.stdout.flush()
+                full_response += delta.content
 
     return full_response
 
