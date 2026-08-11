@@ -1,4 +1,4 @@
--- lua/tenant_registry.lua (Updated for WSI mapping)
+-- runtime/services/tenant/tenant_registry.lua
 local ffi = require("ffi")
 local WindowAPI = require("window_api")
 local EngineAPI = require("engine_api")

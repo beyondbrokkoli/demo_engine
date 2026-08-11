@@ -1,4 +1,4 @@
--- lua/descriptors.lua
+-- runtime/services/gpu/descriptors.lua
 local ffi = require("ffi")
 local bit = require("bit")
 local reg = require("registry_vk")

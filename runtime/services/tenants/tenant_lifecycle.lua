@@ -1,4 +1,4 @@
--- staging/tenant_lifecycle.lua
+-- runtime/services/tenant/tenant_lifecycle.lua
 local ffi = require("ffi")
 local swapchain_mod = require("swapchain")
 local renderer_mod = require("renderer")
