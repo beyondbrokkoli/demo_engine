@@ -383,25 +383,3 @@ function inCheck(pos,turn,freshmap,eptoken)
     end
     return check, available
 end
-
-function compare(a,b)
-    local same = true
-    do8x8break(a, function (s,l) if not (s==b[l]) then same = false return true end end)
-    return same
-end
-
-function drawRepetition(timeline)
-    local count = 1
-    local i = #timeline
-    local turn = timeline[i]
-    local c = i-2
-    local comp = timeline[c]
-    while comp do
-        if compare(turn.pos,comp.pos) then
-            count= count+1
-        end
-        c = c - 2
-        comp = timeline[c]
-    end
-    if count > 2 then return true else return false end
-end
