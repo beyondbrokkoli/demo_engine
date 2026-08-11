@@ -17,35 +17,6 @@ local CHUNK_SCALE = 3
 
 local position_history = {}
 
-local function reset_to_standard(state, ext_state, app_ctx)
-    local init_map = standard()
-    local lua_grid_index = 1
-
-    for y = 0, 7 do
-        for x = 0, 7 do
-            local current_loc = loc_cache[y + 1][x + 1]
-            local piece = init_map[current_loc] or 0
-
-            -- Overwrite the FFI struct
-            state.chess.grid[lua_grid_index - 1] = piece
-
-            -- Force update the 3D visual grid
-            if piece == 0 then
-                pop_isometric_chunk(ext_state, app_ctx, x + 1, y + 1, 0, 0)
-            else
-                pop_isometric_chunk(ext_state, app_ctx, x + 1, y + 1, 15, 15.0)
-            end
-
-            lua_grid_index = lua_grid_index + 1
-        end
-    end
-
-    -- Reset metadata
-    state.chess.flags = 0x80
-    state.chess.en_passant = 255
-    print("[CHESS HARNESS] Board reset to standard starting position.")
-end
-
 local function pop_isometric_chunk(ext_state, app_ctx, chess_x, chess_y, terrain_id, custom_elev)
     local w = app_ctx.cfg_sim.world.map_width
     local h = app_ctx.cfg_sim.world.map_height
@@ -104,6 +75,35 @@ local function pop_isometric_chunk(ext_state, app_ctx, chess_x, chess_y, terrain
             end
         end
     end
+end
+
+local function reset_to_standard(state, ext_state, app_ctx)
+    local init_map = standard()
+    local lua_grid_index = 1
+
+    for y = 0, 7 do
+        for x = 0, 7 do
+            local current_loc = loc_cache[y + 1][x + 1]
+            local piece = init_map[current_loc] or 0
+
+            -- Overwrite the FFI struct
+            state.chess.grid[lua_grid_index - 1] = piece
+
+            -- Force update the 3D visual grid
+            if piece == 0 then
+                pop_isometric_chunk(ext_state, app_ctx, x + 1, y + 1, 0, 0)
+            else
+                pop_isometric_chunk(ext_state, app_ctx, x + 1, y + 1, 15, 15.0)
+            end
+
+            lua_grid_index = lua_grid_index + 1
+        end
+    end
+
+    -- Reset metadata
+    state.chess.flags = 0x80
+    state.chess.en_passant = 255
+    print("[CHESS HARNESS] Board reset to standard starting position.")
 end
 
 function ChessDomain.Init(app_ctx, ext_state)
