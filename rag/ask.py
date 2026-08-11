@@ -6,15 +6,24 @@ from qdrant_client import QdrantClient
 QDRANT_URL = "http://localhost:6333"
 COLLECTION_NAME = "weaver_dev_nomic"
 
-# Local Server Endpoints
+# Local Embeddings (Kept local since Hetzner has no /v1/embeddings)
 LOCAL_EMBED_URL = "http://10.0.0.2:8081/v1/embeddings"
-LOCAL_LLM_URL = "http://127.0.0.1:8080/v1/chat/completions"
 LOCAL_API_KEY = "TEST1234"
+
+# --- Hetzner API Configuration ---
+HETZNER_LLM_URL = "https://inference.hetzner.com/api/v1/chat/completions"
+HETZNER_API_KEY = "<YOUR_HETZNER_EXPERIMENTAL_TOKEN>"
+
+# Options: 
+# - "Kimi-K2.7-Code" (Tailored for code execution & logic)
+# - "Qwen/Qwen3.6-35B-A3B-FP8" (Very fast, highly accurate C/systems knowledge)
+# - "DeepSeek-V4-Flash-0731" (512k context window for huge retrieval dumps)
+HETZNER_MODEL = "Kimi-K2.7-Code"
 
 qdrant = QdrantClient(url=QDRANT_URL)
 
 def get_query_vector(text):
-    """Generates a query embedding vector natively."""
+    """Generates a query embedding vector natively via local server."""
     headers = {
         "Authorization": f"Bearer {LOCAL_API_KEY}",
         "Content-Type": "application/json"
@@ -24,7 +33,7 @@ def get_query_vector(text):
     response.raise_for_status()
     return response.json()['data'][0]['embedding']
 
-def search_codebase(query, limit=20):
+def search_codebase(query, limit=35):  # <--- BUMPED: Hetzner handles huge contexts easily!
     """Queries Qdrant for relevant modules and formats dependency metadata."""
     query_vector = get_query_vector(query)
     results = qdrant.query_points(
@@ -50,7 +59,7 @@ def search_codebase(query, limit=20):
     return "\n\n".join(contexts)
 
 def ask_llm(query, context):
-    """Sends the retrieved context and question to the local LLM generator."""
+    """Sends the retrieved context and question to Hetzner's API."""
     system_prompt = (
         "You are the Lead Systems Architect for the Weaver Engine. You are performing a rigorous "
         "'needle-in-a-haystack' codebase audit. You will be provided with a massive context of C "
@@ -75,11 +84,12 @@ def ask_llm(query, context):
     user_prompt = f"RETRIEVED CODE CONTEXT:\n{context}\n\nUSER QUESTION:\n{query}"
 
     headers = {
-        "Authorization": f"Bearer {LOCAL_API_KEY}",
+        "Authorization": f"Bearer {HETZNER_API_KEY}",
         "Content-Type": "application/json"
     }
 
     payload = {
+        "model": HETZNER_MODEL,  # <--- CRUCIAL: Added missing model parameter
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
@@ -90,20 +100,20 @@ def ask_llm(query, context):
         "frequency_penalty": 0.0
     }
 
-    response = requests.post(LOCAL_LLM_URL, headers=headers, json=payload)
+    response = requests.post(HETZNER_LLM_URL, headers=headers, json=payload)
     response.raise_for_status()
     return response.json()['choices'][0]['message']['content']
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python ask_needle.py \"How does tenant mailbox synchronization work?\"")
+        print("Usage: python ask.py \"How does tenant mailbox synchronization work?\"")
         sys.exit(1)
 
     query = " ".join(sys.argv[1:])
     print(f"🔍 Searching vector database for: '{query}'...")
     context = search_codebase(query)
 
-    print(f"\n🤖 Local Qwen is thinking... (DB: {COLLECTION_NAME})")
+    print(f"\n🤖 Hetzner ({HETZNER_MODEL}) is thinking...")
 
     response = ask_llm(query, context)
 
