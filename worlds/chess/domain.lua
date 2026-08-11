@@ -15,8 +15,6 @@ end
 
 local CHUNK_SCALE = 3
 
-local position_history = {}
-
 local function pop_isometric_chunk(ext_state, app_ctx, chess_x, chess_y, terrain_id, custom_elev)
     local w = app_ctx.cfg_sim.world.map_width
     local h = app_ctx.cfg_sim.world.map_height
@@ -103,6 +101,10 @@ local function reset_to_standard(state, ext_state, app_ctx)
     -- Reset metadata
     state.chess.flags = 0x80
     state.chess.en_passant = 255
+    state.chess.halfmove = 0
+    -- Zero out the C-array using LuaJIT's FFI memory fill
+    ffi.fill(state.chess.history, ffi.sizeof(state.chess.history))
+
     print("[CHESS HARNESS] Board reset to standard starting position.")
 end
 
@@ -199,7 +201,7 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
     -- This is where your luachess codebase takes over. We spin up a Turn object
     -- strictly for this exact rollback frame, calculate all possible moves,
     -- and attempt to apply the network command.
-    local T = Turn:new(temp_map, current_turn, freshmap, eptoken)
+    local T = Turn:new(temp_map, current_turn, freshmap, eptoken, false, false, state.chess.halfmove)
 
     -- Convert the raw command indices back to 1-8 coordinates
     local f_x, f_y = (from_idx % 8) + 1, math.floor(from_idx / 8) + 1
@@ -273,6 +275,10 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
         state.chess.en_passant = next_ep
 
         -- 7. TERMINAL STATE HARNESS (Draws & Mates)
+
+        -- Commit the new halfmove clock to FFI memory FIRST
+        state.chess.halfmove = new_T.drawCount
+
         local is_terminal = false
         local terminal_reason = ""
 
@@ -282,26 +288,33 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
         elseif new_T.stalemate then
             is_terminal = true
             terminal_reason = "Stalemate"
-        elseif new_T.drawCount >= 100 then
+        elseif state.chess.halfmove >= 100 then
             -- 50 full moves = 100 half-moves without a pawn push or capture
             is_terminal = true
             terminal_reason = "50-Move Rule"
-        end
-
-        -- Threefold Repetition Check
-        -- If drawCount resets to 0 (pawn push or capture), we clear the history table.
-        -- Otherwise, we hash the 64-byte grid + the flags byte to create a perfect unique key.
-        if new_T.drawCount == 0 then
-            position_history = {}
         else
-            -- Hash the 64 squares + the Turn/Castle Flags + the En Passant target square
-             local hash = ffi.string(state.chess.grid, 64) ..
-                 string.char(state.chess.flags) ..
-                 string.char(state.chess.en_passant)
+            -- ROLLBACK-SAFE THREEFOLD REPETITION
+            -- 1. Generate a fast 32-bit hash using FFI types (ignores Lua floating point weirdness)
+            local hash_val = ffi.new("uint32_t", 5381)
+            for i = 0, 63 do
+                hash_val = hash_val * 33 + ffi.cast("uint8_t", state.chess.grid[i])
+            end
+            hash_val = hash_val * 33 + state.chess.flags
+            hash_val = hash_val * 33 + state.chess.en_passant
 
-                position_history[hash] = (position_history[hash] or 0) + 1
+            -- 2. Store it in our C-struct history array at the current ply
+            local ply = state.chess.halfmove
+            state.chess.history[ply] = hash_val
 
-            if position_history[hash] >= 3 then
+            -- 3. Scan backwards to see if this hash occurred 2 other times
+            local repetitions = 0
+            for i = 0, ply do
+                if state.chess.history[i] == hash_val then
+                    repetitions = repetitions + 1
+                end
+            end
+
+            if repetitions >= 3 then
                 is_terminal = true
                 terminal_reason = "Threefold Repetition"
             end
@@ -310,7 +323,6 @@ function ChessDomain.ApplyContract(state, ext_state, cmd, player_id, app_ctx)
         -- THE TRIGGER
         if is_terminal then
             print(string.format("[CHESS MATCH END] Trigger: %s. Resetting board...", terminal_reason))
-            position_history = {} -- Wipe history
             reset_to_standard(state, ext_state, app_ctx)
         end
     end

@@ -24,7 +24,10 @@ function IsoDomain.ApplyContract(ext_state, cmd, player_id, app_ctx)
     local current_elev, found_i = 0, -1
 
     for i = 0, ext_state.modification_count - 1 do
-        if ext_state.tiles[i].tile_idx == idx and (ext_state.tiles[i].terrain_type == target_terrain or ext_state.tiles[i].terrain_type == 0) then
+        -- [THE FIX] Removed the terrain_type ownership check.
+        -- If a modification exists at this tile_idx, we claim it and modify it,
+        -- preventing duplicate overlaps.
+        if ext_state.tiles[i].tile_idx == idx then
             current_elev = ext_state.tiles[i].elevation
             found_i = i
             break

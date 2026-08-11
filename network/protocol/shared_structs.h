@@ -89,6 +89,7 @@ typedef struct {
     uint8_t flags;
     uint8_t en_passant;
     uint16_t halfmove;
+    uint32_t history[100]; // Fits perfectly within the 50-move rule window!
 } LabChessState;
 
 typedef struct {
