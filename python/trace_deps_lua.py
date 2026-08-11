@@ -7,7 +7,7 @@ LUA_DIRS = ["build", "ssot", "runtime", "network", "worlds", "tools"]
 REQUIRE_PATTERN = re.compile(r"require\s*(?:\(\s*['\"]([^'\"]+)['\"]\s*\)|['\"]([^'\"]+)['\"])")
 
 # Blacklist to strip ubiquitous utilities and reduce graph clutter
-BLACKLIST = {"dkjson", "ffi", "math", "bit", "debug", "lpeg"}
+BLACKLIST = {}
 
 def sanitize_id(filepath):
     return re.sub(r'[^a-zA-Z0-9_]', '_', filepath)

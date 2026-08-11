@@ -1,5 +1,5 @@
 -- lua/json_util.lua
-local libJson = require("dkjson")
+local libJson = require("network.protocol.dkjson")
 
 local M = {}
 

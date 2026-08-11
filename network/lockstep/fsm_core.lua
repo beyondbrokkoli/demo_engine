@@ -1,8 +1,8 @@
 -- network/fsm_core.lua
 local bit = require("bit")
 local ffi = require("ffi")
-local pacing = require("fsm_pacing")
-local simulator = require("fsm_simulator")
+local pacing = require("network.lockstep.fsm_pacing")
+local simulator = require("network.lockstep.fsm_simulator")
 
 local FSM = {}
 

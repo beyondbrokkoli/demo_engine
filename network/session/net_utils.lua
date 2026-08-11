@@ -1,7 +1,7 @@
 local ffi = require("ffi")
-local json_util = require("json_util")
-local cfg_net = require("config_net")
-local net = require("network")
+local json_util = require("network.protocol.json_util")
+local cfg_net = require("network.protocol.config_net")
+local net = require("network.transport.network")
 local NetUtils = {}
 
 -- 1. DUPLICATE THE OS TIMERS HERE

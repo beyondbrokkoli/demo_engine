@@ -1,6 +1,6 @@
 -- network/config_net.lua
 local ffi = require("ffi")
-require("structs")
+require("network.protocol.structs")
 
 local ConfigNet = {}
 

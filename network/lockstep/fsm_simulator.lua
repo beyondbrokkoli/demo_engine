@@ -1,7 +1,7 @@
 -- network/fsm_simulator.lua
 local bit = require("bit")
 local ffi = require("ffi")
-local structs = require("structs")
+local structs = require("network.protocol.structs")
 
 local Simulator = {}
 

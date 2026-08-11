@@ -7,6 +7,7 @@ flowchart LR
         build_check_build_dependencies_lua["build/check_build_dependencies.lua"]
         build_export_c_hdr_lua["build/export_c_hdr.lua"]
         build_export_glsl_lua["build/export_glsl.lua"]
+        build_net_codegen_lua["build/net_codegen.lua"]
         build_task_c_objects_lua["build/task_c_objects.lua"]
         build_task_headless_lua["build/task_headless.lua"]
         build_task_invariants_lua["build/task_invariants.lua"]
@@ -95,6 +96,7 @@ flowchart LR
     network_lockstep_fsm_core_lua --> network_lockstep_fsm_simulator_lua
     network_lockstep_fsm_simulator_lua --> network_protocol_structs_lua
     network_protocol_config_net_lua --> network_protocol_structs_lua
+    network_protocol_json_util_lua --> network_protocol_dkjson_lua
     network_session_net_utils_lua --> network_protocol_config_net_lua
     network_session_net_utils_lua --> network_protocol_json_util_lua
     network_session_net_utils_lua --> network_transport_network_lua

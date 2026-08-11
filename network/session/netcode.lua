@@ -18,14 +18,14 @@ if not pcall(ffi.sizeof, "timespec") then
     ]]
 end
 
-local structs = require("structs")
-local net_utils = require("net_utils")
-local net_pump = require("net_pump")
-local fsm_core = require("fsm_core")
-local net = require("network")
+local structs = require("network.protocol.structs")
+local net_utils = require("network.session.net_utils")
+local net_pump = require("network.transport.net_pump")
+local fsm_core = require("network.lockstep.fsm_core")
+local net = require("network.transport.network")
 local create_lab_domain = require("worlds.router_plugin")
-local config_net = require("config_net")
-local config_sim = require("config_sim") -- [ADDED]
+local config_net = require("network.protocol.config_net")
+local config_sim = require("ssot.config_sim")
 
 local MAX_PLAYERS = ffi.C.CFG_MAX_PLAYERS
 local RING_SIZE   = ffi.C.CFG_RING_SIZE
