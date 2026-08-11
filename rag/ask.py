@@ -12,9 +12,8 @@ LOCAL_API_KEY = "TEST1234"
 
 # --- Hetzner API Configuration ---
 HETZNER_LLM_URL = "https://inference.hetzner.com/api/v1/chat/completions"
-HETZNER_API_KEY = "<YOUR_HETZNER_EXPERIMENTAL_TOKEN>"
 
-# Options: 
+# Options:
 # - "Kimi-K2.7-Code" (Tailored for code execution & logic)
 # - "Qwen/Qwen3.6-35B-A3B-FP8" (Very fast, highly accurate C/systems knowledge)
 # - "DeepSeek-V4-Flash-0731" (512k context window for huge retrieval dumps)
