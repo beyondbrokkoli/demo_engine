@@ -180,10 +180,6 @@ function Turn:make_move(l,s)
         new,alg = enpas(pos,l,s,loc:new(s.x,s.y-pc.id)) -- subtract capturing pawn
     elseif abs(pc.id)==1 and (s.y==1 or s.y==8) then
         local prom
---        if love.keyboard.isDown("2") then prom = 2
---        elseif love.keyboard.isDown("3") then prom = 3
---        elseif love.keyboard.isDown("4") then prom = 4
---        else prom = 5 end
         prom = 5
         new,alg = queening(pos,l,s,prom*pc.id)
     else
