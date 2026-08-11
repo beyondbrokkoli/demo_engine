@@ -48,8 +48,8 @@ return function(ctx)
             }
         },
         {
-            name = "DrawCommand", align = 8,
-            c_only = true, vk_shield = false, wire_format = false, force_align = false, glsl_std430 = false,
+            name = "DrawCommand", align = 64,
+            c_only = true, vk_shield = false, wire_format = false, force_align = true, glsl_std430 = false,
             members = {
                 { type = "uint64_t", name = "pipeline_id" }, { type = "uint64_t", name = "descriptor_set" },
                 { type = "uint32_t", name = "index_count" }, { type = "uint32_t", name = "instance_count" },

@@ -36,7 +36,7 @@ def get_query_vector(text):
     response.raise_for_status()
     return response.json()['data'][0]['embedding']
 
-def search_codebase(query, limit=35):  # <--- BUMPED: Hetzner handles huge contexts easily!
+def search_codebase(query, limit=12):
     """Queries Qdrant for relevant modules and formats dependency metadata."""
     query_vector = get_query_vector(query)
     results = qdrant.query_points(
@@ -82,6 +82,7 @@ def ask_llm(query, context):
         "Always begin your response with a <scratchpad> block. Inside this block, list the files "
         "that contain relevant code and briefly note what they contain. Once your map is complete, "
         "close the scratchpad and write your final architectural analysis."
+        "Keep scratchpad reasoning brief."
     )
 
     user_prompt = f"RETRIEVED CODE CONTEXT:\n{context}\n\nUSER QUESTION:\n{query}"
@@ -101,7 +102,7 @@ def ask_llm(query, context):
             {"role": "user", "content": user_prompt}
         ],
         temperature=0.1,
-        max_tokens=4096, # <--- BUMPED UP to allow for deep thinking
+        max_tokens=8192, # <--- BUMPED UP to allow for deep thinking
         stream=True
     )
 

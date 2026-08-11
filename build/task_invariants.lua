@@ -1,4 +1,4 @@
--- Replace your current build/task_invariants.lua with this:
+-- build/task_invariants.lua
 
 return function(ctx)
     print(" |- [HARNESS] Running Invariant Asserts...")
@@ -24,6 +24,11 @@ return function(ctx)
     end
     assert(target_win_found, "[FATAL INVARIANT] RenderPacket missing 'target_window_id'.")
     assert(r_packet.force_align and r_packet.align == 64, "[FATAL INVARIANT] RenderPacket not 64-byte aligned!")
+
+    -- NEW: DrawCommand cache-line invariants
+    local d_cmd = found["DrawCommand"]
+    assert(d_cmd, "[FATAL] Gremlin removed DrawCommand!")
+    assert(d_cmd.force_align and d_cmd.align == 64, "[FATAL INVARIANT] DrawCommand must be 64-byte aligned to prevent L1 cache false-sharing!")
 
     -- NOTE: LockstepPacket invariants are now enforced at compile-time by C11 _Static_assert
     -- inside network/shared_structs.h. The Lua top-down builder no longer cares.

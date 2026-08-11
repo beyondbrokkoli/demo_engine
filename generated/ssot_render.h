@@ -58,7 +58,7 @@ typedef struct  {
     uint8_t _pad_tail[4];
 } PushConstants;
 
-typedef struct  {
+typedef struct __attribute__((aligned(64))) {
     uint64_t pipeline_id;
     uint64_t descriptor_set;
     uint32_t index_count;
@@ -79,7 +79,7 @@ typedef struct  {
     uint8_t depth_compare_op;
     uint8_t front_face;
     uint8_t topology;
-    uint8_t _pad_tail[2];
+    uint8_t _pad_tail[10];
 } DrawCommand;
 
 typedef struct __attribute__((aligned(64))) {
