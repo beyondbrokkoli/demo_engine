@@ -1,80 +1,18 @@
+-- network/session/net_utils.lua
 local ffi = require("ffi")
 local json_util = require("network.protocol.json_util")
 local cfg_net = require("network.protocol.config_net")
 local net = require("network.transport.network")
+
+-- Injecting the refactored dependencies
+local sys_time = require("network.session.sys_time")
+local http = require("network.session.http_client")
+
 local NetUtils = {}
 
--- 1. DUPLICATE THE OS TIMERS HERE
-local function sys_sleep(ms)
-    if jit.os == "Windows" then
-        ffi.C.Sleep(ms)
-    else
-        ffi.C.usleep(ms * 1000)
-    end
-end
-
-local get_time_hires
-if jit.os == "Windows" then
-    local kernel32 = ffi.load("kernel32")
-    local freq = ffi.new("int64_t[1]")
-    kernel32.QueryPerformanceFrequency(freq)
-    local inv_freq = 1.0 / tonumber(freq[0])
-    get_time_hires = function()
-        local count = ffi.new("int64_t[1]")
-        kernel32.QueryPerformanceCounter(count)
-        return tonumber(count[0]) * inv_freq
-    end
-else
-    local CLOCK_MONOTONIC = 1
-    get_time_hires = function()
-        local ts = ffi.new("timespec")
-        ffi.C.clock_gettime(CLOCK_MONOTONIC, ts)
-        return tonumber(ts.tv_sec) + (tonumber(ts.tv_nsec) * 1e-9)
-    end
-end
-
-local function http_post(url, json_payload, local_port)
-    -- Dynamically resolve the temp directory based on the OS
-    local tmp_dir = (jit.os == "Windows") and (os.getenv("TEMP") or ".") or "/tmp"
-    local tmp_file = string.format("%s/mm_payload_%d.json", tmp_dir, local_port)
-
-    -- Improved assert message to catch exactly where it attempts to write if it fails again
-    local f = assert(io.open(tmp_file, "w"), string.format("Failed to open temp file at: %s", tmp_file))
-    f:write(json_payload)
-    f:close()
-
-    local cmd = string.format('curl -s -X POST -H "Content-Type: application/json" -d "@%s" %s', tmp_file, url)
-    local handle = io.popen(cmd)
-    local response = handle:read("*a")
-    handle:close()
-
-    os.remove(tmp_file)
-    return response
-end
-
-local function http_get(url)
-    local cmd = string.format('curl -s "%s"', url)
-    local f = io.popen(cmd)
-    if not f then return "" end
-    local res = f:read("*a")
-    f:close()
-    return res
-end
-
+-- Maintained as a wrapper to preserve backward compatibility with netcode.lua
 function NetUtils.get_local_ip()
-    local cmd = ""
-    if jit.os == "Windows" then
-        cmd = 'powershell -Command "(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -notlike \'127.*\' -and $_.IPAddress -notlike \'169.254.*\' } | Select-Object -First 1).IPAddress"'
-    else
-        cmd = "ip route get 1.1.1.1 | awk '{for(i=1;i<=NF;i++) if($i==\"src\") print $(i+1)}'"
-    end
-    local f = io.popen(cmd)
-    if not f then return "127.0.0.1" end
-    local res = f:read("*a")
-    f:close()
-    res = res:gsub("%s+", "")
-    if not res:match("^%d+%.%d+%.%d+%.%d+$") then return "127.0.0.1" end
-    return res
+    return http.get_local_ip()
 end
 
 local function extract_true_64bit_token(json_string)
@@ -92,20 +30,17 @@ local function extract_true_64bit_token(json_string)
     return val
 end
 
--- THE HEADLESS BOOTSTRAPPER
 function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby_id, target_lobby_size)
     print(string.format("[DEBUG-NET] Bootstrapping Port: %d | Local IP: %s", local_port, tostring(my_local_ip)))
 
     target_lobby_size = target_lobby_size or cfg_net.MAX_PLAYERS
 
-    -- Call net.Host, which now returns the OS-assigned port!
     local actual_port = net.Host(local_port)
     if not actual_port then
         print(string.format("[FATAL] Failed to bind local UDP port %d. Is it already in use?", local_port))
         os.exit(1)
     end
 
-    -- Overwrite local_port with the real port assigned by the OS (crucial for STUN/Matchmaker)
     local_port = actual_port
     print(string.format("[DEBUG-NET] Local UDP socket successfully bound to port %d.", local_port))
 
@@ -118,7 +53,6 @@ function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby
         print(string.format("[DEBUG-NET] STUN Success: %s:%d", tostring(my_pub_ip), my_pub_port))
     end
 
-    -- Build the payload with the dynamic target_size
     local payload = json_util.encode({
         public_ip = my_pub_ip, public_port = my_pub_port,
         local_ip = my_local_ip, local_port = local_port,
@@ -126,9 +60,7 @@ function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby
     })
 
     print(string.format("[DEBUG-NET] Payload built (Target Size: %d) targeting URL: %s", target_lobby_size, cfg_net.MATCHMAKER_URL))
-    print("[DEBUG-NET] Payload JSON: " .. payload)
 
-    -- [!] THE SAFETY SWITCH: Intercept the "host" keyword and neutralize it to nil
     local lobby_id = target_lobby_id
     if type(lobby_id) == "string" and lobby_id:lower() == "host" then
         lobby_id = nil
@@ -136,16 +68,14 @@ function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby
 
     local session_token = nil
 
-    -- [!] FIX: Removed 'or lobby_id == ""'. If it's empty, it fails to join.
     if lobby_id == nil then
         print("[DEBUG-NET] Requesting new Lobby ID from Matchmaker...")
-        local response = http_post(cfg_net.MATCHMAKER_URL .. "/host", payload, local_port)
+        local response = http.post(cfg_net.MATCHMAKER_URL .. "/host", payload, local_port)
 
         if not response or response == "" then
             print("[FATAL] Matchmaker unreachable (empty response).")
             os.exit(1)
         end
-        print("[DEBUG-NET] Matchmaker POST /host Response: " .. tostring(response))
 
         local decoded = json_util.decode(response)
         if not decoded or not decoded.lobby_id then
@@ -156,9 +86,8 @@ function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby
         lobby_id = decoded.lobby_id
         print("LOBBY_ID: " .. lobby_id)
     else
-        -- [!] STRICT JOIN: If they pass an empty string "", the server will 404 cleanly.
         print("[DEBUG-NET] Joining existing Lobby ID: " .. tostring(lobby_id))
-        local response = http_post(cfg_net.MATCHMAKER_URL .. "/join/" .. lobby_id, payload, local_port)
+        local response = http.post(cfg_net.MATCHMAKER_URL .. "/join/" .. lobby_id, payload, local_port)
 
         if not response or response == "" then
             print(string.format("[FATAL] Failed to join lobby '%s'. Matchmaker unreachable.", lobby_id))
@@ -166,17 +95,14 @@ function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby
         end
 
         local decoded = json_util.decode(response)
-        -- [!] THE CATCH-ALL: If FastAPI returns *any* detail key, it's an HTTP exception.
         if decoded and decoded.detail then
             if type(decoded.detail) == "string" then
                 print(string.format("[FATAL] Matchmaker rejected join: %s", decoded.detail))
             else
-                -- It's a Pydantic array (e.g. 422 Validation Error)
                 print("[FATAL] Matchmaker rejected join: Unprocessable Entity (Invalid Payload)")
             end
             os.exit(1)
         end
-        print("[DEBUG-NET] Matchmaker POST /join Response: " .. tostring(response))
     end
 
     print(string.format("[DEBUG-NET] Entering Polling Loop for Lobby %s to lock...", lobby_id))
@@ -184,7 +110,7 @@ function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby
     local poll_count = 0
 
     while true do
-        local raw_res = http_get(cfg_net.MATCHMAKER_URL .. "/status/" .. lobby_id)
+        local raw_res = http.get(cfg_net.MATCHMAKER_URL .. "/status/" .. lobby_id)
         poll_count = poll_count + 1
 
         if raw_res and raw_res ~= "" then
@@ -193,12 +119,10 @@ function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby
             if not status_data then
                 print(string.format("[DEBUG-NET] Poll #%d | Warning: Failed to parse Matchmaker JSON.", poll_count))
             elseif status_data.detail then
-                -- [!] GHOST BUSTER: Catch 404s/422s if the polling loop hits a dead endpoint
                 print(string.format("[FATAL] Matchmaker polling failed: %s",
                     type(status_data.detail) == "string" and status_data.detail or "Invalid Query"))
                 os.exit(1)
             else
-                -- [!] ALIGNMENT FIX: Synchronize client target_size with the host's decision!
                 if status_data.target_size then
                     target_lobby_size = status_data.target_size
                 end
@@ -219,14 +143,13 @@ function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby
             print(string.format("[DEBUG-NET] Poll #%d | HTTP GET failed. Matchmaker offline?", poll_count))
         end
 
-        sys_sleep(500)
+        sys_time.sleep(500)
     end
 
     print("[DEBUG-NET] Matchmaker sequence complete. Proceeding to peer evaluation...")
 
     local local_id = 0
     for i, p in ipairs(status_data.players) do
-        -- [!] FIX 2: Match the new FastAPI schema (public_ip, public_port)
         if p.public_ip == my_pub_ip and tonumber(p.public_port) == my_pub_port and p.local_ip == my_local_ip and p.local_port == local_port then
             local_id = i - 1; break
         end
@@ -242,7 +165,6 @@ function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby
         local peer_id = i - 1
         if peer_id ~= local_id then
             active_peers[peer_id] = true
-            -- [!] FIX 2: Updated p.ip -> p.public_ip and p.port -> p.public_port
             if p.public_ip == my_pub_ip or p.public_ip == "127.0.0.1" or my_pub_ip == "127.0.0.1" then
                 local target_ip = (p.local_ip == my_local_ip) and "127.0.0.1" or p.local_ip
                 print(string.format("[DEBUG-NET] Connecting to local peer %d at %s:%d", peer_id, target_ip, p.local_port))
@@ -256,18 +178,17 @@ function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby
     end
 
     local real_time_remaining = status_data.start_time - status_data.server_time
-    local sync_start_time = get_time_hires()
+    local sync_start_time = sys_time.get_time_hires()
 
     print(string.format("[DEBUG-NET] Entering ICE Punch Handshake... (Time remaining: %.2fs)", real_time_remaining))
 
-    -- ICE Punch Logic (Untouched below here)
     if real_time_remaining > 0 then
         local ice_packet_size = ffi.sizeof("IcePunchPacket")
         local handshake_buffer = ffi.new("RxPacket[32]")
         local scratch_ice = ffi.new("IcePunchPacket")
         local p2p_heard = {}
 
-        while (get_time_hires() - sync_start_time) < real_time_remaining do
+        while (sys_time.get_time_hires() - sync_start_time) < real_time_remaining do
             for peer_id, active in pairs(active_peers) do
                 if active and not p2p_established[peer_id] then
                     local ping_pkt = ffi.new("IcePunchPacket")
@@ -293,7 +214,7 @@ function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby
                     end
                 end
             end
-            sys_sleep(50)
+            sys_time.sleep(50)
         end
     end
 
@@ -303,8 +224,6 @@ function NetUtils.BootstrapNetworkTopology(local_port, my_local_ip, target_lobby
     for peer_id, active in pairs(active_peers) do
         if active and not p2p_established[peer_id] then
             print(string.format("[DEBUG-NET] Peer %d failed ICE handshake. Falling back to RELAY.", peer_id))
-            print("RELAY_IP: ".. cfg_net.RELAY_IP)
-            print("RELAY_PORT: " .. cfg_net.RELAY_PORT)
             net.Connect(peer_id, cfg_net.RELAY_IP, cfg_net.RELAY_PORT)
             p2p_established[peer_id] = true
             needs_relay = true
