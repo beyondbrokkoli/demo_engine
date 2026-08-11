@@ -40,8 +40,9 @@
 #include "../ipc/mailbox.c"
 #include "lifecycle.c"
 #include "../ipc/ring_stream.c"
-#include "../tenant/tenant_callbacks_state.c" // Extracted global state file
-#include "../tenant/tenant_callbacks.c"       // Unified callbacks file
+#include "../tenant/tenant_callbacks_state.c"
+#include "../tenant/tenant_callbacks_mouse.c"
+#include "../tenant/tenant_callbacks_key.c"
 #include "../tenant/tenant_input.c"
 #include "../tenant/tenant_sys.c"
 #include "../../render/debug/vk_debug.c"

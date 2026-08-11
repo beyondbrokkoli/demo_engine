@@ -76,13 +76,3 @@ void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, in
         fflush(stdout);
     }
 }
-
-void glfw_framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-    if (width == 0 || height == 0) return;
-    int id = (int)(intptr_t)glfwGetWindowUserPointer(window);
-    if (id < 0 || id >= MAX_WINDOWS) return;
-
-    S(g_engine.mailbox.tenants[id].win_w, width);
-    S(g_engine.mailbox.tenants[id].win_h, height);
-    S(g_engine.mailbox.tenants[id].window_resized, 1);
-}

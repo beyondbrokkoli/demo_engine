@@ -47,7 +47,6 @@ INGESTION_MANIFEST = [
     "host/runtime/main_loop.c",
     "host/state/state_globals.c",
     "host/state/state_types.c",
-    "host/tenant/tenant_callbacks.c",
     "host/tenant/tenant_callbacks_key.c",
     "host/tenant/tenant_callbacks_mouse.c",
     "host/tenant/tenant_callbacks_state.c",

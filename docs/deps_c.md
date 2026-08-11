@@ -17,8 +17,6 @@ flowchart LR
         host_runtime_main_loop_c["host/runtime/main_loop.c"]
         host_state_state_globals_c["host/state/state_globals.c"]
         host_state_state_types_c["host/state/state_types.c"]
-        host_tenant_tenant_callback_state_c["host/tenant/tenant_callback_state.c"]
-        host_tenant_tenant_callbacks_c["host/tenant/tenant_callbacks.c"]
         host_tenant_tenant_callbacks_key_c["host/tenant/tenant_callbacks_key.c"]
         host_tenant_tenant_callbacks_mouse_c["host/tenant/tenant_callbacks_mouse.c"]
         host_tenant_tenant_callbacks_state_c["host/tenant/tenant_callbacks_state.c"]
@@ -50,7 +48,8 @@ flowchart LR
     host_boot_main_c --> host_runtime_main_loop_c
     host_boot_main_c --> host_state_state_globals_c
     host_boot_main_c --> host_state_state_types_c
-    host_boot_main_c --> host_tenant_tenant_callbacks_c
+    host_boot_main_c --> host_tenant_tenant_callbacks_key_c
+    host_boot_main_c --> host_tenant_tenant_callbacks_mouse_c
     host_boot_main_c --> host_tenant_tenant_callbacks_state_c
     host_boot_main_c --> host_tenant_tenant_input_c
     host_boot_main_c --> host_tenant_tenant_sys_c
