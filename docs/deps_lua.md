@@ -13,11 +13,6 @@ flowchart LR
         build_task_invariants_lua["build/task_invariants.lua"]
         build_task_shaders_lua["build/task_shaders.lua"]
     end
-    subgraph game
-        game_attack["game/attack"]
-        game_logic["game/logic"]
-        game_move["game/move"]
-    end
     subgraph network
         network_lockstep_fsm_core_lua["network/lockstep/fsm_core.lua"]
         network_lockstep_fsm_pacing_lua["network/lockstep/fsm_pacing.lua"]
@@ -41,6 +36,8 @@ flowchart LR
         runtime_boot_core_abi_lua["runtime/boot/core_abi.lua"]
         runtime_boot_engine_api_lua["runtime/boot/engine_api.lua"]
         runtime_boot_main_lua["runtime/boot/main.lua"]
+        runtime_boot_main_loop_lua["runtime/boot/main_loop.lua"]
+        runtime_boot_main_setup_lua["runtime/boot/main_setup.lua"]
         runtime_boot_path_weaver_lua["runtime/boot/path_weaver.lua"]
         runtime_boot_weaver_boot_lua["runtime/boot/weaver_boot.lua"]
         runtime_boot_window_api_lua["runtime/boot/window_api.lua"]
@@ -128,33 +125,36 @@ flowchart LR
     network_transport_net_pump_lua --> network_lockstep_history_buffer_lua
     network_transport_net_pump_lua --> network_lockstep_wire_codec_lua
     network_transport_net_pump_lua --> network_transport_network_lua
-    runtime_boot_main_lua --> network_session_netcode_lua
-    runtime_boot_main_lua --> network_session_sys_time_lua
-    runtime_boot_main_lua --> runtime_boot_core_abi_lua
     runtime_boot_main_lua --> runtime_boot_engine_api_lua
-    runtime_boot_main_lua --> runtime_boot_path_weaver_lua
-    runtime_boot_main_lua --> runtime_boot_weaver_boot_lua
-    runtime_boot_main_lua --> runtime_boot_window_api_lua
-    runtime_boot_main_lua --> runtime_presentation_graphics_graphics_pipeline_lua
-    runtime_boot_main_lua --> runtime_presentation_graphics_sequence_lua
-    runtime_boot_main_lua --> runtime_presentation_translation_pipeline_manifest_lua
-    runtime_boot_main_lua --> runtime_presentation_translation_render_queue_lua
-    runtime_boot_main_lua --> runtime_services_gpu_weaver_vram_lua
-    runtime_boot_main_lua --> runtime_services_math_fixed_math_lua
-    runtime_boot_main_lua --> runtime_services_math_vmath_lua
-    runtime_boot_main_lua --> runtime_services_memory_memory_lua
-    runtime_boot_main_lua --> runtime_services_tenants_tenant_lifecycle_lua
-    runtime_boot_main_lua --> runtime_services_tenants_tenant_registry_lua
-    runtime_boot_main_lua --> runtime_shutdown_teardown_lua
-    runtime_boot_main_lua --> runtime_simulation_camera_lua
-    runtime_boot_main_lua --> runtime_simulation_game_state_lua
-    runtime_boot_main_lua --> runtime_simulation_raycast_lua
-    runtime_boot_main_lua --> ssot_config_gfx_lua
-    runtime_boot_main_lua --> ssot_config_sim_lua
-    runtime_boot_main_lua --> ssot_ctx_types_lua
-    runtime_boot_main_lua --> ssot_type_math_lua
-    runtime_boot_main_lua --> ssot_type_render_lua
-    runtime_boot_main_lua --> tools_cli_args_lua
+    runtime_boot_main_lua --> runtime_boot_main_loop_lua
+    runtime_boot_main_lua --> runtime_boot_main_setup_lua
+    runtime_boot_main_setup_lua --> network_session_netcode_lua
+    runtime_boot_main_setup_lua --> network_session_sys_time_lua
+    runtime_boot_main_setup_lua --> runtime_boot_core_abi_lua
+    runtime_boot_main_setup_lua --> runtime_boot_engine_api_lua
+    runtime_boot_main_setup_lua --> runtime_boot_path_weaver_lua
+    runtime_boot_main_setup_lua --> runtime_boot_weaver_boot_lua
+    runtime_boot_main_setup_lua --> runtime_boot_window_api_lua
+    runtime_boot_main_setup_lua --> runtime_presentation_graphics_graphics_pipeline_lua
+    runtime_boot_main_setup_lua --> runtime_presentation_graphics_sequence_lua
+    runtime_boot_main_setup_lua --> runtime_presentation_translation_pipeline_manifest_lua
+    runtime_boot_main_setup_lua --> runtime_presentation_translation_render_queue_lua
+    runtime_boot_main_setup_lua --> runtime_services_gpu_weaver_vram_lua
+    runtime_boot_main_setup_lua --> runtime_services_math_fixed_math_lua
+    runtime_boot_main_setup_lua --> runtime_services_math_vmath_lua
+    runtime_boot_main_setup_lua --> runtime_services_memory_memory_lua
+    runtime_boot_main_setup_lua --> runtime_services_tenants_tenant_lifecycle_lua
+    runtime_boot_main_setup_lua --> runtime_services_tenants_tenant_registry_lua
+    runtime_boot_main_setup_lua --> runtime_shutdown_teardown_lua
+    runtime_boot_main_setup_lua --> runtime_simulation_camera_lua
+    runtime_boot_main_setup_lua --> runtime_simulation_game_state_lua
+    runtime_boot_main_setup_lua --> runtime_simulation_raycast_lua
+    runtime_boot_main_setup_lua --> ssot_config_gfx_lua
+    runtime_boot_main_setup_lua --> ssot_config_sim_lua
+    runtime_boot_main_setup_lua --> ssot_ctx_types_lua
+    runtime_boot_main_setup_lua --> ssot_type_math_lua
+    runtime_boot_main_setup_lua --> ssot_type_render_lua
+    runtime_boot_main_setup_lua --> tools_cli_args_lua
     runtime_presentation_graphics_compute_pipeline_lua --> runtime_services_gpu_registry_vk_lua
     runtime_presentation_graphics_graphics_pipeline_lua --> runtime_services_gpu_registry_vk_lua
     runtime_presentation_graphics_renderer_lua --> runtime_services_gpu_registry_vk_lua
@@ -212,14 +212,16 @@ flowchart LR
     tools_cli_readline_lua --> tools_cli_lobby_lua
     tools_cli_readline_lua --> tools_cli_sys_lua
     worlds_chess_domain_lua --> runtime_services_math_fixed_math_lua
+    worlds_chess_domain_lua --> worlds_luachess_game_standard_lua
+    worlds_chess_domain_lua --> worlds_luachess_game_turn_lua
     worlds_chess_domain_lua --> worlds_luachess_global_lua
     worlds_isometric_domain_lua --> runtime_services_math_fixed_math_lua
-    worlds_luachess_game_logic_lua --> game_attack
-    worlds_luachess_game_logic_lua --> game_move
+    worlds_luachess_game_logic_lua --> worlds_luachess_game_attack_lua
+    worlds_luachess_game_logic_lua --> worlds_luachess_game_move_lua
     worlds_luachess_game_logic_lua --> worlds_luachess_global_lua
     worlds_luachess_game_move_lua --> worlds_luachess_global_lua
     worlds_luachess_game_standard_lua --> worlds_luachess_global_lua
-    worlds_luachess_game_turn_lua --> game_logic
+    worlds_luachess_game_turn_lua --> worlds_luachess_game_logic_lua
     worlds_luachess_game_turn_lua --> worlds_luachess_global_lua
     worlds_router_plugin_lua --> network_transport_network_lua
     worlds_router_plugin_lua --> worlds_chess_domain_lua
