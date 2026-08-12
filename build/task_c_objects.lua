@@ -1,3 +1,4 @@
+-- build/task_c_objects.lua
 return function(ctx)
     if ctx.target == "shaders" then return end
 
@@ -6,7 +7,7 @@ return function(ctx)
     if ctx.platform == "linux" then
         -- 1. Build the Bottom-Up Pure Netcode (Shared Library)
         print(" |- Compiling pure netcode (libvx_net.so)...")
-        ctx.run_cmd("gcc network/transport/vx_net.c -O3 -march=x86-64-v3 -shared -fPIC -o bin/libvx_net.so")
+        ctx.run_cmd("gcc network/transport/vx_net_state.c network/transport/vx_net_io.c network/transport/vx_net_stun.c -O3 -march=x86-64-v3 -shared -fPIC -o bin/libvx_net.so")
 
         -- 2. Build the Top-Down Host Unity Build
         print(" |- Compiling host engine (boot.elf)...")
@@ -23,7 +24,7 @@ return function(ctx)
 
         -- 1. Build the Bottom-Up Pure Netcode (DLL)
         print(" |- Compiling pure netcode (vx_net.dll)...")
-        ctx.run_cmd(string.format('gcc network/transport/vx_net.c -O3 -march=x86-64-v3 -shared -lws2_32 -o bin/vx_net.dll'))
+        ctx.run_cmd(string.format('gcc network/transport/vx_net_state.c network/transport/vx_net_io.c network/transport/vx_net_stun.c -O3 -march=x86-64-v3 -shared -lws2_32 -o bin/vx_net.dll'))
 
         -- 2. Build the Top-Down Host Unity Build (Does NOT link ws2_32 anymore)
         print(" |- Compiling host engine (boot.exe)...")
