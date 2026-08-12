@@ -13,6 +13,7 @@ usage() {
     echo "  ./launch.sh swarm [graphical_count] [bot_count]  - Spins up a local swarm cluster"
     echo "  ./launch.sh lab                                  - Spins up 4/4 split (4 graphical, 4 bots)"
     echo "  ./launch.sh host [size]                          - Boots a graphical host node"
+    echo "  ./launch.sh host_headless [size]                 - Boots a headless host node"
     echo "  ./launch.sh client [lobby_id]                    - Boots a graphical client to join a lobby"
     echo "  ./launch.sh attach [bot_count] [lobby_id]        - Injects headless bots to an existing lobby"
     echo "  ./launch.sh clean                                - Force-kills all active boot and bot processes"
@@ -41,6 +42,13 @@ case $COMMAND in
         echo "[SWARM] Booting Graphical Host Node (Size: $TARGET_SIZE)..."
         ./bin/boot$BIN_EXT host "$TARGET_SIZE" > logs/host.log 2>&1 &
         echo "[SWARM] Host running in background."
+        ;;
+
+    host_headless)
+        TARGET_SIZE=${2:-8}
+        echo "[SWARM] Booting Headless Host Node (Size: $TARGET_SIZE)..."
+        ./bin/boot_headless$BIN_EXT host "$TARGET_SIZE" > logs/host.log 2>&1 &
+        echo "[SWARM] Headless Host running in background."
         ;;
 
     client)
