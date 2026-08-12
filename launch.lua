@@ -178,8 +178,8 @@ local function main_loop()
         elseif cmd == "clean" then
             print("[CLI] Issuing sweep command...")
             sys.run_shell_cmd(sys.launcher .. " clean")
-        elseif cmd == "swarm" or cmd == "lab" or cmd == "host" or cmd == "client" or cmd == "attach" then
-            if cmd == "swarm" or cmd == "lab" or cmd == "host" then
+        elseif cmd == "swarm" or cmd == "lab" or cmd == "host" or cmd == "host_headless" or cmd == "client" or cmd == "attach" then
+            if cmd == "swarm" or cmd == "lab" or cmd == "host" or cmd == "host_headless" then
                 os.remove("logs/host.log")
             end
 
@@ -187,7 +187,7 @@ local function main_loop()
             print("[CLI] Executing: " .. full_cmd)
             sys.run_shell_cmd(full_cmd)
 
-            if cmd == "swarm" or cmd == "lab" or cmd == "host" then
+            if cmd == "swarm" or cmd == "lab" or cmd == "host" or cmd == "host_headless" then
                 await_lobby_id()
             end
         elseif cmd ~= nil and cmd ~= "" then
