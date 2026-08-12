@@ -48,29 +48,6 @@ local Lifecycle = require("tenant_lifecycle")
 local memory = require("memory")
 local camera_mod = require("camera")
 
-local function sys_sleep(ms)
-    if jit.os == "Windows" then ffi.C.Sleep(ms) else ffi.C.usleep(ms * 1000) end
-end
-
-local get_time_hires
-if jit.os == "Windows" then
-    local freq = ffi.new("int64_t[1]")
-    ffi.C.QueryPerformanceFrequency(freq)
-    local inv_freq = 1.0 / tonumber(freq[0])
-    get_time_hires = function()
-        local count = ffi.new("int64_t[1]")
-        ffi.C.QueryPerformanceCounter(count)
-        return tonumber(count[0]) * inv_freq
-    end
-else
-    local CLOCK_MONOTONIC = 1
-    get_time_hires = function()
-        local ts = ffi.new("timespec")
-        ffi.C.clock_gettime(CLOCK_MONOTONIC, ts)
-        return tonumber(ts.tv_sec) + (tonumber(ts.tv_nsec) * 1e-9)
-    end
-end
-
 local function main()
     local parsed = cli_args.parse(arg)
 
