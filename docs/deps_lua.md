@@ -99,6 +99,10 @@ flowchart LR
         worlds_isometric_domain_lua["worlds/isometric/domain.lua"]
         worlds_luachess_game_attack_lua["worlds/luachess/game/attack.lua"]
         worlds_luachess_game_logic_lua["worlds/luachess/game/logic.lua"]
+        worlds_luachess_game_logic_base_lua["worlds/luachess/game/logic_base.lua"]
+        worlds_luachess_game_logic_core_lua["worlds/luachess/game/logic_core.lua"]
+        worlds_luachess_game_logic_gen_lua["worlds/luachess/game/logic_gen.lua"]
+        worlds_luachess_game_logic_pools_lua["worlds/luachess/game/logic_pools.lua"]
         worlds_luachess_game_move_lua["worlds/luachess/game/move.lua"]
         worlds_luachess_game_standard_lua["worlds/luachess/game/standard.lua"]
         worlds_luachess_game_turn_lua["worlds/luachess/game/turn.lua"]
@@ -260,9 +264,18 @@ flowchart LR
     worlds_chess_domain_terrain_lua --> runtime_services_math_fixed_math_lua
     worlds_chess_domain_terrain_lua --> worlds_chess_domain_base_lua
     worlds_isometric_domain_lua --> runtime_services_math_fixed_math_lua
-    worlds_luachess_game_logic_lua --> worlds_luachess_game_attack_lua
-    worlds_luachess_game_logic_lua --> worlds_luachess_game_move_lua
-    worlds_luachess_game_logic_lua --> worlds_luachess_global_lua
+    worlds_luachess_game_logic_lua --> worlds_luachess_game_logic_base_lua
+    worlds_luachess_game_logic_lua --> worlds_luachess_game_logic_core_lua
+    worlds_luachess_game_logic_lua --> worlds_luachess_game_logic_gen_lua
+    worlds_luachess_game_logic_base_lua --> worlds_luachess_game_attack_lua
+    worlds_luachess_game_logic_base_lua --> worlds_luachess_game_move_lua
+    worlds_luachess_game_logic_base_lua --> worlds_luachess_global_lua
+    worlds_luachess_game_logic_core_lua --> worlds_luachess_game_logic_base_lua
+    worlds_luachess_game_logic_core_lua --> worlds_luachess_game_logic_pools_lua
+    worlds_luachess_game_logic_gen_lua --> worlds_luachess_game_logic_base_lua
+    worlds_luachess_game_logic_gen_lua --> worlds_luachess_game_logic_core_lua
+    worlds_luachess_game_logic_gen_lua --> worlds_luachess_game_logic_pools_lua
+    worlds_luachess_game_logic_pools_lua --> worlds_luachess_game_logic_base_lua
     worlds_luachess_game_move_lua --> worlds_luachess_global_lua
     worlds_luachess_game_standard_lua --> worlds_luachess_global_lua
     worlds_luachess_game_turn_lua --> worlds_luachess_game_logic_lua
