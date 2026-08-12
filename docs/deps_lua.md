@@ -75,6 +75,8 @@ flowchart LR
     end
     subgraph tools
         tools_bot_lua["tools/bot.lua"]
+        tools_cli_args_lua["tools/cli_args.lua"]
+        tools_cli_sys_lua["tools/cli_sys.lua"]
     end
     subgraph worlds
         worlds_chess_domain_lua["worlds/chess/domain.lua"]
@@ -150,6 +152,7 @@ flowchart LR
     runtime_boot_main_lua --> ssot_ctx_types_lua
     runtime_boot_main_lua --> ssot_type_math_lua
     runtime_boot_main_lua --> ssot_type_render_lua
+    runtime_boot_main_lua --> tools_cli_args_lua
     runtime_presentation_graphics_compute_pipeline_lua --> runtime_services_gpu_registry_vk_lua
     runtime_presentation_graphics_graphics_pipeline_lua --> runtime_services_gpu_registry_vk_lua
     runtime_presentation_graphics_renderer_lua --> runtime_services_gpu_registry_vk_lua
@@ -202,6 +205,7 @@ flowchart LR
     tools_bot_lua --> runtime_boot_path_weaver_lua
     tools_bot_lua --> runtime_simulation_game_state_lua
     tools_bot_lua --> ssot_config_sim_lua
+    tools_bot_lua --> tools_cli_args_lua
     worlds_chess_domain_lua --> runtime_services_math_fixed_math_lua
     worlds_chess_domain_lua --> worlds_luachess_global_lua
     worlds_isometric_domain_lua --> runtime_services_math_fixed_math_lua

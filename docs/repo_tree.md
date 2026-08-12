@@ -23,14 +23,12 @@ flowchart LR
     node_scripts["📁 scripts"]
     node_server["📁 server"]
     node_shaders["📁 shaders"]
-    node_snapshots["📁 snapshots"]
     node_ssot["📁 ssot"]
     node_tools["📁 tools"]
     node_worlds["📁 worlds"]
     node__gitattributes["📄 .gitattributes"]
     node__gitignore["📄 .gitignore"]
     node_LICENSE["📄 LICENSE"]
-    node_cli_sys_lua["📄 cli_sys.lua"]
     node_launch_bat["📄 launch.bat"]
     node_launch_lua["📄 launch.lua"]
     node_launch_sh["📄 launch.sh"]
@@ -172,9 +170,9 @@ flowchart LR
     node_network_transport_vx_net_io_c["📄 vx_net_io.c"]
     node_network_transport_vx_net_state_c["📄 vx_net_state.c"]
     node_network_transport_vx_net_stun_c["📄 vx_net_stun.c"]
-    node_snapshots_tmp["📁 tmp"]
-    node_snapshots_tmp_upload["📁 upload"]
     node_tools_bot_lua["📄 bot.lua"]
+    node_tools_cli_args_lua["📄 cli_args.lua"]
+    node_tools_cli_sys_lua["📄 cli_sys.lua"]
     node_server_api_py["📄 api.py"]
     node_server_matchmaker_py["📄 matchmaker.py"]
     node_server_models_py["📄 models.py"]
@@ -219,14 +217,12 @@ flowchart LR
     root --> node_scripts
     root --> node_server
     root --> node_shaders
-    root --> node_snapshots
     root --> node_ssot
     root --> node_tools
     root --> node_worlds
     root --> node__gitattributes
     root --> node__gitignore
     root --> node_LICENSE
-    root --> node_cli_sys_lua
     root --> node_launch_bat
     root --> node_launch_lua
     root --> node_launch_sh
@@ -368,9 +364,9 @@ flowchart LR
     node_network_transport --> node_network_transport_vx_net_io_c
     node_network_transport --> node_network_transport_vx_net_state_c
     node_network_transport --> node_network_transport_vx_net_stun_c
-    node_snapshots --> node_snapshots_tmp
-    node_snapshots_tmp --> node_snapshots_tmp_upload
     node_tools --> node_tools_bot_lua
+    node_tools --> node_tools_cli_args_lua
+    node_tools --> node_tools_cli_sys_lua
     node_server --> node_server_api_py
     node_server --> node_server_matchmaker_py
     node_server --> node_server_models_py
@@ -416,14 +412,12 @@ flowchart LR
     class node_scripts dir
     class node_server dir
     class node_shaders dir
-    class node_snapshots dir
     class node_ssot dir
     class node_tools dir
     class node_worlds dir
     class node__gitattributes file
     class node__gitignore file
     class node_LICENSE file
-    class node_cli_sys_lua file
     class node_launch_bat file
     class node_launch_lua file
     class node_launch_sh file
@@ -565,9 +559,9 @@ flowchart LR
     class node_network_transport_vx_net_io_c file
     class node_network_transport_vx_net_state_c file
     class node_network_transport_vx_net_stun_c file
-    class node_snapshots_tmp dir
-    class node_snapshots_tmp_upload dir
     class node_tools_bot_lua file
+    class node_tools_cli_args_lua file
+    class node_tools_cli_sys_lua file
     class node_server_api_py file
     class node_server_matchmaker_py file
     class node_server_models_py file
