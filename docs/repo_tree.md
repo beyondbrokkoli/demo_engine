@@ -23,11 +23,13 @@ flowchart LR
     node_scripts["📁 scripts"]
     node_server["📁 server"]
     node_shaders["📁 shaders"]
+    node_snapshots["📁 snapshots"]
     node_ssot["📁 ssot"]
     node_tools["📁 tools"]
     node_worlds["📁 worlds"]
     node__gitattributes["📄 .gitattributes"]
     node__gitignore["📄 .gitignore"]
+    node_LICENSE["📄 LICENSE"]
     node_cli_sys_lua["📄 cli_sys.lua"]
     node_launch_bat["📄 launch.bat"]
     node_launch_lua["📄 launch.lua"]
@@ -47,6 +49,7 @@ flowchart LR
     node_build_check_build_dependencies_lua["📄 check_build_dependencies.lua"]
     node_build_export_c_hdr_lua["📄 export_c_hdr.lua"]
     node_build_export_glsl_lua["📄 export_glsl.lua"]
+    node_build_net_codegen_lua["📄 net_codegen.lua"]
     node_build_task_c_objects_lua["📄 task_c_objects.lua"]
     node_build_task_headless_lua["📄 task_headless.lua"]
     node_build_task_invariants_lua["📄 task_invariants.lua"]
@@ -68,8 +71,6 @@ flowchart LR
     node_worlds_luachess_game["📁 game"]
     node_worlds_luachess_global_lua["📄 global.lua"]
     node_worlds_luachess_game_attack_lua["📄 attack.lua"]
-    node_worlds_luachess_game_game_lua["📄 game.lua"]
-    node_worlds_luachess_game_input_lua["📄 input.lua"]
     node_worlds_luachess_game_logic_lua["📄 logic.lua"]
     node_worlds_luachess_game_move_lua["📄 move.lua"]
     node_worlds_luachess_game_standard_lua["📄 standard.lua"]
@@ -101,6 +102,7 @@ flowchart LR
     node_docs_repo_ascii_txt["📄 repo_ascii.txt"]
     node_docs_repo_tree_md["📄 repo_tree.md"]
     node_rag_ask_py["📄 ask.py"]
+    node_rag_ask_local_py["📄 ask_local.py"]
     node_rag_ingest_codebase_py["📄 ingest_codebase.py"]
     node_runtime_boot["📁 boot"]
     node_runtime_presentation["📁 presentation"]
@@ -151,13 +153,27 @@ flowchart LR
     node_network_protocol_config_net_lua["📄 config_net.lua"]
     node_network_protocol_dkjson_lua["📄 dkjson.lua"]
     node_network_protocol_json_util_lua["📄 json_util.lua"]
+    node_network_protocol_net_01_constants_h["📄 net_01_constants.h"]
+    node_network_protocol_net_02_wire_h["📄 net_02_wire.h"]
+    node_network_protocol_net_03_memory_h["📄 net_03_memory.h"]
+    node_network_protocol_net_04_state_h["📄 net_04_state.h"]
+    node_network_protocol_net_05_api_h["📄 net_05_api.h"]
     node_network_protocol_shared_structs_h["📄 shared_structs.h"]
     node_network_protocol_structs_lua["📄 structs.lua"]
+    node_network_session_http_client_lua["📄 http_client.lua"]
+    node_network_session_ice_handshake_lua["📄 ice_handshake.lua"]
+    node_network_session_matchmaker_lua["📄 matchmaker.lua"]
     node_network_session_net_utils_lua["📄 net_utils.lua"]
     node_network_session_netcode_lua["📄 netcode.lua"]
+    node_network_session_sys_time_lua["📄 sys_time.lua"]
     node_network_transport_net_pump_lua["📄 net_pump.lua"]
     node_network_transport_network_lua["📄 network.lua"]
-    node_network_transport_vx_net_c["📄 vx_net.c"]
+    node_network_transport_vx_net_internal_h["📄 vx_net_internal.h"]
+    node_network_transport_vx_net_io_c["📄 vx_net_io.c"]
+    node_network_transport_vx_net_state_c["📄 vx_net_state.c"]
+    node_network_transport_vx_net_stun_c["📄 vx_net_stun.c"]
+    node_snapshots_tmp["📁 tmp"]
+    node_snapshots_tmp_upload["📁 upload"]
     node_tools_bot_lua["📄 bot.lua"]
     node_server_api_py["📄 api.py"]
     node_server_matchmaker_py["📄 matchmaker.py"]
@@ -179,7 +195,6 @@ flowchart LR
     node_host_lua_lua_vm_c["📄 lua_vm.c"]
     node_host_threading_thread_lifecycle_c["📄 thread_lifecycle.c"]
     node_host_threading_thread_pool_c["📄 thread_pool.c"]
-    node_host_tenant_tenant_callbacks_c["📄 tenant_callbacks.c"]
     node_host_tenant_tenant_callbacks_key_c["📄 tenant_callbacks_key.c"]
     node_host_tenant_tenant_callbacks_mouse_c["📄 tenant_callbacks_mouse.c"]
     node_host_tenant_tenant_callbacks_state_c["📄 tenant_callbacks_state.c"]
@@ -204,11 +219,13 @@ flowchart LR
     root --> node_scripts
     root --> node_server
     root --> node_shaders
+    root --> node_snapshots
     root --> node_ssot
     root --> node_tools
     root --> node_worlds
     root --> node__gitattributes
     root --> node__gitignore
+    root --> node_LICENSE
     root --> node_cli_sys_lua
     root --> node_launch_bat
     root --> node_launch_lua
@@ -228,6 +245,7 @@ flowchart LR
     node_build --> node_build_check_build_dependencies_lua
     node_build --> node_build_export_c_hdr_lua
     node_build --> node_build_export_glsl_lua
+    node_build --> node_build_net_codegen_lua
     node_build --> node_build_task_c_objects_lua
     node_build --> node_build_task_headless_lua
     node_build --> node_build_task_invariants_lua
@@ -249,8 +267,6 @@ flowchart LR
     node_worlds_luachess --> node_worlds_luachess_game
     node_worlds_luachess --> node_worlds_luachess_global_lua
     node_worlds_luachess_game --> node_worlds_luachess_game_attack_lua
-    node_worlds_luachess_game --> node_worlds_luachess_game_game_lua
-    node_worlds_luachess_game --> node_worlds_luachess_game_input_lua
     node_worlds_luachess_game --> node_worlds_luachess_game_logic_lua
     node_worlds_luachess_game --> node_worlds_luachess_game_move_lua
     node_worlds_luachess_game --> node_worlds_luachess_game_standard_lua
@@ -282,6 +298,7 @@ flowchart LR
     node_docs --> node_docs_repo_ascii_txt
     node_docs --> node_docs_repo_tree_md
     node_rag --> node_rag_ask_py
+    node_rag --> node_rag_ask_local_py
     node_rag --> node_rag_ingest_codebase_py
     node_runtime --> node_runtime_boot
     node_runtime --> node_runtime_presentation
@@ -332,13 +349,27 @@ flowchart LR
     node_network_protocol --> node_network_protocol_config_net_lua
     node_network_protocol --> node_network_protocol_dkjson_lua
     node_network_protocol --> node_network_protocol_json_util_lua
+    node_network_protocol --> node_network_protocol_net_01_constants_h
+    node_network_protocol --> node_network_protocol_net_02_wire_h
+    node_network_protocol --> node_network_protocol_net_03_memory_h
+    node_network_protocol --> node_network_protocol_net_04_state_h
+    node_network_protocol --> node_network_protocol_net_05_api_h
     node_network_protocol --> node_network_protocol_shared_structs_h
     node_network_protocol --> node_network_protocol_structs_lua
+    node_network_session --> node_network_session_http_client_lua
+    node_network_session --> node_network_session_ice_handshake_lua
+    node_network_session --> node_network_session_matchmaker_lua
     node_network_session --> node_network_session_net_utils_lua
     node_network_session --> node_network_session_netcode_lua
+    node_network_session --> node_network_session_sys_time_lua
     node_network_transport --> node_network_transport_net_pump_lua
     node_network_transport --> node_network_transport_network_lua
-    node_network_transport --> node_network_transport_vx_net_c
+    node_network_transport --> node_network_transport_vx_net_internal_h
+    node_network_transport --> node_network_transport_vx_net_io_c
+    node_network_transport --> node_network_transport_vx_net_state_c
+    node_network_transport --> node_network_transport_vx_net_stun_c
+    node_snapshots --> node_snapshots_tmp
+    node_snapshots_tmp --> node_snapshots_tmp_upload
     node_tools --> node_tools_bot_lua
     node_server --> node_server_api_py
     node_server --> node_server_matchmaker_py
@@ -360,7 +391,6 @@ flowchart LR
     node_host_lua --> node_host_lua_lua_vm_c
     node_host_threading --> node_host_threading_thread_lifecycle_c
     node_host_threading --> node_host_threading_thread_pool_c
-    node_host_tenant --> node_host_tenant_tenant_callbacks_c
     node_host_tenant --> node_host_tenant_tenant_callbacks_key_c
     node_host_tenant --> node_host_tenant_tenant_callbacks_mouse_c
     node_host_tenant --> node_host_tenant_tenant_callbacks_state_c
@@ -386,11 +416,13 @@ flowchart LR
     class node_scripts dir
     class node_server dir
     class node_shaders dir
+    class node_snapshots dir
     class node_ssot dir
     class node_tools dir
     class node_worlds dir
     class node__gitattributes file
     class node__gitignore file
+    class node_LICENSE file
     class node_cli_sys_lua file
     class node_launch_bat file
     class node_launch_lua file
@@ -410,6 +442,7 @@ flowchart LR
     class node_build_check_build_dependencies_lua file
     class node_build_export_c_hdr_lua file
     class node_build_export_glsl_lua file
+    class node_build_net_codegen_lua file
     class node_build_task_c_objects_lua file
     class node_build_task_headless_lua file
     class node_build_task_invariants_lua file
@@ -431,8 +464,6 @@ flowchart LR
     class node_worlds_luachess_game dir
     class node_worlds_luachess_global_lua file
     class node_worlds_luachess_game_attack_lua file
-    class node_worlds_luachess_game_game_lua file
-    class node_worlds_luachess_game_input_lua file
     class node_worlds_luachess_game_logic_lua file
     class node_worlds_luachess_game_move_lua file
     class node_worlds_luachess_game_standard_lua file
@@ -464,6 +495,7 @@ flowchart LR
     class node_docs_repo_ascii_txt file
     class node_docs_repo_tree_md file
     class node_rag_ask_py file
+    class node_rag_ask_local_py file
     class node_rag_ingest_codebase_py file
     class node_runtime_boot dir
     class node_runtime_presentation dir
@@ -514,13 +546,27 @@ flowchart LR
     class node_network_protocol_config_net_lua file
     class node_network_protocol_dkjson_lua file
     class node_network_protocol_json_util_lua file
+    class node_network_protocol_net_01_constants_h file
+    class node_network_protocol_net_02_wire_h file
+    class node_network_protocol_net_03_memory_h file
+    class node_network_protocol_net_04_state_h file
+    class node_network_protocol_net_05_api_h file
     class node_network_protocol_shared_structs_h file
     class node_network_protocol_structs_lua file
+    class node_network_session_http_client_lua file
+    class node_network_session_ice_handshake_lua file
+    class node_network_session_matchmaker_lua file
     class node_network_session_net_utils_lua file
     class node_network_session_netcode_lua file
+    class node_network_session_sys_time_lua file
     class node_network_transport_net_pump_lua file
     class node_network_transport_network_lua file
-    class node_network_transport_vx_net_c file
+    class node_network_transport_vx_net_internal_h file
+    class node_network_transport_vx_net_io_c file
+    class node_network_transport_vx_net_state_c file
+    class node_network_transport_vx_net_stun_c file
+    class node_snapshots_tmp dir
+    class node_snapshots_tmp_upload dir
     class node_tools_bot_lua file
     class node_server_api_py file
     class node_server_matchmaker_py file
@@ -542,7 +588,6 @@ flowchart LR
     class node_host_lua_lua_vm_c file
     class node_host_threading_thread_lifecycle_c file
     class node_host_threading_thread_pool_c file
-    class node_host_tenant_tenant_callbacks_c file
     class node_host_tenant_tenant_callbacks_key_c file
     class node_host_tenant_tenant_callbacks_mouse_c file
     class node_host_tenant_tenant_callbacks_state_c file

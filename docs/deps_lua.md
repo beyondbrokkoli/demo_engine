@@ -125,6 +125,7 @@ flowchart LR
     network_transport_net_pump_lua --> network_lockstep_wire_codec_lua
     network_transport_net_pump_lua --> network_transport_network_lua
     runtime_boot_main_lua --> network_session_netcode_lua
+    runtime_boot_main_lua --> network_session_sys_time_lua
     runtime_boot_main_lua --> runtime_boot_core_abi_lua
     runtime_boot_main_lua --> runtime_boot_engine_api_lua
     runtime_boot_main_lua --> runtime_boot_path_weaver_lua
@@ -197,6 +198,7 @@ flowchart LR
     ssot_ctx_types_lua --> ssot_type_math_lua
     ssot_ctx_types_lua --> ssot_type_render_lua
     tools_bot_lua --> network_session_netcode_lua
+    tools_bot_lua --> network_session_sys_time_lua
     tools_bot_lua --> runtime_boot_path_weaver_lua
     tools_bot_lua --> runtime_simulation_game_state_lua
     tools_bot_lua --> ssot_config_sim_lua
