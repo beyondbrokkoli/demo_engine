@@ -62,7 +62,13 @@ flowchart LR
         runtime_services_gpu_weaver_vram_lua["runtime/services/gpu/weaver_vram.lua"]
         runtime_services_math_fixed_math_lua["runtime/services/math/fixed_math.lua"]
         runtime_services_math_vmath_lua["runtime/services/math/vmath.lua"]
+        runtime_services_math_vmath_cam_lua["runtime/services/math/vmath_cam.lua"]
+        runtime_services_math_vmath_mat_lua["runtime/services/math/vmath_mat.lua"]
         runtime_services_memory_memory_lua["runtime/services/memory/memory.lua"]
+        runtime_services_memory_memory_alloc_lua["runtime/services/memory/memory_alloc.lua"]
+        runtime_services_memory_memory_base_lua["runtime/services/memory/memory_base.lua"]
+        runtime_services_memory_memory_platform_lua["runtime/services/memory/memory_platform.lua"]
+        runtime_services_memory_memory_transfer_lua["runtime/services/memory/memory_transfer.lua"]
         runtime_services_tenants_tenant_lifecycle_lua["runtime/services/tenants/tenant_lifecycle.lua"]
         runtime_services_tenants_tenant_registry_lua["runtime/services/tenants/tenant_registry.lua"]
         runtime_shutdown_teardown_lua["runtime/shutdown/teardown.lua"]
@@ -194,7 +200,16 @@ flowchart LR
     runtime_services_gpu_vulkan_core_instance_lua --> runtime_services_gpu_registry_vk_lua
     runtime_services_gpu_vulkan_core_instance_lua --> runtime_services_gpu_vulkan_core_loader_lua
     runtime_services_gpu_vulkan_core_loader_lua --> runtime_services_gpu_vulkan_headers_lua
-    runtime_services_memory_memory_lua --> runtime_services_gpu_registry_vk_lua
+    runtime_services_math_vmath_lua --> runtime_services_math_vmath_cam_lua
+    runtime_services_math_vmath_lua --> runtime_services_math_vmath_mat_lua
+    runtime_services_memory_memory_lua --> runtime_services_memory_memory_alloc_lua
+    runtime_services_memory_memory_lua --> runtime_services_memory_memory_base_lua
+    runtime_services_memory_memory_lua --> runtime_services_memory_memory_transfer_lua
+    runtime_services_memory_memory_alloc_lua --> runtime_services_gpu_registry_vk_lua
+    runtime_services_memory_memory_alloc_lua --> runtime_services_memory_memory_base_lua
+    runtime_services_memory_memory_alloc_lua --> runtime_services_memory_memory_platform_lua
+    runtime_services_memory_memory_transfer_lua --> runtime_services_gpu_registry_vk_lua
+    runtime_services_memory_memory_transfer_lua --> runtime_services_memory_memory_base_lua
     runtime_services_tenants_tenant_lifecycle_lua --> runtime_presentation_graphics_graphics_pipeline_lua
     runtime_services_tenants_tenant_lifecycle_lua --> runtime_presentation_graphics_renderer_lua
     runtime_services_tenants_tenant_lifecycle_lua --> runtime_services_gpu_swapchain_lua
