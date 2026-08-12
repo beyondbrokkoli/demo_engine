@@ -128,8 +128,12 @@ flowchart LR
     runtime_boot_main_lua --> runtime_boot_engine_api_lua
     runtime_boot_main_lua --> runtime_boot_main_loop_lua
     runtime_boot_main_lua --> runtime_boot_main_setup_lua
+    runtime_boot_main_lua --> runtime_shutdown_teardown_lua
+    runtime_boot_main_loop_lua --> network_session_sys_time_lua
+    runtime_boot_main_loop_lua --> runtime_services_tenants_tenant_lifecycle_lua
+    runtime_boot_main_loop_lua --> runtime_simulation_camera_lua
+    runtime_boot_main_loop_lua --> runtime_simulation_raycast_lua
     runtime_boot_main_setup_lua --> network_session_netcode_lua
-    runtime_boot_main_setup_lua --> network_session_sys_time_lua
     runtime_boot_main_setup_lua --> runtime_boot_core_abi_lua
     runtime_boot_main_setup_lua --> runtime_boot_engine_api_lua
     runtime_boot_main_setup_lua --> runtime_boot_path_weaver_lua
@@ -140,15 +144,9 @@ flowchart LR
     runtime_boot_main_setup_lua --> runtime_presentation_translation_pipeline_manifest_lua
     runtime_boot_main_setup_lua --> runtime_presentation_translation_render_queue_lua
     runtime_boot_main_setup_lua --> runtime_services_gpu_weaver_vram_lua
-    runtime_boot_main_setup_lua --> runtime_services_math_fixed_math_lua
-    runtime_boot_main_setup_lua --> runtime_services_math_vmath_lua
     runtime_boot_main_setup_lua --> runtime_services_memory_memory_lua
-    runtime_boot_main_setup_lua --> runtime_services_tenants_tenant_lifecycle_lua
     runtime_boot_main_setup_lua --> runtime_services_tenants_tenant_registry_lua
-    runtime_boot_main_setup_lua --> runtime_shutdown_teardown_lua
-    runtime_boot_main_setup_lua --> runtime_simulation_camera_lua
     runtime_boot_main_setup_lua --> runtime_simulation_game_state_lua
-    runtime_boot_main_setup_lua --> runtime_simulation_raycast_lua
     runtime_boot_main_setup_lua --> ssot_config_gfx_lua
     runtime_boot_main_setup_lua --> ssot_config_sim_lua
     runtime_boot_main_setup_lua --> ssot_ctx_types_lua

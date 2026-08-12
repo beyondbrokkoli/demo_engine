@@ -1,21 +1,21 @@
 -- runtime/boot/main_loop.lua
+local ffi = require("ffi")
+local math = require("math")
+local sys_time = require("network.session.sys_time")
+local Raycast = require("runtime.simulation.raycast")
+local Lifecycle = require("runtime.services.tenants.tenant_lifecycle")
+local camera_mod = require("runtime.simulation.camera")
+
 local M = {}
 
 function M.run(deps)
-    -- Map modules locally for hot-path access
-    local ffi = deps.ffi
-    local math = deps.math
-    local sys_time = deps.sys_time
+    -- Map injected instances and state
     local EngineAPI = deps.EngineAPI
     local WindowAPI = deps.WindowAPI
     local net_driver = deps.net_driver
     local TenantRegistry = deps.TenantRegistry
-    local Raycast = deps.Raycast
-    local Lifecycle = deps.Lifecycle
-    local camera_mod = deps.camera_mod
     local render_queue = deps.render_queue
 
-    -- Map state contexts
     local ctx = deps.ctx
     local net_engine = deps.net_engine
     local visual_canvas = deps.visual_canvas
@@ -23,7 +23,6 @@ function M.run(deps)
     local vram_template = deps.vram_template
     local memory = deps.memory
 
-    -- Loop initialization variables
     local total_time = 0.0
     local master_ptr = ffi.cast("float*", memory.Mapped["MASTER_GPU_BLOCK"])
     local active_render_mode = deps.cfg_gfx.mode.dual

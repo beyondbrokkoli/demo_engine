@@ -2,6 +2,7 @@
 local EngineAPI = require("runtime.boot.engine_api")
 local setup_state = require("runtime.boot.main_setup")
 local main_loop = require("runtime.boot.main_loop")
+local Teardown = require("runtime.shutdown.teardown")
 
 local function main()
     -- 1. Run initialization & retrieve payload with state and dependencies
@@ -11,7 +12,7 @@ local function main()
     main_loop.run(deps)
 
     -- 3. Phase Gate Teardown using payload references
-    deps.Teardown.execute_phase_gate({
+    Teardown.execute_phase_gate({
         TenantRegistry = deps.TenantRegistry,
         WindowAPI = deps.WindowAPI,
         EngineAPI = deps.EngineAPI,
