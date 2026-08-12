@@ -10,8 +10,15 @@ def load_rules(filepath):
         return [line.strip() for line in f if line.strip() and not line.startswith('#')]
 
 def is_ignored(rel_path, rules):
-    """Check if a path matches any .gitignore rule."""
-    if rel_path == '.git' or rel_path.startswith('.git/'):
+    """Check if a path matches root blacklists or .gitignore rules."""
+    # Normalize separators (e.g. on Windows) to match standard relative pathing
+    rel_path = rel_path.replace('\\', '/')
+
+    # Define root-level exact files or pattern blacklists
+    ROOT_BLACKLIST = {'.gitignore', '.gitattributes', '.git', '.DS_Store'}
+
+    # Check if the path refers directly to a root-level blacklisted item
+    if rel_path in ROOT_BLACKLIST or rel_path.startswith('.git/'):
         return True
 
     name = os.path.basename(rel_path)
