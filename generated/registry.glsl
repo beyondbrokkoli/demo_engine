@@ -15,6 +15,13 @@ const uint WORLD_OFFSET_Z = 2560U;
 const uint WORLD_SPACING = 20U;
 
 // --- std430 SSBO DEFINITIONS ---
+struct vec4_t {
+    float x;
+    float y;
+    float z;
+    float w;
+};
+
 struct mat4_t {
     float m[16];
 };

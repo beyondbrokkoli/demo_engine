@@ -39,14 +39,14 @@ typedef struct  {
 
 #endif // VX_ENABLE_VULKAN_STRUCTS
 
-typedef struct  {
+typedef struct __attribute__((aligned(16))) {
     float px;
     float py;
     float pz;
     uint32_t tile_data;
 } RtsTileInstance;
 
-typedef struct  {
+typedef struct __attribute__((aligned(16))) {
     mat4_t viewProj;
     uint32_t aos_current_idx;
     uint32_t aos_prev_idx;

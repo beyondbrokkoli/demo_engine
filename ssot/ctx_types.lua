@@ -34,13 +34,16 @@ function ctx.compile_layouts()
         assert(struct.force_align ~= nil, "[FATAL] " .. struct.name .. " MUST define 'force_align'")
         assert(struct.glsl_std430 ~= nil, "[FATAL] " .. struct.name .. " MUST define 'glsl_std430'")
 
-        local safe_align = struct.align or 8
+local safe_align = struct.align or 8
         if struct.glsl_std430 then safe_align = math.max(safe_align, 16) end
+
+        -- [FIX]: Save computed alignment so the C Exporter matches EXACTLY
+        struct.computed_align = safe_align
 
         local attr = ""
         if struct.wire_format then
             attr = "__attribute__((packed))"
-        elseif struct.force_align then
+        elseif struct.force_align or struct.glsl_std430 then
             attr = string.format("__attribute__((aligned(%d)))", safe_align)
         end
 

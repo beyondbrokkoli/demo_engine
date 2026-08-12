@@ -34,10 +34,15 @@ return function(ctx)
         local out = domain_files[struct.domain].file
 
         if struct.vk_shield then out:write("#ifdef VX_ENABLE_VULKAN_STRUCTS\n") end
+
         if struct.wire_format then
             out:write("#pragma pack(push, 1)\ntypedef struct {\n")
         else
-            local attr = struct.force_align and string.format("__attribute__((aligned(%d)))", struct.align or 8) or ""
+            -- [FIX]: Sync alignment condition and value with ctx_types.lua
+            local attr = ""
+            if struct.force_align or struct.glsl_std430 then
+                attr = string.format("__attribute__((aligned(%d)))", struct.computed_align or struct.align or 8)
+            end
             out:write(string.format("typedef struct %s {\n", attr))
         end
 

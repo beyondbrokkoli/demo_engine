@@ -11,7 +11,14 @@
 #define WORLD_SPACING 20
 
 // --- MEMORY STRUCTURES ---
-typedef struct  {
+typedef struct __attribute__((aligned(16))) {
+    float x;
+    float y;
+    float z;
+    float w;
+} vec4_t;
+
+typedef struct __attribute__((aligned(16))) {
     float m[16];
 } mat4_t;
 

@@ -4,11 +4,6 @@ local math = require("math")
 
 local vmath = {}
 
-ffi.cdef[[
-    typedef struct __attribute__((aligned(16))) { float x, y, z, w; } vec4_t;
-    typedef struct __attribute__((aligned(16))) { float m[16]; } mat4_t;
-]]
-
 -- [FIX APPLIED] Removed all root-level temp FFI allocations
 
 function vmath.lookAt(eye_x, eye_y, eye_z, center_x, center_y, center_z, out_mat)

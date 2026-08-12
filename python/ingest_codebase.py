@@ -125,7 +125,6 @@ INGESTION_MANIFEST = [
      "runtime/services/gpu/registry_vk.lua",
      "runtime/services/gpu/swapchain.lua",
      "runtime/services/gpu/vulkan_core.lua",
-     "runtime/services/gpu/vulkan_headers.lua",
      "runtime/services/gpu/weaver_vram.lua",
      "runtime/services/math/fixed_math.lua",
      "runtime/services/math/vmath.lua",

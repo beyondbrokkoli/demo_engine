@@ -54,6 +54,10 @@ flowchart LR
         runtime_services_gpu_registry_vk_lua["runtime/services/gpu/registry_vk.lua"]
         runtime_services_gpu_swapchain_lua["runtime/services/gpu/swapchain.lua"]
         runtime_services_gpu_vulkan_core_lua["runtime/services/gpu/vulkan_core.lua"]
+        runtime_services_gpu_vulkan_core_destroy_lua["runtime/services/gpu/vulkan_core_destroy.lua"]
+        runtime_services_gpu_vulkan_core_device_lua["runtime/services/gpu/vulkan_core_device.lua"]
+        runtime_services_gpu_vulkan_core_instance_lua["runtime/services/gpu/vulkan_core_instance.lua"]
+        runtime_services_gpu_vulkan_core_loader_lua["runtime/services/gpu/vulkan_core_loader.lua"]
         runtime_services_gpu_vulkan_headers_lua["runtime/services/gpu/vulkan_headers.lua"]
         runtime_services_gpu_weaver_vram_lua["runtime/services/gpu/weaver_vram.lua"]
         runtime_services_math_fixed_math_lua["runtime/services/math/fixed_math.lua"]
@@ -181,9 +185,15 @@ flowchart LR
     runtime_services_gpu_descriptors_lua --> runtime_services_gpu_registry_vk_lua
     runtime_services_gpu_registry_vk_lua --> runtime_services_gpu_vulkan_headers_lua
     runtime_services_gpu_swapchain_lua --> runtime_services_gpu_registry_vk_lua
-    runtime_services_gpu_vulkan_core_lua --> runtime_boot_engine_api_lua
-    runtime_services_gpu_vulkan_core_lua --> runtime_services_gpu_registry_vk_lua
-    runtime_services_gpu_vulkan_core_lua --> runtime_services_gpu_vulkan_headers_lua
+    runtime_services_gpu_vulkan_core_lua --> runtime_services_gpu_vulkan_core_destroy_lua
+    runtime_services_gpu_vulkan_core_lua --> runtime_services_gpu_vulkan_core_device_lua
+    runtime_services_gpu_vulkan_core_lua --> runtime_services_gpu_vulkan_core_instance_lua
+    runtime_services_gpu_vulkan_core_destroy_lua --> runtime_boot_engine_api_lua
+    runtime_services_gpu_vulkan_core_device_lua --> runtime_services_gpu_registry_vk_lua
+    runtime_services_gpu_vulkan_core_instance_lua --> runtime_boot_engine_api_lua
+    runtime_services_gpu_vulkan_core_instance_lua --> runtime_services_gpu_registry_vk_lua
+    runtime_services_gpu_vulkan_core_instance_lua --> runtime_services_gpu_vulkan_core_loader_lua
+    runtime_services_gpu_vulkan_core_loader_lua --> runtime_services_gpu_vulkan_headers_lua
     runtime_services_memory_memory_lua --> runtime_services_gpu_registry_vk_lua
     runtime_services_tenants_tenant_lifecycle_lua --> runtime_presentation_graphics_graphics_pipeline_lua
     runtime_services_tenants_tenant_lifecycle_lua --> runtime_presentation_graphics_renderer_lua
