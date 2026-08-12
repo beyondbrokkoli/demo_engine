@@ -1,5 +1,5 @@
 -- launch.lua
-local sys = require("cli_sys")
+local sys = require("tools.cli_sys")
 local cmd_history = {}
 
 local function get_latest_lobby_id()
