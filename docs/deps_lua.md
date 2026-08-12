@@ -92,6 +92,10 @@ flowchart LR
     end
     subgraph worlds
         worlds_chess_domain_lua["worlds/chess/domain.lua"]
+        worlds_chess_domain_base_lua["worlds/chess/domain_base.lua"]
+        worlds_chess_domain_contract_lua["worlds/chess/domain_contract.lua"]
+        worlds_chess_domain_lifecycle_lua["worlds/chess/domain_lifecycle.lua"]
+        worlds_chess_domain_terrain_lua["worlds/chess/domain_terrain.lua"]
         worlds_isometric_domain_lua["worlds/isometric/domain.lua"]
         worlds_luachess_game_attack_lua["worlds/luachess/game/attack.lua"]
         worlds_luachess_game_logic_lua["worlds/luachess/game/logic.lua"]
@@ -242,10 +246,19 @@ flowchart LR
     tools_cli_lobby_lua --> tools_cli_sys_lua
     tools_cli_readline_lua --> tools_cli_lobby_lua
     tools_cli_readline_lua --> tools_cli_sys_lua
-    worlds_chess_domain_lua --> runtime_services_math_fixed_math_lua
-    worlds_chess_domain_lua --> worlds_luachess_game_standard_lua
-    worlds_chess_domain_lua --> worlds_luachess_game_turn_lua
-    worlds_chess_domain_lua --> worlds_luachess_global_lua
+    worlds_chess_domain_lua --> worlds_chess_domain_base_lua
+    worlds_chess_domain_lua --> worlds_chess_domain_contract_lua
+    worlds_chess_domain_lua --> worlds_chess_domain_lifecycle_lua
+    worlds_chess_domain_base_lua --> worlds_luachess_global_lua
+    worlds_chess_domain_contract_lua --> worlds_chess_domain_base_lua
+    worlds_chess_domain_contract_lua --> worlds_chess_domain_lifecycle_lua
+    worlds_chess_domain_contract_lua --> worlds_chess_domain_terrain_lua
+    worlds_chess_domain_contract_lua --> worlds_luachess_game_turn_lua
+    worlds_chess_domain_lifecycle_lua --> worlds_chess_domain_base_lua
+    worlds_chess_domain_lifecycle_lua --> worlds_chess_domain_terrain_lua
+    worlds_chess_domain_lifecycle_lua --> worlds_luachess_game_standard_lua
+    worlds_chess_domain_terrain_lua --> runtime_services_math_fixed_math_lua
+    worlds_chess_domain_terrain_lua --> worlds_chess_domain_base_lua
     worlds_isometric_domain_lua --> runtime_services_math_fixed_math_lua
     worlds_luachess_game_logic_lua --> worlds_luachess_game_attack_lua
     worlds_luachess_game_logic_lua --> worlds_luachess_game_move_lua
