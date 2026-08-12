@@ -1,10 +1,10 @@
 -- runtime/services/gpu/vulkan_core.lua
 local ffi = require("ffi")
 local bit = require("bit")
-require("vulkan_headers")
+require("runtime.services.gpu.vulkan_headers")
 
-local reg = require("registry_vk")
-local EngineAPI = require("engine_api")
+local reg = require("runtime.services.gpu.registry_vk")
+local EngineAPI = require("runtime.boot.engine_api")
 local vk_struct = reg.vk_struct
 local vk_queue = reg.vk_queue
 

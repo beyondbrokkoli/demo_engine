@@ -1,10 +1,10 @@
 -- runtime/services/tenant/tenant_registry.lua
 local ffi = require("ffi")
-local WindowAPI = require("window_api")
-local EngineAPI = require("engine_api")
-local swapchain = require("swapchain")
-local renderer = require("renderer")
-local camera_mod = require("camera")
+local WindowAPI = require("runtime.boot.window_api")
+local EngineAPI = require("runtime.boot.engine_api")
+local swapchain = require("runtime.services.gpu.swapchain")
+local renderer = require("runtime.presentation.graphics.renderer")
+local camera_mod = require("runtime.simulation.camera")
 
 local TenantRegistry = { active = {} }
 

@@ -1,8 +1,8 @@
 local ffi = require("ffi")
 local math = require("math")
 local bit = require("bit")
-local vmath = require("vmath")
-local WindowAPI = require("window_api") -- [ADDED] Route through our new API
+local vmath = require("runtime.services.math.vmath")
+local WindowAPI = require("runtime.boot.window_api")
 
 local Camera = {}
 

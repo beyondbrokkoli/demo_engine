@@ -2,9 +2,9 @@
 local ffi = require("ffi")
 local bit = require("bit")
 local Fixed = require("runtime.services.math.fixed_math")
-require("game.turn")
-require("game.standard")
-require("global")
+require("worlds.luachess.game.turn")
+require("worlds.luachess.game.standard")
+require("worlds.luachess.global")
 
 local ChessDomain = {}
 local loc_cache = {}

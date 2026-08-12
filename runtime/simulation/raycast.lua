@@ -1,7 +1,7 @@
 local ffi = require("ffi")
-local vmath = require("vmath")
-local Fixed = require("fixed_math")
-local cfg_sim = require("config_sim")
+local vmath = require("runtime.services.math.vmath")
+local Fixed = require("runtime.services.math.fixed_math")
+local cfg_sim = require("ssot.config_sim")
 
 local Raycast = {}
 

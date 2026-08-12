@@ -1,8 +1,8 @@
 -- runtime/services/tenant/tenant_lifecycle.lua
 local ffi = require("ffi")
-local swapchain_mod = require("swapchain")
-local renderer_mod = require("renderer")
-local graphics_mod = require("graphics_pipeline")
+local swapchain_mod = require("runtime.services.gpu.swapchain")
+local renderer_mod = require("runtime.presentation.graphics.renderer")
+local graphics_mod = require("runtime.presentation.graphics.graphics_pipeline")
 
 local Lifecycle = {}
 

@@ -27,9 +27,9 @@ function Teardown.execute_phase_gate(env)
 
     env.vk_rt.vk.vkDeviceWaitIdle(env.vk_rt.device)
 
-    local graphics_mod = require("graphics_pipeline")
-    local renderer_mod = require("renderer")
-    local swapchain_mod = require("swapchain")
+    local graphics_mod = require("runtime.presentation.graphics.graphics_pipeline")
+    local renderer_mod = require("runtime.presentation.graphics.renderer")
+    local swapchain_mod = require("runtime.services.gpu.swapchain")
 
     for win_id, tenant in pairs(env.TenantRegistry.active) do
         print(string.format("[TEARDOWN] Purging Remaining Tenant %d...", win_id))
@@ -46,8 +46,8 @@ function Teardown.execute_phase_gate(env)
     end
 
     env.EngineAPI.kill_thread()
-    require("compute_pipeline").Destroy(env.vk_rt.vk, env.vk_rt, env.engine_ctx.comp_state)
-    require("descriptors").Destroy(env.vk_rt.vk, env.vk_rt.device, env.desc)
+    require("runtime.presentation.graphics.compute_pipeline").Destroy(env.vk_rt.vk, env.vk_rt, env.engine_ctx.comp_state)
+    require("runtime.services.gpu.descriptors").Destroy(env.vk_rt.vk, env.vk_rt.device, env.desc)
 
     env.memory.DestroyBuffer("MASTER_GPU_BLOCK", env.vk_rt)
     env.memory.DestroyBuffer("MASTER_INDEX_BLOCK", env.vk_rt)
@@ -56,13 +56,13 @@ function Teardown.execute_phase_gate(env)
 
     env.memory.DestroyTransferSubsystem(env.vk_rt)
 
-    require("vulkan_core").Destroy(env.vk_rt, env.cfg_gfx.cfg)
+    require("runtime.services.gpu.vulkan_core").Destroy(env.vk_rt, env.cfg_gfx.cfg)
 
     -- [!] NETCODE TEARDOWN
     -- Placed at the very end to ensure no graphical callbacks try to read
     -- network state while we are closing the sockets.
     print("[TEARDOWN] Dismantling Network Core...")
-    require("network").Shutdown()
+    require("network.transport.network").Shutdown()
 
     print("[LUA IO] Teardown Complete. Safe Exit.")
 end

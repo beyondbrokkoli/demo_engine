@@ -1,9 +1,9 @@
 local ffi = require("ffi")
-local manifest = require("pipeline_manifest")
+local manifest = require("runtime.presentation.translation.pipeline_manifest")
 local bit = require("bit")
-local Fixed = require("fixed_math")
-local EngineAPI = require("engine_api")
-local cfg_gfx = require("config_gfx")
+local Fixed = require("runtime.services.math.fixed_math")
+local EngineAPI = require("runtime.boot.engine_api")
+local cfg_gfx = require("ssot.config_gfx")
 
 -- 1. STATIC FILE-SCOPE (Zero Allocation Overhead)
 local function pack_pass(current_queue_ptr, pass_idx, pass_name, gfx, desc, total_tiles, pc, sc)

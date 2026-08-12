@@ -1,6 +1,6 @@
 -- game/turn.lua
-require("global")
-require("game/logic")
+require("worlds.luachess.global")
+require("worlds.luachess.game.logic")
 
 local function endless(pos,from,to)
     if not (pos[to] == 0) then --taking a piece

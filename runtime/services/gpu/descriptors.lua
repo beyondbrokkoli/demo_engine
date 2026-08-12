@@ -1,7 +1,7 @@
 -- runtime/services/gpu/descriptors.lua
 local ffi = require("ffi")
 local bit = require("bit")
-local reg = require("registry_vk")
+local reg = require("runtime.services.gpu.registry_vk")
 local vk_desc, vk_struct, vk_shader = reg.vk_desc, reg.vk_struct, reg.vk_shader_stage
 
 local Descriptors = {}

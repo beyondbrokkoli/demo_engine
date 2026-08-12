@@ -1,6 +1,6 @@
 -- runtime/simulation/game_state.lua
 local ffi = require("ffi")
-local Fixed = require("fixed_math")
+local Fixed = require("runtime.services.math.fixed_math")
 
 local Game = {}
 

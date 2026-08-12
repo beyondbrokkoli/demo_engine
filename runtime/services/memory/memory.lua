@@ -2,7 +2,7 @@ local ffi = require("ffi")
 local bit = require("bit")
 
 -- [NEW] Explicit Decoupled Imports
-local reg = require("registry_vk")
+local reg = require("runtime.services.gpu.registry_vk")
 local vk_mem = reg.vk_mem
 local vk_struct = reg.vk_struct
 

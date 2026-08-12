@@ -1,4 +1,4 @@
-require("global")
+require("worlds.luachess.global")
 --0 -> empty
 --1 -> pawn
 --2 -> knight

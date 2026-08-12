@@ -1,6 +1,6 @@
 -- runtime/services/gpu/registry_vk.lua
 local ffi = require("ffi")
-require("vulkan_headers")
+require("runtime.services.gpu.vulkan_headers")
 
 local reg = {
     vk_queue = { graphics = 1, compute = 2, transfer = 4 },

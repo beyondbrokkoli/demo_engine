@@ -1,5 +1,5 @@
 -- game/move.lua
-require("global")
+require("worlds.luachess.global")
 
 -- LOCAL ZERO-ALLOC POOLS
 local LIST_POOL_SIZE = 8192

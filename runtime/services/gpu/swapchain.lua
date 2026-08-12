@@ -1,6 +1,6 @@
 -- runtime/services/gpu/swapchain.lua
 local ffi = require("ffi")
-local reg = require("registry_vk")
+local reg = require("runtime.services.gpu.registry_vk")
 local vk_struct, vk_format, vk_image = reg.vk_struct, reg.vk_format, reg.vk_image
 local vk_swapchain, vk_result = reg.vk_swapchain, reg.vk_result
 

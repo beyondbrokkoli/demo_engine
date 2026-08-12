@@ -1,7 +1,7 @@
 -- game/logic.lua
-require("global")
-require("game/move")
-require("game/attack")
+require("worlds.luachess.global")
+require("worlds.luachess.game.move")
+require("worlds.luachess.game.attack")
 
 local directions = {}
 directions[3] = {2,4,6,8}
