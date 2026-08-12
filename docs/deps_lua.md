@@ -43,6 +43,9 @@ flowchart LR
         runtime_boot_window_api_lua["runtime/boot/window_api.lua"]
         runtime_presentation_graphics_compute_pipeline_lua["runtime/presentation/graphics/compute_pipeline.lua"]
         runtime_presentation_graphics_graphics_pipeline_lua["runtime/presentation/graphics/graphics_pipeline.lua"]
+        runtime_presentation_graphics_graphics_pipeline_init_lua["runtime/presentation/graphics/graphics_pipeline_init.lua"]
+        runtime_presentation_graphics_graphics_pipeline_runtime_lua["runtime/presentation/graphics/graphics_pipeline_runtime.lua"]
+        runtime_presentation_graphics_graphics_pipeline_utils_lua["runtime/presentation/graphics/graphics_pipeline_utils.lua"]
         runtime_presentation_graphics_renderer_lua["runtime/presentation/graphics/renderer.lua"]
         runtime_presentation_graphics_sequence_lua["runtime/presentation/graphics/sequence.lua"]
         runtime_presentation_translation_pipeline_manifest_lua["runtime/presentation/translation/pipeline_manifest.lua"]
@@ -154,7 +157,12 @@ flowchart LR
     runtime_boot_main_setup_lua --> ssot_type_render_lua
     runtime_boot_main_setup_lua --> tools_cli_args_lua
     runtime_presentation_graphics_compute_pipeline_lua --> runtime_services_gpu_registry_vk_lua
-    runtime_presentation_graphics_graphics_pipeline_lua --> runtime_services_gpu_registry_vk_lua
+    runtime_presentation_graphics_graphics_pipeline_lua --> runtime_presentation_graphics_graphics_pipeline_init_lua
+    runtime_presentation_graphics_graphics_pipeline_lua --> runtime_presentation_graphics_graphics_pipeline_runtime_lua
+    runtime_presentation_graphics_graphics_pipeline_init_lua --> runtime_presentation_graphics_graphics_pipeline_utils_lua
+    runtime_presentation_graphics_graphics_pipeline_init_lua --> runtime_services_gpu_registry_vk_lua
+    runtime_presentation_graphics_graphics_pipeline_runtime_lua --> runtime_presentation_graphics_graphics_pipeline_utils_lua
+    runtime_presentation_graphics_graphics_pipeline_utils_lua --> runtime_services_gpu_registry_vk_lua
     runtime_presentation_graphics_renderer_lua --> runtime_services_gpu_registry_vk_lua
     runtime_presentation_graphics_sequence_lua --> runtime_boot_engine_api_lua
     runtime_presentation_graphics_sequence_lua --> runtime_boot_window_api_lua
