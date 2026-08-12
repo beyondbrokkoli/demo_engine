@@ -8,6 +8,7 @@ nul
 *.bin
 venv
 storage
+snapshots
 .qdrant-initialized
 start.sh
 start.bat
