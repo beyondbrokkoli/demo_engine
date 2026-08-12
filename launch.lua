@@ -17,7 +17,19 @@ end
 
 local function read_line()
     local buf = ""
+    local cursor = 0
     local hist_idx = #cmd_history + 1
+
+    -- Decoupled redraw function to handle cursor offsets
+    local function redraw()
+        io.write("\r\27[Kweaver> " .. buf)
+        if cursor < #buf then
+            -- \r resets to col 1. 'weaver> ' is 8 chars.
+            io.write("\r\27[" .. (8 + cursor) .. "C")
+        end
+        io.flush()
+    end
+
     io.write("weaver> ")
     io.flush()
 
@@ -29,8 +41,9 @@ local function read_line()
             local code = sys.getch()
             if code == 224 or code == 0 then
                 local ext = sys.getch()
-                c = (ext == 72) and "UP" or (ext == 80) and "DOWN" or "IGNORE"
-            elseif code == 27 then c = "IGNORE" -- simplified escape parsing
+                c = (ext == 72) and "UP" or (ext == 80) and "DOWN"
+                 or (ext == 75) and "LEFT" or (ext == 77) and "RIGHT" or "IGNORE"
+            elseif code == 27 then c = "IGNORE"
             elseif code == 13 then c = "ENTER"
             elseif code == 8 or code == 127 then c = "BACKSPACE"
             elseif code == 9 then c = "TAB"
@@ -47,7 +60,8 @@ local function read_line()
                 local b = io.read(1)
                 if b == "[" then
                     local d = io.read(1)
-                    c = (d == "A") and "UP" or (d == "B") and "DOWN" or "IGNORE"
+                    c = (d == "A") and "UP" or (d == "B") and "DOWN"
+                     or (d == "C") and "RIGHT" or (d == "D") and "LEFT" or "IGNORE"
                 else c = "IGNORE" end
             else c = char end
         end
@@ -63,14 +77,32 @@ local function read_line()
             end
             return buf
         elseif c == "BACKSPACE" then
-            if #buf > 0 then
-                buf = buf:sub(1, -2)
-                io.write("\r\27[Kweaver> " .. buf)
-                io.flush()
+            if cursor > 0 then
+                buf = buf:sub(1, cursor - 1) .. buf:sub(cursor + 1)
+                cursor = cursor - 1
+                redraw()
             end
+        elseif c == "LEFT" then
+            if cursor > 0 then
+                cursor = cursor - 1
+                redraw()
+            end
+        elseif c == "RIGHT" then
+            if cursor < #buf then
+                cursor = cursor + 1
+                redraw()
+            end
+        elseif c == "UP" or c == "DOWN" then
+            if c == "UP" and hist_idx > 1 then hist_idx = hist_idx - 1
+            elseif c == "DOWN" and hist_idx < #cmd_history then hist_idx = hist_idx + 1
+            elseif c == "DOWN" and hist_idx == #cmd_history then hist_idx = #cmd_history + 1 end
+
+            buf = cmd_history[hist_idx] or ""
+            cursor = #buf
+            redraw()
         elseif c == "TAB" then
-            -- SIMPLIFIED: Just complete commands or the Lobby ID
-            local cmds = {"swarm", "lab", "host", "client", "attach", "clean", "orphans", "exit", "quit", "status"}
+            -- host_headless injected here
+            local cmds = {"swarm", "lab", "host", "host_headless", "client", "attach", "clean", "orphans", "exit", "quit", "status"}
             local is_second_word = buf:find(" ")
 
             if not is_second_word then
@@ -80,10 +112,8 @@ local function read_line()
                 end
                 if #matches == 1 then buf = matches[1] .. " " end
             else
-                local cmd, args_str = buf:match("^(%S+)%s+(.*)$")
+                local cmd_str, args_str = buf:match("^(%S+)%s+(.*)$")
                 local latest_id = get_latest_lobby_id()
-
-                -- Extract the final partial word typed
                 local partial = args_str:match("(%S*)$")
 
                 if partial then
@@ -94,20 +124,12 @@ local function read_line()
                     end
                 end
             end
-            io.write("\r\27[Kweaver> " .. buf)
-            io.flush()
-        elseif c == "UP" or c == "DOWN" then
-            if c == "UP" and hist_idx > 1 then hist_idx = hist_idx - 1
-            elseif c == "DOWN" and hist_idx < #cmd_history then hist_idx = hist_idx + 1
-            elseif c == "DOWN" and hist_idx == #cmd_history then hist_idx = #cmd_history + 1 end
-
-            buf = cmd_history[hist_idx] or ""
-            io.write("\r\27[Kweaver> " .. buf)
-            io.flush()
+            cursor = #buf
+            redraw()
         elseif c ~= "IGNORE" then
-            buf = buf .. c
-            io.write(c)
-            io.flush()
+            buf = buf:sub(1, cursor) .. c .. buf:sub(cursor + 1)
+            cursor = cursor + 1
+            redraw()
         end
     end
 end
