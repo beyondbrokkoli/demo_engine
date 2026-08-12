@@ -1,22 +1,10 @@
+-- network/session/netcode.lua
 require("runtime.boot.path_weaver")
--- network/main_headless.lua
 io.stdout:setvbuf("no")
--- When run natively, we need paths. When towed, staging/main.lua sets them.
 
 local ffi = require("ffi")
 
--- [CRITICAL CHANGE]: FFI Guard! Prevents crashing when staging/main.lua has already defined this.
-if not pcall(ffi.sizeof, "timespec") then
-    ffi.cdef[[
-    // OS & Time
-    void Sleep(uint32_t dwMilliseconds);
-    int usleep(uint32_t usec);
-    int QueryPerformanceCounter(int64_t *lpPerformanceCount);
-    int QueryPerformanceFrequency(int64_t *lpFrequency);
-    typedef struct { long tv_sec; long tv_nsec; } timespec;
-    int clock_gettime(int clk_id, timespec *tp);
-    ]]
-end
+-- REMOVED THE ENTIRE FFI GUARD BLOCK HERE --
 
 local structs = require("network.protocol.structs")
 local net_utils = require("network.session.net_utils")

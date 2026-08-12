@@ -1,6 +1,18 @@
 -- network/session/sys_time.lua
 local ffi = require("ffi")
 
+-- Guard the C definitions so they only load once
+if not pcall(ffi.sizeof, "timespec") then
+    ffi.cdef[[
+    void Sleep(uint32_t dwMilliseconds);
+    int usleep(uint32_t usec);
+    int QueryPerformanceCounter(int64_t *lpPerformanceCount);
+    int QueryPerformanceFrequency(int64_t *lpFrequency);
+    typedef struct { long tv_sec; long tv_nsec; } timespec;
+    int clock_gettime(int clk_id, timespec *tp);
+    ]]
+end
+
 local M = {}
 
 function M.sleep(ms)
