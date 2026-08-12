@@ -18,12 +18,13 @@ if /I "%~1"=="swarm" (
     exit /b 0
 )
 if /I "%~1"=="lab" (
-    :: 1 Graphical + 1 Bot + 1 Host = 3 Total Nodes (Perfect for quick iteration)
-    call :swarm 1 1
+    :: 3 Graphical + 4 Bots + 1 Host = 8 Nodes Total
+    call :swarm 3 4
     exit /b 0
 )
 
 if /I "%~1"=="host" goto host
+if /I "%~1"=="host_headless" goto host_headless
 if /I "%~1"=="client" goto client
 if /I "%~1"=="attach" goto attach
 if /I "%~1"=="clean" goto clean_check
@@ -35,8 +36,9 @@ echo Weaver Engine Orchestrator (Windows)
 echo =======================================================
 echo Usage:
 echo    launch.bat swarm [graphical_count] [bot_count]  - Spins up a local swarm cluster
-echo    launch.bat lab                                  - Spins up a 1 graphical / 1 bot split
+echo    launch.bat lab                                  - Spins up 4/4 split (3 graphical, 4 bots)
 echo    launch.bat host [size]                          - Boots a graphical host node
+echo    launch.bat host_headless [size]                 - Boots a headless host node
 echo    launch.bat client [lobby_id]                    - Boots a graphical client to join a lobby
 echo    launch.bat attach [bot_count] [lobby_id]        - Injects headless bots to an existing lobby
 echo    launch.bat clean                                - Force-kills all active boot and bot processes
@@ -66,6 +68,18 @@ if %TARGET_SIZE% GTR 8 (
 echo [SWARM] Booting Graphical Host Node (Size: %TARGET_SIZE%)...
 start "Weaver Host" /B cmd /c "bin\boot.exe host %TARGET_SIZE% > logs\host.log 2>&1"
 echo [SWARM] Host running in background.
+exit /b 0
+
+:host_headless
+set TARGET_SIZE=%~2
+if "%TARGET_SIZE%"=="" set TARGET_SIZE=8
+if %TARGET_SIZE% GTR 8 (
+    echo [ERROR] Host size cannot exceed 8.
+    exit /b 1
+)
+echo [SWARM] Booting Headless Host Node (Size: %TARGET_SIZE%)...
+start "Weaver Headless Host" /B cmd /c "bin\boot_headless.exe host %TARGET_SIZE% > logs\host.log 2>&1"
+echo [SWARM] Headless Host running in background.
 exit /b 0
 
 :client
