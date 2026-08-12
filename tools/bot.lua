@@ -39,12 +39,12 @@ else
 end
 
 -- 2. SPARSE SIMULATION MEMORY
-local cfg_sim = require("config_sim")
+local cfg_sim = require("ssot.config_sim")
 local app_ctx = { cfg_sim = cfg_sim }
-local Game = require("game_state").init(app_ctx)
+local Game = require("runtime.simulation.game_state").init(app_ctx)
 
 -- 3. THE BOT ORCHESTRATOR
-local net_driver = require("netcode")
+local net_driver = require("network.session.netcode")
 
 local function main()
     -- 1. RELAXED FLOODGATE (1 or 2 arguments allowed)
