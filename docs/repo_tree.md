@@ -172,6 +172,8 @@ flowchart LR
     node_network_transport_vx_net_stun_c["📄 vx_net_stun.c"]
     node_tools_bot_lua["📄 bot.lua"]
     node_tools_cli_args_lua["📄 cli_args.lua"]
+    node_tools_cli_lobby_lua["📄 cli_lobby.lua"]
+    node_tools_cli_readline_lua["📄 cli_readline.lua"]
     node_tools_cli_sys_lua["📄 cli_sys.lua"]
     node_server_api_py["📄 api.py"]
     node_server_matchmaker_py["📄 matchmaker.py"]
@@ -366,6 +368,8 @@ flowchart LR
     node_network_transport --> node_network_transport_vx_net_stun_c
     node_tools --> node_tools_bot_lua
     node_tools --> node_tools_cli_args_lua
+    node_tools --> node_tools_cli_lobby_lua
+    node_tools --> node_tools_cli_readline_lua
     node_tools --> node_tools_cli_sys_lua
     node_server --> node_server_api_py
     node_server --> node_server_matchmaker_py
@@ -561,6 +565,8 @@ flowchart LR
     class node_network_transport_vx_net_stun_c file
     class node_tools_bot_lua file
     class node_tools_cli_args_lua file
+    class node_tools_cli_lobby_lua file
+    class node_tools_cli_readline_lua file
     class node_tools_cli_sys_lua file
     class node_server_api_py file
     class node_server_matchmaker_py file

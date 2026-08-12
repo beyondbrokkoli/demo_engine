@@ -76,6 +76,8 @@ flowchart LR
     subgraph tools
         tools_bot_lua["tools/bot.lua"]
         tools_cli_args_lua["tools/cli_args.lua"]
+        tools_cli_lobby_lua["tools/cli_lobby.lua"]
+        tools_cli_readline_lua["tools/cli_readline.lua"]
         tools_cli_sys_lua["tools/cli_sys.lua"]
     end
     subgraph worlds
@@ -206,6 +208,9 @@ flowchart LR
     tools_bot_lua --> runtime_simulation_game_state_lua
     tools_bot_lua --> ssot_config_sim_lua
     tools_bot_lua --> tools_cli_args_lua
+    tools_cli_lobby_lua --> tools_cli_sys_lua
+    tools_cli_readline_lua --> tools_cli_lobby_lua
+    tools_cli_readline_lua --> tools_cli_sys_lua
     worlds_chess_domain_lua --> runtime_services_math_fixed_math_lua
     worlds_chess_domain_lua --> worlds_luachess_global_lua
     worlds_isometric_domain_lua --> runtime_services_math_fixed_math_lua

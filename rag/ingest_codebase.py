@@ -109,7 +109,7 @@ INGESTION_MANIFEST = [
     # Engine Runtime Subsystems (Lua)
     # "runtime/boot/core_abi.lua",
     # "runtime/boot/engine_api.lua",
-    # "runtime/boot/main.lua",
+    "runtime/boot/main.lua",
     # "runtime/boot/path_weaver.lua",
     # "runtime/boot/weaver_boot.lua",
     # "runtime/boot/window_api.lua",

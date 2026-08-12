@@ -3,16 +3,16 @@ require("runtime.boot.path_weaver")
 io.stdout:setvbuf("no")
 
 local ffi = require("ffi")
-local core_abi = require("core_abi")
+local core_abi = require("runtime.boot.core_abi")
 local sys_time = require("network.session.sys_time") -- [ADDED] UNIFIED TIMER
 local cli_args = require("tools.cli_args")
 
-require("type_math")
-require("type_render")
-require("ctx_types")
+require("ssot.type_math")
+require("ssot.type_render")
+require("ssot.ctx_types")
 
-local cfg_gfx = require("config_gfx")
-local cfg_sim = require("config_sim")
+local cfg_gfx = require("ssot.config_gfx")
+local cfg_sim = require("ssot.config_sim")
 
 -- [THE LOCAL CANVAS] 3MB struct for Vulkan and Raycasting (Ignored by Network)
 local total_grid_cells = cfg_sim.world.map_width * cfg_sim.world.map_height
@@ -23,30 +23,30 @@ ffi.cdef(string.format([[
     } VisualCanvas;
 ]], total_grid_cells, total_grid_cells))
 
-local WindowAPI = require("window_api")
-local EngineAPI = require("engine_api")
-local net_driver = require("netcode")
+local WindowAPI = require("runtime.boot.window_api")
+local EngineAPI = require("runtime.boot.engine_api")
+local net_driver = require("network.session.netcode")
 
 local app_ctx = { cfg_gfx = cfg_gfx, cfg_sim = cfg_sim }
 
 local math = require("math")
-local vmath = require("vmath")
-local seq = require("sequence").init(app_ctx)
-local render_queue = require("render_queue").init(app_ctx)
-local Game = require("game_state").init(app_ctx)
-local Raycast = require("raycast")
-local Fixed = require("fixed_math")
-local TenantRegistry = require("tenant_registry")
-local graphics_mod = require("graphics_pipeline")
-local manifest = require("pipeline_manifest")
-local Teardown = require("teardown")
+local vmath = require("runtime.services.math.vmath")
+local seq = require("runtime.presentation.graphics.sequence").init(app_ctx)
+local render_queue = require("runtime.presentation.translation.render_queue").init(app_ctx)
+local Game = require("runtime.simulation.game_state").init(app_ctx)
+local Raycast = require("runtime.simulation.raycast")
+local Fixed = require("runtime.services.math.fixed_math")
+local TenantRegistry = require("runtime.services.tenants.tenant_registry")
+local graphics_mod = require("runtime.presentation.graphics.graphics_pipeline")
+local manifest = require("runtime.presentation.translation.pipeline_manifest")
+local Teardown = require("runtime.shutdown.teardown")
 
 -- [SHATTER CHUNKS]
-local Boot = require("weaver_boot")
-local VRAM = require("weaver_vram")
-local Lifecycle = require("tenant_lifecycle")
-local memory = require("memory")
-local camera_mod = require("camera")
+local Boot = require("runtime.boot.weaver_boot")
+local VRAM = require("runtime.services.gpu.weaver_vram")
+local Lifecycle = require("runtime.services.tenants.tenant_lifecycle")
+local memory = require("runtime.services.memory.memory")
+local camera_mod = require("runtime.simulation.camera")
 
 local function main()
     local parsed = cli_args.parse(arg)
