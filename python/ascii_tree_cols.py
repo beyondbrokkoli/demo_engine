@@ -15,7 +15,7 @@ def is_ignored(rel_path, rules):
     rel_path = rel_path.replace('\\', '/')
 
     # Define root-level exact files or pattern blacklists
-    ROOT_BLACKLIST = {'.gitignore', '.gitattributes', '.git', '.DS_Store', 'LICENSE', 'logs', 'launch.sh', 'launch.bat', 'launch.lua', 'python', 'cli_sys.lua'}
+    ROOT_BLACKLIST = {'.gitignore', '.gitattributes', '.git', '.DS_Store', 'LICENSE', 'logs', 'launch.sh', 'launch.bat', 'launch.lua', 'python', 'tools', 'rag', 'docs', 'scripts', 'bin', 'server'}
 
     # Check if the path refers directly to a root-level blacklisted item
     if rel_path in ROOT_BLACKLIST or rel_path.startswith('.git/'):
