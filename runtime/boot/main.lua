@@ -1,18 +1,10 @@
+-- runtime/boot/main.lua
 require("runtime.boot.path_weaver")
--- staging/main.lua
 io.stdout:setvbuf("no")
 
 local ffi = require("ffi")
 local core_abi = require("core_abi")
-
-ffi.cdef[[
-void Sleep(uint32_t dwMilliseconds);
-int usleep(uint32_t usec);
-int QueryPerformanceCounter(int64_t *lpPerformanceCount);
-int QueryPerformanceFrequency(int64_t *lpFrequency);
-typedef struct { long tv_sec; long tv_nsec; } timespec;
-int clock_gettime(int clk_id, timespec *tp);
-]]
+local sys_time = require("network.session.sys_time") -- [ADDED] UNIFIED TIMER
 
 require("type_math")
 require("type_render")
@@ -169,7 +161,7 @@ local function main()
     local master_ptr = ffi.cast("float*", memory.Mapped["MASTER_GPU_BLOCK"])
     local active_render_mode = cfg_gfx.mode.dual
     local prev_mouse_left = { [0] = false, [1] = false, [2] = false, [3] = false }
-    local last_time = get_time_hires()
+    local last_time = sys_time.get_time_hires()
 
     local visual_canvas = ffi.new("VisualCanvas")
     local visual_canvas_size = ffi.sizeof("VisualCanvas")
@@ -177,7 +169,7 @@ local function main()
     print("[NET] Visual Scene loaded. Cameras unlocked.")
 
     while EngineAPI.is_running() do
-        local current_time = get_time_hires()
+        local current_time = sys_time.get_time_hires()
         local frame_time = math.max(0.001, math.min(current_time - last_time, 0.25))
         last_time = current_time
 
@@ -261,7 +253,7 @@ local function main()
 
             ::continue_tenant::
         end
-        sys_sleep(1)
+        sys_time.sleep(1)
     end
 
     Teardown.execute_phase_gate({

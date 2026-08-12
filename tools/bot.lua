@@ -1,44 +1,11 @@
-require("runtime.boot.path_weaver")
 -- tools/bot.lua
+require("runtime.boot.path_weaver")
 io.stdout:setvbuf("no")
 
 local ffi = require("ffi")
-local bit = require("bit") -- [ADDED] Required to pack the chess coordinates
+local bit = require("bit")
+local sys_time = require("network.session.sys_time") -- [ADDED] UNIFIED TIMER
 
--- 1. BEDROCK TIMING SUBSYSTEM
-ffi.cdef[[
-void Sleep(uint32_t dwMilliseconds);
-int usleep(uint32_t usec);
-int QueryPerformanceCounter(int64_t *lpPerformanceCount);
-int QueryPerformanceFrequency(int64_t *lpFrequency);
-typedef struct { long tv_sec; long tv_nsec; } timespec;
-int clock_gettime(int clk_id, timespec *tp);
-]]
-
-local function sys_sleep(ms)
-    if jit.os == "Windows" then ffi.C.Sleep(ms) else ffi.C.usleep(ms * 1000) end
-end
-
-local get_time_hires
-if jit.os == "Windows" then
-    local freq = ffi.new("int64_t[1]")
-    ffi.C.QueryPerformanceFrequency(freq)
-    local inv_freq = 1.0 / tonumber(freq[0])
-    get_time_hires = function()
-        local count = ffi.new("int64_t[1]")
-        ffi.C.QueryPerformanceCounter(count)
-        return tonumber(count[0]) * inv_freq
-    end
-else
-    local CLOCK_MONOTONIC = 1
-    get_time_hires = function()
-        local ts = ffi.new("timespec")
-        ffi.C.clock_gettime(CLOCK_MONOTONIC, ts)
-        return tonumber(ts.tv_sec) + (tonumber(ts.tv_nsec) * 1e-9)
-    end
-end
-
--- 2. SPARSE SIMULATION MEMORY
 local cfg_sim = require("ssot.config_sim")
 local app_ctx = { cfg_sim = cfg_sim }
 local Game = require("runtime.simulation.game_state").init(app_ctx)
@@ -93,11 +60,11 @@ local function main()
 
     local net_engine = net_driver.init(local_port, target_lobby_id, target_lobby_size, state_ptr, state_size)
 
-    local last_time = get_time_hires()
+    local last_time = sys_time.get_time_hires()
     local tick_count = 0
 
     while true do
-        local current_time = get_time_hires()
+        local current_time = sys_time.get_time_hires()
         local frame_time = math.max(0.001, math.min(current_time - last_time, 0.25))
         last_time = current_time
 
@@ -132,7 +99,7 @@ local function main()
             print(string.format("[BOT:%d] Heartbeat - Sparse Mods Tracked: %d", local_port, state_ptr.modification_count))
         end
 
-        sys_sleep(16)
+        sys_time.sleep(16)
     end
 end
 

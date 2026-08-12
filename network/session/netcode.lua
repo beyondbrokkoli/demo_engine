@@ -4,8 +4,6 @@ io.stdout:setvbuf("no")
 
 local ffi = require("ffi")
 
--- REMOVED THE ENTIRE FFI GUARD BLOCK HERE --
-
 local structs = require("network.protocol.structs")
 local net_utils = require("network.session.net_utils")
 local net_pump = require("network.transport.net_pump")
