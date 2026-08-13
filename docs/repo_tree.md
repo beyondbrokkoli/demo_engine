@@ -91,6 +91,16 @@ flowchart LR
     node_python_ask_local_py["📄 ask_local.py"]
     node_python_generate_manifest_py["📄 generate_manifest.py"]
     node_python_ingest_codebase_py["📄 ingest_codebase.py"]
+    node_python_ingest_config_py["📄 ingest_config.py"]
+    node_python_ingest_embeddings_py["📄 ingest_embeddings.py"]
+    node_python_ingest_topology_py["📄 ingest_topology.py"]
+    node_python_ingest_validators_py["📄 ingest_validators.py"]
+    node_python_ingestion_manifest_py["📄 ingestion_manifest.py"]
+    node_python_rag_chat_py["📄 rag_chat.py"]
+    node_python_rag_config_py["📄 rag_config.py"]
+    node_python_rag_embeddings_py["📄 rag_embeddings.py"]
+    node_python_rag_qdrant_py["📄 rag_qdrant.py"]
+    node_python_requirements_txt["📄 requirements.txt"]
     node_python_trace_deps_c_py["📄 trace_deps_c.py"]
     node_python_trace_deps_glsl_py["📄 trace_deps_glsl.py"]
     node_python_trace_deps_lua_py["📄 trace_deps_lua.py"]
@@ -106,7 +116,13 @@ flowchart LR
     node_render_gpu_vk_draw_c["📄 vk_draw.c"]
     node_render_gpu_vk_record_c["📄 vk_record.c"]
     node_render_gpu_vk_render_loop_c["📄 vk_render_loop.c"]
+    node_generated_net_constants_h["📄 net_constants.h"]
+    node_generated_net_ffi_bridge_h["📄 net_ffi_bridge.h"]
+    node_generated_net_rollback_memory_h["📄 net_rollback_memory.h"]
+    node_generated_net_wire_packets_h["📄 net_wire_packets.h"]
+    node_generated_net_world_state_h["📄 net_world_state.h"]
     node_generated_registry_glsl["📄 registry.glsl"]
+    node_generated_shared_structs_h["📄 shared_structs.h"]
     node_generated_ssot_render_h["📄 ssot_render.h"]
     node_generated_ssot_types_h["📄 ssot_types.h"]
     node_scripts_parse_py["📄 parse.py"]
@@ -183,12 +199,6 @@ flowchart LR
     node_network_protocol_config_net_lua["📄 config_net.lua"]
     node_network_protocol_dkjson_lua["📄 dkjson.lua"]
     node_network_protocol_json_util_lua["📄 json_util.lua"]
-    node_network_protocol_net_01_constants_h["📄 net_01_constants.h"]
-    node_network_protocol_net_02_wire_h["📄 net_02_wire.h"]
-    node_network_protocol_net_03_memory_h["📄 net_03_memory.h"]
-    node_network_protocol_net_04_state_h["📄 net_04_state.h"]
-    node_network_protocol_net_05_api_h["📄 net_05_api.h"]
-    node_network_protocol_shared_structs_h["📄 shared_structs.h"]
     node_network_protocol_structs_lua["📄 structs.lua"]
     node_network_session_http_client_lua["📄 http_client.lua"]
     node_network_session_ice_handshake_lua["📄 ice_handshake.lua"]
@@ -319,6 +329,16 @@ flowchart LR
     node_python --> node_python_ask_local_py
     node_python --> node_python_generate_manifest_py
     node_python --> node_python_ingest_codebase_py
+    node_python --> node_python_ingest_config_py
+    node_python --> node_python_ingest_embeddings_py
+    node_python --> node_python_ingest_topology_py
+    node_python --> node_python_ingest_validators_py
+    node_python --> node_python_ingestion_manifest_py
+    node_python --> node_python_rag_chat_py
+    node_python --> node_python_rag_config_py
+    node_python --> node_python_rag_embeddings_py
+    node_python --> node_python_rag_qdrant_py
+    node_python --> node_python_requirements_txt
     node_python --> node_python_trace_deps_c_py
     node_python --> node_python_trace_deps_glsl_py
     node_python --> node_python_trace_deps_lua_py
@@ -334,7 +354,13 @@ flowchart LR
     node_render_gpu --> node_render_gpu_vk_draw_c
     node_render_gpu --> node_render_gpu_vk_record_c
     node_render_gpu --> node_render_gpu_vk_render_loop_c
+    node_generated --> node_generated_net_constants_h
+    node_generated --> node_generated_net_ffi_bridge_h
+    node_generated --> node_generated_net_rollback_memory_h
+    node_generated --> node_generated_net_wire_packets_h
+    node_generated --> node_generated_net_world_state_h
     node_generated --> node_generated_registry_glsl
+    node_generated --> node_generated_shared_structs_h
     node_generated --> node_generated_ssot_render_h
     node_generated --> node_generated_ssot_types_h
     node_scripts --> node_scripts_parse_py
@@ -411,12 +437,6 @@ flowchart LR
     node_network_protocol --> node_network_protocol_config_net_lua
     node_network_protocol --> node_network_protocol_dkjson_lua
     node_network_protocol --> node_network_protocol_json_util_lua
-    node_network_protocol --> node_network_protocol_net_01_constants_h
-    node_network_protocol --> node_network_protocol_net_02_wire_h
-    node_network_protocol --> node_network_protocol_net_03_memory_h
-    node_network_protocol --> node_network_protocol_net_04_state_h
-    node_network_protocol --> node_network_protocol_net_05_api_h
-    node_network_protocol --> node_network_protocol_shared_structs_h
     node_network_protocol --> node_network_protocol_structs_lua
     node_network_session --> node_network_session_http_client_lua
     node_network_session --> node_network_session_ice_handshake_lua
@@ -548,6 +568,16 @@ flowchart LR
     class node_python_ask_local_py file
     class node_python_generate_manifest_py file
     class node_python_ingest_codebase_py file
+    class node_python_ingest_config_py file
+    class node_python_ingest_embeddings_py file
+    class node_python_ingest_topology_py file
+    class node_python_ingest_validators_py file
+    class node_python_ingestion_manifest_py file
+    class node_python_rag_chat_py file
+    class node_python_rag_config_py file
+    class node_python_rag_embeddings_py file
+    class node_python_rag_qdrant_py file
+    class node_python_requirements_txt file
     class node_python_trace_deps_c_py file
     class node_python_trace_deps_glsl_py file
     class node_python_trace_deps_lua_py file
@@ -563,7 +593,13 @@ flowchart LR
     class node_render_gpu_vk_draw_c file
     class node_render_gpu_vk_record_c file
     class node_render_gpu_vk_render_loop_c file
+    class node_generated_net_constants_h file
+    class node_generated_net_ffi_bridge_h file
+    class node_generated_net_rollback_memory_h file
+    class node_generated_net_wire_packets_h file
+    class node_generated_net_world_state_h file
     class node_generated_registry_glsl file
+    class node_generated_shared_structs_h file
     class node_generated_ssot_render_h file
     class node_generated_ssot_types_h file
     class node_scripts_parse_py file
@@ -640,12 +676,6 @@ flowchart LR
     class node_network_protocol_config_net_lua file
     class node_network_protocol_dkjson_lua file
     class node_network_protocol_json_util_lua file
-    class node_network_protocol_net_01_constants_h file
-    class node_network_protocol_net_02_wire_h file
-    class node_network_protocol_net_03_memory_h file
-    class node_network_protocol_net_04_state_h file
-    class node_network_protocol_net_05_api_h file
-    class node_network_protocol_shared_structs_h file
     class node_network_protocol_structs_lua file
     class node_network_session_http_client_lua file
     class node_network_session_ice_handshake_lua file

@@ -11,51 +11,51 @@ demo_engine/                                      │   │   ├── main_set
 │   ├── task_invariants.lua                       │   │   │   ├── graphics_pipeline_runtime.lua
 │   └── task_shaders.lua                          │   │   │   ├── graphics_pipeline_utils.lua
 ├── generated/                                    │   │   │   ├── renderer.lua
-│   ├── registry.glsl                             │   │   │   └── sequence.lua
-│   ├── ssot_render.h                             │   │   └── translation/
-│   └── ssot_types.h                              │   │       ├── pipeline_manifest.lua
-├── host/                                         │   │       └── render_queue.lua
-│   ├── boot/                                     │   ├── services/
-│   │   ├── lifecycle.c                           │   │   ├── gpu/
-│   │   ├── main.c                                │   │   │   ├── descriptors.lua
-│   │   └── main_headless.c                       │   │   │   ├── registry_vk.lua
-│   ├── ipc/                                      │   │   │   ├── swapchain.lua
-│   │   ├── mailbox.c                             │   │   │   ├── vulkan_core.lua
-│   │   ├── ring_stream.c                         │   │   │   ├── vulkan_core_destroy.lua
-│   │   └── sys_sync.c                            │   │   │   ├── vulkan_core_device.lua
-│   ├── lua/                                      │   │   │   ├── vulkan_core_instance.lua
-│   │   └── lua_vm.c                              │   │   │   ├── vulkan_core_loader.lua
-│   ├── runtime/                                  │   │   │   └── weaver_vram.lua
-│   │   └── main_loop.c                           │   │   ├── math/
-│   ├── state/                                    │   │   │   ├── fixed_math.lua
-│   │   ├── state_globals.c                       │   │   │   ├── vmath.lua
-│   │   └── state_types.c                         │   │   │   ├── vmath_cam.lua
-│   ├── tenant/                                   │   │   │   ├── vmath_mat.lua
-│   │   ├── tenant_callbacks_key.c                │   │   │   ├── vmath_mat_inv.lua
-│   │   ├── tenant_callbacks_mouse.c              │   │   │   └── vmath_mat_mult.lua
-│   │   ├── tenant_callbacks_state.c              │   │   ├── memory/
-│   │   ├── tenant_input.c                        │   │   │   ├── memory.lua
-│   │   └── tenant_sys.c                          │   │   │   ├── memory_alloc.lua
-│   └── threading/                                │   │   │   ├── memory_alloc_cpu.lua
-│       ├── thread_lifecycle.c                    │   │   │   ├── memory_alloc_gpu.lua
-│       └── thread_pool.c                         │   │   │   ├── memory_base.lua
-├── network/                                      │   │   │   ├── memory_platform.lua
-│   ├── lockstep/                                 │   │   │   └── memory_transfer.lua
-│   │   ├── fsm_core.lua                          │   │   └── tenants/
-│   │   ├── fsm_pacing.lua                        │   │       ├── tenant_lifecycle.lua
-│   │   ├── fsm_simulator.lua                     │   │       └── tenant_registry.lua
-│   │   ├── history_buffer.lua                    │   ├── shutdown/
-│   │   └── wire_codec.lua                        │   │   └── teardown.lua
-│   ├── protocol/                                 │   └── simulation/
-│   │   ├── config_net.lua                        │       ├── camera.lua
-│   │   ├── dkjson.lua                            │       ├── game_state.lua
-│   │   ├── json_util.lua                         │       └── raycast.lua
-│   │   ├── net_01_constants.h                    ├── shaders/
-│   │   ├── net_02_wire.h                         │   ├── render.frag
-│   │   ├── net_03_memory.h                       │   ├── render.vert
-│   │   ├── net_04_state.h                        │   └── shared.glsl
-│   │   ├── net_05_api.h                          ├── ssot/
-│   │   ├── shared_structs.h                      │   ├── config_gfx.lua
+│   ├── net_constants.h                           │   │   │   └── sequence.lua
+│   ├── net_ffi_bridge.h                          │   │   └── translation/
+│   ├── net_rollback_memory.h                     │   │       ├── pipeline_manifest.lua
+│   ├── net_wire_packets.h                        │   │       └── render_queue.lua
+│   ├── net_world_state.h                         │   ├── services/
+│   ├── registry.glsl                             │   │   ├── gpu/
+│   ├── shared_structs.h                          │   │   │   ├── descriptors.lua
+│   ├── ssot_render.h                             │   │   │   ├── registry_vk.lua
+│   └── ssot_types.h                              │   │   │   ├── swapchain.lua
+├── host/                                         │   │   │   ├── vulkan_core.lua
+│   ├── boot/                                     │   │   │   ├── vulkan_core_destroy.lua
+│   │   ├── lifecycle.c                           │   │   │   ├── vulkan_core_device.lua
+│   │   ├── main.c                                │   │   │   ├── vulkan_core_instance.lua
+│   │   └── main_headless.c                       │   │   │   ├── vulkan_core_loader.lua
+│   ├── ipc/                                      │   │   │   └── weaver_vram.lua
+│   │   ├── mailbox.c                             │   │   ├── math/
+│   │   ├── ring_stream.c                         │   │   │   ├── fixed_math.lua
+│   │   └── sys_sync.c                            │   │   │   ├── vmath.lua
+│   ├── lua/                                      │   │   │   ├── vmath_cam.lua
+│   │   └── lua_vm.c                              │   │   │   ├── vmath_mat.lua
+│   ├── runtime/                                  │   │   │   ├── vmath_mat_inv.lua
+│   │   └── main_loop.c                           │   │   │   └── vmath_mat_mult.lua
+│   ├── state/                                    │   │   ├── memory/
+│   │   ├── state_globals.c                       │   │   │   ├── memory.lua
+│   │   └── state_types.c                         │   │   │   ├── memory_alloc.lua
+│   ├── tenant/                                   │   │   │   ├── memory_alloc_cpu.lua
+│   │   ├── tenant_callbacks_key.c                │   │   │   ├── memory_alloc_gpu.lua
+│   │   ├── tenant_callbacks_mouse.c              │   │   │   ├── memory_base.lua
+│   │   ├── tenant_callbacks_state.c              │   │   │   ├── memory_platform.lua
+│   │   ├── tenant_input.c                        │   │   │   └── memory_transfer.lua
+│   │   └── tenant_sys.c                          │   │   └── tenants/
+│   └── threading/                                │   │       ├── tenant_lifecycle.lua
+│       ├── thread_lifecycle.c                    │   │       └── tenant_registry.lua
+│       └── thread_pool.c                         │   ├── shutdown/
+├── network/                                      │   │   └── teardown.lua
+│   ├── lockstep/                                 │   └── simulation/
+│   │   ├── fsm_core.lua                          │       ├── camera.lua
+│   │   ├── fsm_pacing.lua                        │       ├── game_state.lua
+│   │   ├── fsm_simulator.lua                     │       └── raycast.lua
+│   │   ├── history_buffer.lua                    ├── shaders/
+│   │   └── wire_codec.lua                        │   ├── render.frag
+│   ├── protocol/                                 │   ├── render.vert
+│   │   ├── config_net.lua                        │   └── shared.glsl
+│   │   ├── dkjson.lua                            ├── ssot/
+│   │   ├── json_util.lua                         │   ├── config_gfx.lua
 │   │   └── structs.lua                           │   ├── config_sim.lua
 │   ├── session/                                  │   ├── ctx_types.lua
 │   │   ├── http_client.lua                       │   ├── registry.glsl
