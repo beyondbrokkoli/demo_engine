@@ -80,7 +80,7 @@ if __name__ == "__main__":
     tree_lines = [f"{root_name}/"] + build_tree(".", rules)
 
     # Force 2 columns. Width 43 * 2 = 86 chars (Fits standard GitHub Markdown width)
-    col_lines = columnize(tree_lines, num_columns=2, column_width=43)
+    col_lines = columnize(tree_lines, num_columns=2, column_width=50)
 
     final_output = "\n".join(col_lines)
 
