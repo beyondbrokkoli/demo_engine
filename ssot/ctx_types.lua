@@ -25,10 +25,6 @@ require("ssot.type_math")(ctx)
 require("ssot.type_render")(ctx)
 
 local function resolve_padding(struct, offset, member_align)
-    if struct.layout.mode == "packed" then
-        return 0, offset
-    end
-
     local effective_align = member_align
     if struct.layout.mode == "std430" then
         local max_align = struct.layout.max_member_align or 16
@@ -44,9 +40,6 @@ local function resolve_padding(struct, offset, member_align)
 end
 
 local function resolve_tail_padding(struct, offset, safe_align)
-    if struct.layout.mode == "packed" then
-        return 0, offset
-    end
     local rem = offset % safe_align
     if rem ~= 0 then
         local tail_pad = safe_align - rem
@@ -72,12 +65,9 @@ function ctx.compile_layouts()
         struct.computed_align = safe_align
 
         local attr = ""
-        if struct.layout.mode == "packed" then
-            attr = "__attribute__((packed))"
-        elseif struct.layout.mode == "aligned" or struct.layout.mode == "std430" then
+        if struct.layout.mode == "aligned" or struct.layout.mode == "std430" then
             attr = string.format("__attribute__((aligned(%d)))", safe_align)
         end
-
         cdef_builder = cdef_builder .. string.format("typedef struct %s {\n", attr)
 
         local offset = 0

@@ -35,15 +35,12 @@ return function(ctx)
         if struct.targets.c then
             local out = domain_files[struct.domain].file
 
-            if struct.layout.mode == "packed" then
-                out:write("#pragma pack(push, 1)\ntypedef struct {\n")
-            else
-                local attr = ""
-                if struct.layout.mode == "aligned" or struct.layout.mode == "std430" then
-                    attr = string.format("__attribute__((aligned(%d)))", struct.computed_align or struct.layout.align or 8)
-                end
-                out:write(string.format("typedef struct %s {\n", attr))
+            local attr = ""
+            if struct.layout.mode == "aligned" or struct.layout.mode == "std430" then
+                attr = string.format("__attribute__((aligned(%d)))", struct.computed_align or struct.layout.align or 8)
             end
+
+            out:write(string.format("typedef struct %s {\n", attr))
 
             for _, m in ipairs(struct.members) do
                 local arr_str = ""
@@ -54,7 +51,7 @@ return function(ctx)
                 out:write(string.format("    %s %s%s;\n", m.type, m.name, arr_str))
             end
 
-            out:write((struct.layout.mode == "packed") and ("} " .. struct.name .. ";\n#pragma pack(pop)\n\n") or ("} " .. struct.name .. ";\n\n"))
+            out:write("} " .. struct.name .. ";\n\n")
         end
     end
 

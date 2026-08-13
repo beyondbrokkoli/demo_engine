@@ -2,7 +2,7 @@ return function(ctx)
     local specs = {
         {
             name = "vec4_t",
-            targets = { c = true, glsl = true, wire = false },
+            targets = { c = true, glsl = true },
             layout = { mode = "std430", align = 16 },
             members = {
                 { type = "float", name = "x" },
@@ -13,7 +13,7 @@ return function(ctx)
         },
         {
             name = "mat4_t",
-            targets = { c = true, glsl = true, wire = false },
+            targets = { c = true, glsl = true },
             layout = { mode = "std430", align = 16 },
             members = {
                 { type = "float", name = "m", count = 16 }

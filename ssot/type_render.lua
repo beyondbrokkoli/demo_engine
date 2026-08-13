@@ -2,7 +2,7 @@ return function(ctx)
     local specs = {
         {
             name = "RenderThreadInit",
-            targets = { c = true, glsl = false, wire = false }, -- c_only & vk_shield were true
+            targets = { c = true, glsl = false },
             layout = { mode = "default" },
             members = {
                 { type = "VkDevice", name = "device" },
@@ -32,7 +32,7 @@ return function(ctx)
         },
         {
             name = "RtsTileInstance",
-            targets = { c = true, glsl = true, wire = false },
+            targets = { c = true, glsl = true },
             layout = { mode = "std430", align = 16 },
             members = {
                 { type = "float", name = "px" }, { type = "float", name = "py" },
@@ -41,7 +41,7 @@ return function(ctx)
         },
         {
             name = "PushConstants",
-            targets = { c = true, glsl = true, wire = false },
+            targets = { c = true, glsl = true },
             layout = { mode = "std430", align = 16 },
             members = {
                 { type = "mat4_t", name = "viewProj" }, { type = "uint32_t", name = "aos_current_idx" },
@@ -52,7 +52,7 @@ return function(ctx)
         },
         {
             name = "DrawCommand",
-            targets = { c = true, glsl = false, wire = false },
+            targets = { c = true, glsl = false },
             layout = { mode = "aligned", align = 64 },
             members = {
                 { type = "uint64_t", name = "pipeline_id" }, { type = "uint64_t", name = "descriptor_set" },
@@ -69,7 +69,7 @@ return function(ctx)
         },
         {
             name = "RenderPacket",
-            targets = { c = true, glsl = false, wire = false },
+            targets = { c = true, glsl = false },
             layout = { mode = "aligned", align = 64 },
             members = {
                 { type = "DrawCommand*", name = "draw_queue" }, { type = "uint32_t", name = "draw_count" },
