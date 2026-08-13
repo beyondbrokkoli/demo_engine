@@ -199,6 +199,8 @@ INGESTION_MANIFEST = [
 
     # Domains & World Scripts (Lua)
     "worlds/chess/domain_base.lua",
+    "worlds/chess/domain_contract_base.lua",
+    "worlds/chess/domain_contract_logic.lua",
     "worlds/chess/domain_contract.lua",
     "worlds/chess/domain_lifecycle.lua",
     "worlds/chess/domain.lua",
