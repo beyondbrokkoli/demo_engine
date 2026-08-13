@@ -149,8 +149,12 @@ INGESTION_MANIFEST = [
     "runtime/services/gpu/weaver_vram.lua",
     "runtime/services/math/fixed_math.lua",
     "runtime/services/math/vmath_cam.lua",
-    "runtime/services/math/vmath.lua",
+    "runtime/services/math/vmath_mat_inv.lua",
+    "runtime/services/math/vmath_mat_mult.lua",
     "runtime/services/math/vmath_mat.lua",
+    "runtime/services/math/vmath.lua",
+    "runtime/services/memory/memory_alloc_gpu.lua",
+    "runtime/services/memory/memory_alloc_cpu.lua",
     "runtime/services/memory/memory_alloc.lua",
     "runtime/services/memory/memory_base.lua",
     "runtime/services/memory/memory.lua",
@@ -164,7 +168,7 @@ INGESTION_MANIFEST = [
     "runtime/simulation/raycast.lua",
 
     # Scripts
-    "scripts/parse.py",
+    # "scripts/parse.py",
 
     # Server Services (Python)
     "server/api.py",
