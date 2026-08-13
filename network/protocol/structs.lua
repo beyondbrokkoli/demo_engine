@@ -5,11 +5,11 @@ local M = {}
 
 local function load_brutalist_structs()
     local chunk_files = {
-        "network/protocol/net_01_constants.h",
-        "network/protocol/net_02_wire.h",
-        "network/protocol/net_03_memory.h",
-        "network/protocol/net_04_state.h",
-        "network/protocol/net_05_api.h"
+        "network/protocol/net_constants.h",
+        "network/protocol/net_wire_packets.h",
+        "network/protocol/net_rollback_memory.h",
+        "network/protocol/net_world_state.h",
+        "network/protocol/net_ffi_bridge.h"
     }
 
     local full_c_code = ""
