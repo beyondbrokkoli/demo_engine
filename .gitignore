@@ -16,3 +16,4 @@ README.md
 runtime/services/gpu/vulkan_headers.lua
 #rag/ask.py
 #rag/ingest_codebase.py
+python/__pycache__
