@@ -3,6 +3,12 @@
 flowchart LR
     %% WeaverEngine C Dependencies
     subgraph generated
+        generated_net_constants_h["generated/net_constants.h"]
+        generated_net_ffi_bridge_h["generated/net_ffi_bridge.h"]
+        generated_net_rollback_memory_h["generated/net_rollback_memory.h"]
+        generated_net_wire_packets_h["generated/net_wire_packets.h"]
+        generated_net_world_state_h["generated/net_world_state.h"]
+        generated_shared_structs_h["generated/shared_structs.h"]
         generated_ssot_render_h["generated/ssot_render.h"]
         generated_ssot_types_h["generated/ssot_types.h"]
     end
@@ -26,12 +32,6 @@ flowchart LR
         host_threading_thread_pool_c["host/threading/thread_pool.c"]
     end
     subgraph network
-        network_protocol_net_constants_h["network/protocol/net_constants.h"]
-        network_protocol_net_ffi_bridge_h["network/protocol/net_ffi_bridge.h"]
-        network_protocol_net_rollback_memory_h["network/protocol/net_rollback_memory.h"]
-        network_protocol_net_wire_packets_h["network/protocol/net_wire_packets.h"]
-        network_protocol_net_world_state_h["network/protocol/net_world_state.h"]
-        network_protocol_shared_structs_h["network/protocol/shared_structs.h"]
         network_transport_vx_net_internal_h["network/transport/vx_net_internal.h"]
         network_transport_vx_net_io_c["network/transport/vx_net_io.c"]
         network_transport_vx_net_state_c["network/transport/vx_net_state.c"]
@@ -46,6 +46,11 @@ flowchart LR
         render_transfer_vk_transfer_api_c["render/transfer/vk_transfer_api.c"]
         render_transfer_vk_transfer_loop_c["render/transfer/vk_transfer_loop.c"]
     end
+    generated_shared_structs_h --> generated_net_constants_h
+    generated_shared_structs_h --> generated_net_ffi_bridge_h
+    generated_shared_structs_h --> generated_net_rollback_memory_h
+    generated_shared_structs_h --> generated_net_wire_packets_h
+    generated_shared_structs_h --> generated_net_world_state_h
     host_boot_main_c --> generated_ssot_render_h
     host_boot_main_c --> generated_ssot_types_h
     host_boot_main_c --> host_boot_lifecycle_c
@@ -71,12 +76,7 @@ flowchart LR
     host_boot_main_c --> render_transfer_vk_transfer_api_c
     host_boot_main_c --> render_transfer_vk_transfer_loop_c
     host_boot_main_headless_c --> host_ipc_sys_sync_c
-    network_protocol_shared_structs_h --> network_protocol_net_constants_h
-    network_protocol_shared_structs_h --> network_protocol_net_ffi_bridge_h
-    network_protocol_shared_structs_h --> network_protocol_net_rollback_memory_h
-    network_protocol_shared_structs_h --> network_protocol_net_wire_packets_h
-    network_protocol_shared_structs_h --> network_protocol_net_world_state_h
-    network_transport_vx_net_internal_h --> network_protocol_shared_structs_h
+    network_transport_vx_net_internal_h --> generated_shared_structs_h
     network_transport_vx_net_io_c --> network_transport_vx_net_internal_h
     network_transport_vx_net_state_c --> network_transport_vx_net_internal_h
     network_transport_vx_net_stun_c --> network_transport_vx_net_internal_h

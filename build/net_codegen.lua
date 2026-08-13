@@ -173,7 +173,7 @@ void vx_net_shutdown(void);
 
 -- 4. FORGE THE FILES
 local function write_file(filename, content)
-    local f = assert(io.open("network/protocol/" .. filename, "w"))
+    local f = assert(io.open("generated/" .. filename, "w"))
     f:write(content)
     f:close()
 end

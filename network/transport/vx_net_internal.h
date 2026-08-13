@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "../protocol/shared_structs.h"
+#include "../../generated/shared_structs.h"
 
 #if defined(_WIN32)
     #define EXPORT __declspec(dllexport)

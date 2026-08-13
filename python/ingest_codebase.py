@@ -21,13 +21,6 @@ DOC_FILE_C = "docs/deps_c.md"
 DOC_FILE_GLSL = "docs/deps_glsl.md"
 
 INGESTION_MANIFEST = [
-    # Root Files
-    # "LICENSE",
-    # "README.md",
-    # "launch.bat",
-    # "launch.lua",
-    # "launch.sh",
-
     # Build
     "build/build.lua",
     "build/check_build_dependencies.lua",
@@ -39,15 +32,14 @@ INGESTION_MANIFEST = [
     "build/task_invariants.lua",
     "build/task_shaders.lua",
 
-    # Docs
-    # "docs/deps_c.md",
-    # "docs/deps_glsl.md",
-    # "docs/deps_lua.md",
-    # "docs/repo_ascii.txt",
-    # "docs/repo_tree.md",
-
     # Generated
+    "generated/net_constants.h",
+    "generated/net_ffi_bridge.h",
+    "generated/net_rollback_memory.h",
+    "generated/net_wire_packets.h",
+    "generated/net_world_state.h",
     "generated/registry.glsl",
+    "generated/shared_structs.h",
     "generated/ssot_render.h",
     "generated/ssot_types.h",
 
@@ -77,14 +69,7 @@ INGESTION_MANIFEST = [
     "network/lockstep/history_buffer.lua",
     "network/lockstep/wire_codec.lua",
     "network/protocol/config_net.lua",
-    # "network/protocol/dkjson.lua",
     "network/protocol/json_util.lua",
-    "network/protocol/net_01_constants.h",
-    "network/protocol/net_02_wire.h",
-    "network/protocol/net_03_memory.h",
-    "network/protocol/net_04_state.h",
-    "network/protocol/net_05_api.h",
-    "network/protocol/shared_structs.h",
     "network/protocol/structs.lua",
     "network/session/http_client.lua",
     "network/session/ice_handshake.lua",
@@ -98,17 +83,6 @@ INGESTION_MANIFEST = [
     "network/transport/vx_net_io.c",
     "network/transport/vx_net_state.c",
     "network/transport/vx_net_stun.c",
-
-    # Python
-    # "python/ascii_tree_cols.py",
-    # "python/ask.py",
-    # "python/ask_local.py",
-    # "python/generate_manifest.py",
-    # "python/ingest_codebase.py",
-    # "python/trace_deps_c.py",
-    # "python/trace_deps_glsl.py",
-    # "python/trace_deps_lua.py",
-    # "python/trace_tree.py",
 
     # Render
     "render/debug/vk_debug.c",
@@ -145,7 +119,6 @@ INGESTION_MANIFEST = [
     "runtime/services/gpu/vulkan_core_device.lua",
     "runtime/services/gpu/vulkan_core_instance.lua",
     "runtime/services/gpu/vulkan_core_loader.lua",
-    # "runtime/services/gpu/vulkan_headers.lua",
     "runtime/services/gpu/weaver_vram.lua",
     "runtime/services/math/fixed_math.lua",
     "runtime/services/math/vmath.lua",
@@ -166,9 +139,6 @@ INGESTION_MANIFEST = [
     "runtime/simulation/camera.lua",
     "runtime/simulation/game_state.lua",
     "runtime/simulation/raycast.lua",
-
-    # Scripts
-    # "scripts/parse.py",
 
     # Server
     "server/api.py",
