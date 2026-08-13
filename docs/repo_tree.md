@@ -17,7 +17,6 @@ flowchart LR
     node_logs["📁 logs"]
     node_network["📁 network"]
     node_python["📁 python"]
-    node_rag["📁 rag"]
     node_render["📁 render"]
     node_runtime["📁 runtime"]
     node_scripts["📁 scripts"]
@@ -70,11 +69,28 @@ flowchart LR
     node_worlds_luachess_global_lua["📄 global.lua"]
     node_worlds_luachess_game_attack_lua["📄 attack.lua"]
     node_worlds_luachess_game_logic_lua["📄 logic.lua"]
+    node_worlds_luachess_game_logic_base_lua["📄 logic_base.lua"]
+    node_worlds_luachess_game_logic_core_lua["📄 logic_core.lua"]
+    node_worlds_luachess_game_logic_gen_lua["📄 logic_gen.lua"]
+    node_worlds_luachess_game_logic_pools_lua["📄 logic_pools.lua"]
     node_worlds_luachess_game_move_lua["📄 move.lua"]
     node_worlds_luachess_game_standard_lua["📄 standard.lua"]
     node_worlds_luachess_game_turn_lua["📄 turn.lua"]
     node_worlds_chess_domain_lua["📄 domain.lua"]
+    node_worlds_chess_domain_base_lua["📄 domain_base.lua"]
+    node_worlds_chess_domain_contract_lua["📄 domain_contract.lua"]
+    node_worlds_chess_domain_contract_base_lua["📄 domain_contract_base.lua"]
+    node_worlds_chess_domain_contract_commit_lua["📄 domain_contract_commit.lua"]
+    node_worlds_chess_domain_contract_decode_lua["📄 domain_contract_decode.lua"]
+    node_worlds_chess_domain_contract_logic_lua["📄 domain_contract_logic.lua"]
+    node_worlds_chess_domain_contract_simulate_lua["📄 domain_contract_simulate.lua"]
+    node_worlds_chess_domain_lifecycle_lua["📄 domain_lifecycle.lua"]
+    node_worlds_chess_domain_terrain_lua["📄 domain_terrain.lua"]
     node_python_ascii_tree_cols_py["📄 ascii_tree_cols.py"]
+    node_python_ask_py["📄 ask.py"]
+    node_python_ask_local_py["📄 ask_local.py"]
+    node_python_generate_manifest_py["📄 generate_manifest.py"]
+    node_python_ingest_codebase_py["📄 ingest_codebase.py"]
     node_python_trace_deps_c_py["📄 trace_deps_c.py"]
     node_python_trace_deps_glsl_py["📄 trace_deps_glsl.py"]
     node_python_trace_deps_lua_py["📄 trace_deps_lua.py"]
@@ -99,9 +115,6 @@ flowchart LR
     node_docs_deps_lua_md["📄 deps_lua.md"]
     node_docs_repo_ascii_txt["📄 repo_ascii.txt"]
     node_docs_repo_tree_md["📄 repo_tree.md"]
-    node_rag_ask_py["📄 ask.py"]
-    node_rag_ask_local_py["📄 ask_local.py"]
-    node_rag_ingest_codebase_py["📄 ingest_codebase.py"]
     node_runtime_boot["📁 boot"]
     node_runtime_presentation["📁 presentation"]
     node_runtime_services["📁 services"]
@@ -113,6 +126,8 @@ flowchart LR
     node_runtime_boot_core_abi_lua["📄 core_abi.lua"]
     node_runtime_boot_engine_api_lua["📄 engine_api.lua"]
     node_runtime_boot_main_lua["📄 main.lua"]
+    node_runtime_boot_main_loop_lua["📄 main_loop.lua"]
+    node_runtime_boot_main_setup_lua["📄 main_setup.lua"]
     node_runtime_boot_path_weaver_lua["📄 path_weaver.lua"]
     node_runtime_boot_weaver_boot_lua["📄 weaver_boot.lua"]
     node_runtime_boot_window_api_lua["📄 window_api.lua"]
@@ -121,6 +136,9 @@ flowchart LR
     node_runtime_presentation_translation["📁 translation"]
     node_runtime_presentation_graphics_compute_pipeline_lua["📄 compute_pipeline.lua"]
     node_runtime_presentation_graphics_graphics_pipeline_lua["📄 graphics_pipeline.lua"]
+    node_runtime_presentation_graphics_graphics_pipeline_init_lua["📄 graphics_pipeline_init.lua"]
+    node_runtime_presentation_graphics_graphics_pipeline_runtime_lua["📄 graphics_pipeline_runtime.lua"]
+    node_runtime_presentation_graphics_graphics_pipeline_utils_lua["📄 graphics_pipeline_utils.lua"]
     node_runtime_presentation_graphics_renderer_lua["📄 renderer.lua"]
     node_runtime_presentation_graphics_sequence_lua["📄 sequence.lua"]
     node_runtime_presentation_translation_pipeline_manifest_lua["📄 pipeline_manifest.lua"]
@@ -131,13 +149,27 @@ flowchart LR
     node_runtime_services_tenants["📁 tenants"]
     node_runtime_services_math_fixed_math_lua["📄 fixed_math.lua"]
     node_runtime_services_math_vmath_lua["📄 vmath.lua"]
+    node_runtime_services_math_vmath_cam_lua["📄 vmath_cam.lua"]
+    node_runtime_services_math_vmath_mat_lua["📄 vmath_mat.lua"]
+    node_runtime_services_math_vmath_mat_inv_lua["📄 vmath_mat_inv.lua"]
+    node_runtime_services_math_vmath_mat_mult_lua["📄 vmath_mat_mult.lua"]
     node_runtime_services_memory_memory_lua["📄 memory.lua"]
+    node_runtime_services_memory_memory_alloc_lua["📄 memory_alloc.lua"]
+    node_runtime_services_memory_memory_alloc_cpu_lua["📄 memory_alloc_cpu.lua"]
+    node_runtime_services_memory_memory_alloc_gpu_lua["📄 memory_alloc_gpu.lua"]
+    node_runtime_services_memory_memory_base_lua["📄 memory_base.lua"]
+    node_runtime_services_memory_memory_platform_lua["📄 memory_platform.lua"]
+    node_runtime_services_memory_memory_transfer_lua["📄 memory_transfer.lua"]
     node_runtime_services_tenants_tenant_lifecycle_lua["📄 tenant_lifecycle.lua"]
     node_runtime_services_tenants_tenant_registry_lua["📄 tenant_registry.lua"]
     node_runtime_services_gpu_descriptors_lua["📄 descriptors.lua"]
     node_runtime_services_gpu_registry_vk_lua["📄 registry_vk.lua"]
     node_runtime_services_gpu_swapchain_lua["📄 swapchain.lua"]
     node_runtime_services_gpu_vulkan_core_lua["📄 vulkan_core.lua"]
+    node_runtime_services_gpu_vulkan_core_destroy_lua["📄 vulkan_core_destroy.lua"]
+    node_runtime_services_gpu_vulkan_core_device_lua["📄 vulkan_core_device.lua"]
+    node_runtime_services_gpu_vulkan_core_instance_lua["📄 vulkan_core_instance.lua"]
+    node_runtime_services_gpu_vulkan_core_loader_lua["📄 vulkan_core_loader.lua"]
     node_runtime_services_gpu_weaver_vram_lua["📄 weaver_vram.lua"]
     node_network_lockstep["📁 lockstep"]
     node_network_protocol["📁 protocol"]
@@ -213,7 +245,6 @@ flowchart LR
     root --> node_logs
     root --> node_network
     root --> node_python
-    root --> node_rag
     root --> node_render
     root --> node_runtime
     root --> node_scripts
@@ -266,11 +297,28 @@ flowchart LR
     node_worlds_luachess --> node_worlds_luachess_global_lua
     node_worlds_luachess_game --> node_worlds_luachess_game_attack_lua
     node_worlds_luachess_game --> node_worlds_luachess_game_logic_lua
+    node_worlds_luachess_game --> node_worlds_luachess_game_logic_base_lua
+    node_worlds_luachess_game --> node_worlds_luachess_game_logic_core_lua
+    node_worlds_luachess_game --> node_worlds_luachess_game_logic_gen_lua
+    node_worlds_luachess_game --> node_worlds_luachess_game_logic_pools_lua
     node_worlds_luachess_game --> node_worlds_luachess_game_move_lua
     node_worlds_luachess_game --> node_worlds_luachess_game_standard_lua
     node_worlds_luachess_game --> node_worlds_luachess_game_turn_lua
     node_worlds_chess --> node_worlds_chess_domain_lua
+    node_worlds_chess --> node_worlds_chess_domain_base_lua
+    node_worlds_chess --> node_worlds_chess_domain_contract_lua
+    node_worlds_chess --> node_worlds_chess_domain_contract_base_lua
+    node_worlds_chess --> node_worlds_chess_domain_contract_commit_lua
+    node_worlds_chess --> node_worlds_chess_domain_contract_decode_lua
+    node_worlds_chess --> node_worlds_chess_domain_contract_logic_lua
+    node_worlds_chess --> node_worlds_chess_domain_contract_simulate_lua
+    node_worlds_chess --> node_worlds_chess_domain_lifecycle_lua
+    node_worlds_chess --> node_worlds_chess_domain_terrain_lua
     node_python --> node_python_ascii_tree_cols_py
+    node_python --> node_python_ask_py
+    node_python --> node_python_ask_local_py
+    node_python --> node_python_generate_manifest_py
+    node_python --> node_python_ingest_codebase_py
     node_python --> node_python_trace_deps_c_py
     node_python --> node_python_trace_deps_glsl_py
     node_python --> node_python_trace_deps_lua_py
@@ -295,9 +343,6 @@ flowchart LR
     node_docs --> node_docs_deps_lua_md
     node_docs --> node_docs_repo_ascii_txt
     node_docs --> node_docs_repo_tree_md
-    node_rag --> node_rag_ask_py
-    node_rag --> node_rag_ask_local_py
-    node_rag --> node_rag_ingest_codebase_py
     node_runtime --> node_runtime_boot
     node_runtime --> node_runtime_presentation
     node_runtime --> node_runtime_services
@@ -309,6 +354,8 @@ flowchart LR
     node_runtime_boot --> node_runtime_boot_core_abi_lua
     node_runtime_boot --> node_runtime_boot_engine_api_lua
     node_runtime_boot --> node_runtime_boot_main_lua
+    node_runtime_boot --> node_runtime_boot_main_loop_lua
+    node_runtime_boot --> node_runtime_boot_main_setup_lua
     node_runtime_boot --> node_runtime_boot_path_weaver_lua
     node_runtime_boot --> node_runtime_boot_weaver_boot_lua
     node_runtime_boot --> node_runtime_boot_window_api_lua
@@ -317,6 +364,9 @@ flowchart LR
     node_runtime_presentation --> node_runtime_presentation_translation
     node_runtime_presentation_graphics --> node_runtime_presentation_graphics_compute_pipeline_lua
     node_runtime_presentation_graphics --> node_runtime_presentation_graphics_graphics_pipeline_lua
+    node_runtime_presentation_graphics --> node_runtime_presentation_graphics_graphics_pipeline_init_lua
+    node_runtime_presentation_graphics --> node_runtime_presentation_graphics_graphics_pipeline_runtime_lua
+    node_runtime_presentation_graphics --> node_runtime_presentation_graphics_graphics_pipeline_utils_lua
     node_runtime_presentation_graphics --> node_runtime_presentation_graphics_renderer_lua
     node_runtime_presentation_graphics --> node_runtime_presentation_graphics_sequence_lua
     node_runtime_presentation_translation --> node_runtime_presentation_translation_pipeline_manifest_lua
@@ -327,13 +377,27 @@ flowchart LR
     node_runtime_services --> node_runtime_services_tenants
     node_runtime_services_math --> node_runtime_services_math_fixed_math_lua
     node_runtime_services_math --> node_runtime_services_math_vmath_lua
+    node_runtime_services_math --> node_runtime_services_math_vmath_cam_lua
+    node_runtime_services_math --> node_runtime_services_math_vmath_mat_lua
+    node_runtime_services_math --> node_runtime_services_math_vmath_mat_inv_lua
+    node_runtime_services_math --> node_runtime_services_math_vmath_mat_mult_lua
     node_runtime_services_memory --> node_runtime_services_memory_memory_lua
+    node_runtime_services_memory --> node_runtime_services_memory_memory_alloc_lua
+    node_runtime_services_memory --> node_runtime_services_memory_memory_alloc_cpu_lua
+    node_runtime_services_memory --> node_runtime_services_memory_memory_alloc_gpu_lua
+    node_runtime_services_memory --> node_runtime_services_memory_memory_base_lua
+    node_runtime_services_memory --> node_runtime_services_memory_memory_platform_lua
+    node_runtime_services_memory --> node_runtime_services_memory_memory_transfer_lua
     node_runtime_services_tenants --> node_runtime_services_tenants_tenant_lifecycle_lua
     node_runtime_services_tenants --> node_runtime_services_tenants_tenant_registry_lua
     node_runtime_services_gpu --> node_runtime_services_gpu_descriptors_lua
     node_runtime_services_gpu --> node_runtime_services_gpu_registry_vk_lua
     node_runtime_services_gpu --> node_runtime_services_gpu_swapchain_lua
     node_runtime_services_gpu --> node_runtime_services_gpu_vulkan_core_lua
+    node_runtime_services_gpu --> node_runtime_services_gpu_vulkan_core_destroy_lua
+    node_runtime_services_gpu --> node_runtime_services_gpu_vulkan_core_device_lua
+    node_runtime_services_gpu --> node_runtime_services_gpu_vulkan_core_instance_lua
+    node_runtime_services_gpu --> node_runtime_services_gpu_vulkan_core_loader_lua
     node_runtime_services_gpu --> node_runtime_services_gpu_weaver_vram_lua
     node_network --> node_network_lockstep
     node_network --> node_network_protocol
@@ -410,7 +474,6 @@ flowchart LR
     class node_logs dir
     class node_network dir
     class node_python dir
-    class node_rag dir
     class node_render dir
     class node_runtime dir
     class node_scripts dir
@@ -463,11 +526,28 @@ flowchart LR
     class node_worlds_luachess_global_lua file
     class node_worlds_luachess_game_attack_lua file
     class node_worlds_luachess_game_logic_lua file
+    class node_worlds_luachess_game_logic_base_lua file
+    class node_worlds_luachess_game_logic_core_lua file
+    class node_worlds_luachess_game_logic_gen_lua file
+    class node_worlds_luachess_game_logic_pools_lua file
     class node_worlds_luachess_game_move_lua file
     class node_worlds_luachess_game_standard_lua file
     class node_worlds_luachess_game_turn_lua file
     class node_worlds_chess_domain_lua file
+    class node_worlds_chess_domain_base_lua file
+    class node_worlds_chess_domain_contract_lua file
+    class node_worlds_chess_domain_contract_base_lua file
+    class node_worlds_chess_domain_contract_commit_lua file
+    class node_worlds_chess_domain_contract_decode_lua file
+    class node_worlds_chess_domain_contract_logic_lua file
+    class node_worlds_chess_domain_contract_simulate_lua file
+    class node_worlds_chess_domain_lifecycle_lua file
+    class node_worlds_chess_domain_terrain_lua file
     class node_python_ascii_tree_cols_py file
+    class node_python_ask_py file
+    class node_python_ask_local_py file
+    class node_python_generate_manifest_py file
+    class node_python_ingest_codebase_py file
     class node_python_trace_deps_c_py file
     class node_python_trace_deps_glsl_py file
     class node_python_trace_deps_lua_py file
@@ -492,9 +572,6 @@ flowchart LR
     class node_docs_deps_lua_md file
     class node_docs_repo_ascii_txt file
     class node_docs_repo_tree_md file
-    class node_rag_ask_py file
-    class node_rag_ask_local_py file
-    class node_rag_ingest_codebase_py file
     class node_runtime_boot dir
     class node_runtime_presentation dir
     class node_runtime_services dir
@@ -506,6 +583,8 @@ flowchart LR
     class node_runtime_boot_core_abi_lua file
     class node_runtime_boot_engine_api_lua file
     class node_runtime_boot_main_lua file
+    class node_runtime_boot_main_loop_lua file
+    class node_runtime_boot_main_setup_lua file
     class node_runtime_boot_path_weaver_lua file
     class node_runtime_boot_weaver_boot_lua file
     class node_runtime_boot_window_api_lua file
@@ -514,6 +593,9 @@ flowchart LR
     class node_runtime_presentation_translation dir
     class node_runtime_presentation_graphics_compute_pipeline_lua file
     class node_runtime_presentation_graphics_graphics_pipeline_lua file
+    class node_runtime_presentation_graphics_graphics_pipeline_init_lua file
+    class node_runtime_presentation_graphics_graphics_pipeline_runtime_lua file
+    class node_runtime_presentation_graphics_graphics_pipeline_utils_lua file
     class node_runtime_presentation_graphics_renderer_lua file
     class node_runtime_presentation_graphics_sequence_lua file
     class node_runtime_presentation_translation_pipeline_manifest_lua file
@@ -524,13 +606,27 @@ flowchart LR
     class node_runtime_services_tenants dir
     class node_runtime_services_math_fixed_math_lua file
     class node_runtime_services_math_vmath_lua file
+    class node_runtime_services_math_vmath_cam_lua file
+    class node_runtime_services_math_vmath_mat_lua file
+    class node_runtime_services_math_vmath_mat_inv_lua file
+    class node_runtime_services_math_vmath_mat_mult_lua file
     class node_runtime_services_memory_memory_lua file
+    class node_runtime_services_memory_memory_alloc_lua file
+    class node_runtime_services_memory_memory_alloc_cpu_lua file
+    class node_runtime_services_memory_memory_alloc_gpu_lua file
+    class node_runtime_services_memory_memory_base_lua file
+    class node_runtime_services_memory_memory_platform_lua file
+    class node_runtime_services_memory_memory_transfer_lua file
     class node_runtime_services_tenants_tenant_lifecycle_lua file
     class node_runtime_services_tenants_tenant_registry_lua file
     class node_runtime_services_gpu_descriptors_lua file
     class node_runtime_services_gpu_registry_vk_lua file
     class node_runtime_services_gpu_swapchain_lua file
     class node_runtime_services_gpu_vulkan_core_lua file
+    class node_runtime_services_gpu_vulkan_core_destroy_lua file
+    class node_runtime_services_gpu_vulkan_core_device_lua file
+    class node_runtime_services_gpu_vulkan_core_instance_lua file
+    class node_runtime_services_gpu_vulkan_core_loader_lua file
     class node_runtime_services_gpu_weaver_vram_lua file
     class node_network_lockstep dir
     class node_network_protocol dir

@@ -20,11 +20,15 @@ DOC_FILE_LUA = "docs/deps_lua.md"
 DOC_FILE_C = "docs/deps_c.md"
 DOC_FILE_GLSL = "docs/deps_glsl.md"
 
-# --- THE ABSOLUTE SOURCE OF TRUTH ---
-
-# --- THE ABSOLUTE SOURCE OF TRUTH ---
 INGESTION_MANIFEST = [
-    # Build System
+    # Root Files
+    # "LICENSE",
+    # "README.md",
+    # "launch.bat",
+    # "launch.lua",
+    # "launch.sh",
+
+    # Build
     "build/build.lua",
     "build/check_build_dependencies.lua",
     "build/export_c_hdr.lua",
@@ -35,24 +39,19 @@ INGESTION_MANIFEST = [
     "build/task_invariants.lua",
     "build/task_shaders.lua",
 
-    # Documentation & Root Files
+    # Docs
     # "docs/deps_c.md",
     # "docs/deps_glsl.md",
     # "docs/deps_lua.md",
     # "docs/repo_ascii.txt",
     # "docs/repo_tree.md",
-    # "launch.bat",
-    # "launch.lua",
-    # "launch.sh",
-    # "LICENSE",
-    # "README.md",
 
     # Generated
     "generated/registry.glsl",
     "generated/ssot_render.h",
     "generated/ssot_types.h",
 
-    # Host Engine Core (C)
+    # Host
     "host/boot/lifecycle.c",
     "host/boot/main.c",
     "host/boot/main_headless.c",
@@ -71,7 +70,7 @@ INGESTION_MANIFEST = [
     "host/threading/thread_lifecycle.c",
     "host/threading/thread_pool.c",
 
-    # Networking Core (C & Lua)
+    # Network
     "network/lockstep/fsm_core.lua",
     "network/lockstep/fsm_pacing.lua",
     "network/lockstep/fsm_simulator.lua",
@@ -90,8 +89,8 @@ INGESTION_MANIFEST = [
     "network/session/http_client.lua",
     "network/session/ice_handshake.lua",
     "network/session/matchmaker.lua",
-    "network/session/netcode.lua",
     "network/session/net_utils.lua",
+    "network/session/netcode.lua",
     "network/session/sys_time.lua",
     "network/transport/net_pump.lua",
     "network/transport/network.lua",
@@ -100,17 +99,18 @@ INGESTION_MANIFEST = [
     "network/transport/vx_net_state.c",
     "network/transport/vx_net_stun.c",
 
-    # Python Scripts
+    # Python
     # "python/ascii_tree_cols.py",
-    # "python/ask_local.py",
     # "python/ask.py",
+    # "python/ask_local.py",
+    # "python/generate_manifest.py",
     # "python/ingest_codebase.py",
     # "python/trace_deps_c.py",
     # "python/trace_deps_glsl.py",
-     #"python/trace_deps_lua.py",
-     #"python/trace_tree.py",
+    # "python/trace_deps_lua.py",
+    # "python/trace_tree.py",
 
-    # Vulkan Render Engine (C)
+    # Render
     "render/debug/vk_debug.c",
     "render/gpu/vk_draw.c",
     "render/gpu/vk_record.c",
@@ -119,18 +119,18 @@ INGESTION_MANIFEST = [
     "render/transfer/vk_transfer_api.c",
     "render/transfer/vk_transfer_loop.c",
 
-    # Engine Runtime Subsystems (Lua)
+    # Runtime
     "runtime/boot/core_abi.lua",
     "runtime/boot/engine_api.lua",
-    "runtime/boot/main_loop.lua",
     "runtime/boot/main.lua",
+    "runtime/boot/main_loop.lua",
     "runtime/boot/main_setup.lua",
     "runtime/boot/path_weaver.lua",
     "runtime/boot/weaver_boot.lua",
     "runtime/boot/window_api.lua",
     "runtime/presentation/graphics/compute_pipeline.lua",
-    "runtime/presentation/graphics/graphics_pipeline_init.lua",
     "runtime/presentation/graphics/graphics_pipeline.lua",
+    "runtime/presentation/graphics/graphics_pipeline_init.lua",
     "runtime/presentation/graphics/graphics_pipeline_runtime.lua",
     "runtime/presentation/graphics/graphics_pipeline_utils.lua",
     "runtime/presentation/graphics/renderer.lua",
@@ -140,24 +140,24 @@ INGESTION_MANIFEST = [
     "runtime/services/gpu/descriptors.lua",
     "runtime/services/gpu/registry_vk.lua",
     "runtime/services/gpu/swapchain.lua",
+    "runtime/services/gpu/vulkan_core.lua",
     "runtime/services/gpu/vulkan_core_destroy.lua",
     "runtime/services/gpu/vulkan_core_device.lua",
     "runtime/services/gpu/vulkan_core_instance.lua",
     "runtime/services/gpu/vulkan_core_loader.lua",
-    "runtime/services/gpu/vulkan_core.lua",
     # "runtime/services/gpu/vulkan_headers.lua",
     "runtime/services/gpu/weaver_vram.lua",
     "runtime/services/math/fixed_math.lua",
+    "runtime/services/math/vmath.lua",
     "runtime/services/math/vmath_cam.lua",
+    "runtime/services/math/vmath_mat.lua",
     "runtime/services/math/vmath_mat_inv.lua",
     "runtime/services/math/vmath_mat_mult.lua",
-    "runtime/services/math/vmath_mat.lua",
-    "runtime/services/math/vmath.lua",
-    "runtime/services/memory/memory_alloc_gpu.lua",
-    "runtime/services/memory/memory_alloc_cpu.lua",
-    "runtime/services/memory/memory_alloc.lua",
-    "runtime/services/memory/memory_base.lua",
     "runtime/services/memory/memory.lua",
+    "runtime/services/memory/memory_alloc.lua",
+    "runtime/services/memory/memory_alloc_cpu.lua",
+    "runtime/services/memory/memory_alloc_gpu.lua",
+    "runtime/services/memory/memory_base.lua",
     "runtime/services/memory/memory_platform.lua",
     "runtime/services/memory/memory_transfer.lua",
     "runtime/services/tenants/tenant_lifecycle.lua",
@@ -170,7 +170,7 @@ INGESTION_MANIFEST = [
     # Scripts
     # "scripts/parse.py",
 
-    # Server Services (Python)
+    # Server
     "server/api.py",
     "server/matchmaker.py",
     "server/models.py",
@@ -182,7 +182,7 @@ INGESTION_MANIFEST = [
     "shaders/render.vert",
     "shaders/shared.glsl",
 
-    # Single Source of Truth (SSOT) Contracts
+    # Ssot
     "ssot/config_gfx.lua",
     "ssot/config_sim.lua",
     "ssot/ctx_types.lua",
@@ -197,28 +197,31 @@ INGESTION_MANIFEST = [
     "tools/cli_readline.lua",
     "tools/cli_sys.lua",
 
-    # Domains & World Scripts (Lua)
-    "worlds/chess/domain_base.lua",
-    "worlds/chess/domain_contract_base.lua",
-    "worlds/chess/domain_contract_logic.lua",
-    "worlds/chess/domain_contract.lua",
-    "worlds/chess/domain_lifecycle.lua",
+    # Worlds
     "worlds/chess/domain.lua",
+    "worlds/chess/domain_base.lua",
+    "worlds/chess/domain_contract.lua",
+    "worlds/chess/domain_contract_base.lua",
+    "worlds/chess/domain_contract_commit.lua",
+    "worlds/chess/domain_contract_decode.lua",
+    "worlds/chess/domain_contract_logic.lua",
+    "worlds/chess/domain_contract_simulate.lua",
+    "worlds/chess/domain_lifecycle.lua",
     "worlds/chess/domain_terrain.lua",
     "worlds/isometric/domain.lua",
     "worlds/luachess/game/attack.lua",
+    "worlds/luachess/game/logic.lua",
     "worlds/luachess/game/logic_base.lua",
     "worlds/luachess/game/logic_core.lua",
     "worlds/luachess/game/logic_gen.lua",
-    "worlds/luachess/game/logic.lua",
     "worlds/luachess/game/logic_pools.lua",
     "worlds/luachess/game/move.lua",
     "worlds/luachess/game/standard.lua",
     "worlds/luachess/game/turn.lua",
     "worlds/luachess/global.lua",
     "worlds/router_plugin.lua",
-]
 
+]
 
 def parse_dependencies(filepath, domain="LUA"):
     """Parses dependency topology from Mermaid (.md) or Graphviz (.dot) files."""
