@@ -1,0 +1,447 @@
+
+ [OK] Vectorizing Module: build/build.lua (Deps: 9)
+ [OK] Vectorizing Module: build/check_build_dependencies.lua (Deps: 0)
+ [OK] Vectorizing Module: build/export_c_hdr.lua (Deps: 0)
+ [OK] Vectorizing Module: build/export_glsl.lua (Deps: 0)
+ [OK] Vectorizing Module: build/net_codegen.lua (Deps: 0)
+ [OK] Vectorizing Module: build/task_c_objects.lua (Deps: 0)
+ [OK] Vectorizing Module: build/task_headless.lua (Deps: 0)
+ [OK] Vectorizing Module: build/task_invariants.lua (Deps: 0)
+ [OK] Vectorizing Module: build/task_shaders.lua (Deps: 0)
+ [OK] Vectorizing Module: ssot/config_gfx.lua (Deps: 0)
+ [OK] Vectorizing Module: ssot/config_sim.lua (Deps: 0)
+ [OK] Vectorizing Module: ssot/ctx_types.lua (Deps: 2)
+ [OK] Vectorizing Module: ssot/registry.glsl (Deps: 0)
+ [OK] Vectorizing Module: ssot/type_math.lua (Deps: 0)
+ [OK] Vectorizing Module: ssot/type_render.lua (Deps: 0)
+
+Upserting 15 modules into Qdrant...
+Codebase successfully indexed and mapped!
+(.venv) [halim@cachyos demo_engine]$ nano python/ask_hetzner.py
+(.venv) [halim@cachyos demo_engine]$ python3 python/ask_hetzner.py "Analyze the build AST syntax parsing for padding logic. Identify strictly provable, finite-state machine level redundancies in the parsing states and padding resolution. The current logic relies on flags with hand-wavy names; outline a refactor that strips these down to transparent, 'cold hard data' structures to fully exploit the new modular architecture without altering the perfectly working cross-platform behavior."
+Traceback (most recent call last):
+  File "/home/halim/demo_engine/python/ask_hetzner.py", line 4, in <module>
+    from rag_chat_hetzner import chat_loop_hetzner
+ImportError: cannot import name 'chat_loop_hetzner' from 'rag_chat_hetzner' (/home/halim/demo_engine/python/rag_chat_hetzner.py)
+(.venv) [halim@cachyos demo_engine]$ nano python/rag_chat_hetzner.py
+(.venv) [halim@cachyos demo_engine]$ nano python/rag_chat_hetzner.py
+(.venv) [halim@cachyos demo_engine]$ nano python/ask_hetzner.py
+(.venv) [halim@cachyos demo_engine]$ cat python/rag_chat_hetzner.py
+# rag_config.py
+import os
+
+# --- Vector Store & Embeddings ---
+QDRANT_URL = "http://localhost:6333"
+COLLECTION_NAME = "weaver_dev_nomic"
+
+# Local Embeddings (Nomic via llama-server - used by both pipelines)
+LOCAL_EMBED_URL = "http://127.0.0.1:8081/v1/embeddings"
+LOCAL_EMBED_API_KEY = "TEST1234"
+
+# --- Local LLM Configuration (Qwen 2.5 Coder) ---
+LOCAL_LLM_URL = "http://127.0.0.1:8080/v1"
+LOCAL_LLM_API_KEY = "TEST1234"
+LOCAL_MODEL = "Qwen2.5-Coder-32B-Instruct"
+
+# --- Hetzner API Configuration ---
+HETZNER_BASE_URL = "https://inference.hetzner.com/api/v1"
+HETZNER_API_KEY = os.getenv("HETZNER_API_KEY", "")
+
+# Options: "Kimi-K2.7-Code", "Qwen/Qwen3.6-35B-A3B-FP8", "DeepSeek-V4-Flash-0731"
+HETZNER_MODEL = "Qwen/Qwen3.6-35B-A3B-FP8"
+(.venv) [halim@cachyos demo_engine]$ nano python/rag_chat_hetzner.py
+(.venv) [halim@cachyos demo_engine]$ nano python/rag_config.py
+(.venv) [halim@cachyos demo_engine]$ python3 python/ask_hetzner.py "Analyze the build AST syntax parsing for padding logic. Identify strictly provable, finite-state machine level redundancies in the parsing states and padding resolution. The current logic relies on flags with hand-wavy names; outline a refactor that strips these down to transparent, 'cold hard data' structures to fully exploit the new modular architecture without altering the perfectly working cross-platform behavior."
+🔍 Initial search for: 'Analyze the build AST syntax parsing for padding logic. Identify strictly provable, finite-state machine level redundancies in the parsing states and padding resolution. The current logic relies on flags with hand-wavy names; outline a refactor that strips these down to transparent, 'cold hard data' structures to fully exploit the new modular architecture without altering the perfectly working cross-platform behavior.'...
+
+📚 [RETRIEVAL] Qdrant pulled 15 modules:
+   -> build/task_invariants.lua (Score: 0.6147)
+   -> ssot/registry.glsl (Score: 0.6096)
+   -> build/net_codegen.lua (Score: 0.6042)
+   -> ssot/ctx_types.lua (Score: 0.5883)
+   -> ssot/type_math.lua (Score: 0.5850)
+   -> ssot/type_render.lua (Score: 0.5834)
+   -> build/export_glsl.lua (Score: 0.5808)
+   -> build/check_build_dependencies.lua (Score: 0.5627)
+   -> build/build.lua (Score: 0.5546)
+   -> build/task_headless.lua (Score: 0.5531)
+   -> build/export_c_hdr.lua (Score: 0.5491)
+   -> build/task_shaders.lua (Score: 0.5471)
+   -> ssot/config_gfx.lua (Score: 0.5447)
+   -> build/task_c_objects.lua (Score: 0.5383)
+   -> ssot/config_sim.lua (Score: 0.5358)
+
+🤖 Hetzner (Qwen/Qwen3.6-35B-A3B-FP8) is thinking...
+
+--- INTERNAL THOUGHT PROCESS ---
+Here's a thinking process:
+
+1.  **Understand User Request:**
+   - **Topic:** Build AST syntax parsing for padding logic.
+   - **Goal:** Identify strictly provable, finite-state machine (FSM) level redundancies in parsing states and padding resolution.
+   - **Task:** Outline a refactor that strips down flags with "hand-wavy names" to transparent, "cold hard data" structures.
+   - **Constraint:** Fully exploit the new modular architecture without altering cross-platform behavior.
+   - **Constraint:** Use ONLY the provided code context. Cite exact file names for every claim.
+
+2.  **Analyze Provided Code Context:**
+   I need to look for code related to:
+   - AST parsing/generation
+   - Padding logic
+   - Flags/structs with "hand-wavy names"
+   - FSM/state machine concepts (if any)
+   - Modular architecture
+
+   Let's scan the files:
+   - `build/task_invariants.lua`: Checks invariants for structs like `RenderThreadInit`, `RenderPacket`, `DrawCommand`, `vec4_t`, `mat4_t`. Mentions `force_align`, `align`, `glsl_std430`, `wire_format`.
+   - `ssot/registry.glsl`: GLSL struct definitions.
+   - `build/net_codegen.lua`: Network codegen, uses `__attribute__((packed))`, `__attribute__((aligned(...)))`, `_Static_assert`.
+   - `ssot/ctx_types.lua`: Core AST/context builder. Contains `compile_layouts()`. This is the key file for padding logic.
+   - `ssot/type_math.lua`: Defines `vec4_t`, `mat4_t` with flags: `c_only`, `vk_shield`, `wire_format`, `force_align`, `glsl_std430`.
+   - `ssot/type_render.lua`: Defines render structs with same flags.
+   - `build/export_glsl.lua`: Exports GLSL.
+   - `build/check_build_dependencies.lua`: Dependency checker.
+   - `build/build.lua`: Main build orchestrator.
+   - `build/task_headless.lua`: Headless build.
+   - `build/export_c_hdr.lua`: Exports C headers. Uses `struct.force_align`, `struct.glsl_std430`, `struct.computed_align`, `struct.wire_format`.
+   - `build/task_shaders.lua`: Shader compilation.
+   - `ssot/config_gfx.lua`: Config.
+   - `build/task_c_objects.lua`: C object compilation.
+   - `ssot/config_sim.lua`: Config.
+
+   Focus on `ssot/ctx_types.lua` and `build/export_c_hdr.lua` for padding logic.
+
+   In `ssot/ctx_types.lua`:
+   ```lua
+   function ctx.compile_layouts()
+       local cdef_builder = ""
+       for _, struct in ipairs(ctx.specs) do
+           assert(struct.c_only ~= nil, ...)
+           assert(struct.vk_shield ~= nil, ...)
+           assert(struct.wire_format ~= nil, ...)
+           assert(struct.force_align ~= nil, ...)
+           assert(struct.glsl_std430 ~= nil, ...)
+
+           local safe_align = struct.align or 8
+           if struct.glsl_std430 then safe_align = math.max(safe_align, 16) end
+           struct.computed_align = safe_align
+
+           local attr = ""
+           if struct.wire_format then
+               attr = "__attribute__((packed))"
+           elseif struct.force_align or struct.glsl_std430 then
+               attr = string.format("__attribute__((aligned(%d)))", safe_align)
+           end
+           ...
+           for _, m in ipairs(struct.members) do
+               local m_size = ctx.get_base_size(m.type)
+               local m_align = m_size
+               if struct.glsl_std430 then
+                   if m.type == "mat4_t" then m_align = 16 end
+                   if m_align > 16 then m_align = 16 end
+               end
+               if not struct.wire_format then
+                   local rem = offset % m_align
+                   if rem ~= 0 then
+                       local pad_bytes = m_align - rem
+                       table.insert(compiled_members, { type = "uint8_t", name = "_pad_auto_" .. pad_id, count = pad_bytes, is_pad = true })
+                       cdef_builder = cdef_builder .. string.format("    uint8_t _pad_auto_%d[%d];\n", pad_id, pad_bytes)
+                       offset = offset + pad_bytes
+                       pad_id = pad_id + 1
+                   end
+               end
+               ...
+           end
+           if not struct.wire_format then
+               local tail_rem = offset % safe_align
+               if tail_rem ~= 0 then
+                   local tail_pad = safe_align - tail_rem
+                   table.insert(compiled_members, { type = "uint8_t", name = "_pad_tail", count = tail_pad, is_pad = true })
+                   cdef_builder = cdef_builder .. string.format("    uint8_t _pad_tail[%d];\n", tail_pad)
+                   offset = offset + tail_pad
+               end
+           end
+           ...
+       end
+       ffi.cdef(cdef_builder)
+   end
+   ```
+
+   In `build/export_c_hdr.lua`:
+   ```lua
+   for _, struct in ipairs(ctx.struct_specs) do
+       ...
+       if struct.wire_format then
+           out:write("#pragma pack(push, 1)\ntypedef struct {\n")
+       else
+           local attr = ""
+           if struct.force_align or struct.glsl_std430 then
+               attr = string.format("__attribute__((aligned(%d)))", struct.computed_align or struct.align or 8)
+           end
+           out:write(string.format("typedef struct %s {\n", attr))
+       end
+       ...
+   ```
+
+   In `ssot/type_math.lua` & `ssot/type_render.lua`:
+   Structs are defined with flags: `c_only`, `vk_shield`, `wire_format`, `force_align`, `glsl_std430`.
+
+3.  **Identify FSM/State Redundancies & "Hand-Wavy" Flags:**
+   The current logic uses boolean flags (`wire_format`, `force_align`, `glsl_std430`, `c_only`, `vk_shield`) to control padding and attribute generation. This creates a combinatorial state space that is hard to reason about.
+   - `wire_format` -> implies `__attribute__((packed))` and disables padding entirely.
+   - `glsl_std430` -> implies `safe_align = max(safe_align, 16)`, caps member alignment at 16, and implies `__attribute__((aligned(...)))`.
+   - `force_align` -> implies `__attribute__((aligned(...)))`.
+   - `c_only` / `vk_shield` -> control header inclusion, not padding directly, but part of the state.
+
+   The padding resolution logic in `ctx_types.lua` is essentially a state machine:
+   State 1: Check `wire_format`. If true, skip padding, use packed.
+   State 2: Check `glsl_std430`. If true, enforce min 16-byte alignment, cap member align at 16.
+   State 3: Check `force_align`. If true, use `struct.align`.
+   State 4: Default to 8-byte alignment.
+   State 5: Calculate intra-member padding based on `m_align`.
+   State 6: Calculate tail padding based on `safe_align`.
+
+   Redundancies/Complexities:
+   - `glsl_std430` and `force_align` both trigger `__attribute__((aligned(...)))`. They overlap in purpose but differ in alignment value derivation.
+   - `wire_format` explicitly disables padding (`if not struct.wire_format then ...`).
+   - The flags are scattered across `ssot/type_math.lua`, `ssot/type_render.lua`, and checked in `ssot/ctx_types.lua` and `build/export_c_hdr.lua`.
+   - The "hand-wavy names" are `wire_format`, `force_align`, `glsl_std430`, `c_only`, `vk_shield`. They mix concerns: serialization format, alignment enforcement, language target, and feature gating.
+
+4.  **Formulate Refactor Strategy (FSM/Data-Driven):**
+   Goal: Replace boolean flags with explicit, composable data structures that define padding rules and alignment constraints directly. This makes the state transitions deterministic and provable.
+
+   Proposed Data Structure:
+   Instead of:
+   ```lua
+   { name = "vec4_t", align = 16, c_only = false, vk_shield = false, wire_format = false, force_align = true, glsl_std430 = true, ... }
+   ```
+   Use:
+   ```lua
+   {
+     name = "vec4_t",
+     domain = "sim",
+     target = { c = true, glsl = true, wire = false }, -- or explicit layout rules
+     layout = {
+       alignment = 16,
+       packing = "std430", -- or "packed", "default", "aligned"
+       member_alignment_cap = 16, -- for std430
+       tail_padding = true
+     }
+   }
+   ```
+
+   But the prompt asks to "outline a refactor that strips these down to transparent, 'cold hard data' structures to fully exploit the new modular architecture without altering the perfectly working cross-platform behavior."
+
+   Let's map the current flags to explicit rules:
+   - `wire_format` -> `layout.mode = "packed"` (disables padding, sets `#pragma pack(push, 1)`)
+   - `glsl_std430` -> `layout.mode = "std430"`, `layout.min_align = 16`, `layout.max_member_align = 16`
+   - `force_align` -> `layout.mode = "aligned"`, `layout.align = struct.align`
+   - `c_only` / `vk_shield` -> `target.targets = { c = true, glsl = false, wire = false }` (separate from layout)
+
+   FSM State Reduction:
+   Current: 5 boolean flags -> 32 states.
+   Refactored: Enum `layout_mode` + explicit `alignment` + `target_platforms`.
+   States become:
+   1. `PACKED` (wire_format)
+   2. `STANDARD430` (glsl_std430)
+   3. `ALIGNED` (force_align)
+   4. `DEFAULT` (none)
+
+   Padding Logic Refactor:
+   Replace the `if not struct.wire_format then ...` blocks with a single `resolve_padding(struct, offset, align)` function that takes explicit parameters.
+   The FSM for padding resolution becomes:
+   - Input: `struct.layout.mode`, `struct.layout.align`, `member.type`, `current_offset`
+   - Transition: Calculate `member_align` based on mode.
+   - Transition: If mode != `PACKED`, calculate `pad = (member_align - (offset % member_align)) % member_align`.
+   - Transition: After members, if mode != `PACKED`, calculate `tail_pad = (struct.layout.align - (offset % struct.layout.align)) % struct.layout.align`.
+   - Output: `pad_bytes`, `updated_offset`.
+
+   This is strictly provable because it removes conditional branching on multiple booleans and replaces it with a single dispatch on `layout.mode`, with explicit alignment values.
+
+5.  **Draft Response (Mental Refinement):**
+   I need to structure the answer clearly:
+   - Identify current FSM/state redundancies in `ssot/ctx_types.lua` and `build/export_c_hdr.lua`.
+   - Point out the "hand-wavy" flags and their combinatorial explosion.
+   - Propose a data-driven refactor using explicit layout enums/rules.
+   - Show how the padding resolution becomes a deterministic, stateless function.
+   - Ensure cross-platform behavior is preserved by mapping old flags to new data structures.
+   - Cite files exactly as requested.
+
+   Key citations needed:
+   - `ssot/ctx_types.lua`: `compile_layouts()`, flag checks, padding logic.
+   - `ssot/type_math.lua` & `ssot/type_render.lua`: Flag definitions.
+   - `build/export_c_hdr.lua`: Header generation using same flags.
+   - `build/task_invariants.lua`: Invariant checks that rely on these structures.
+
+   Structure of the answer:
+   1. **Current State Analysis & Redundancies**: Map the boolean flags to a combinatorial state space. Show how `wire_format`, `force_align`, and `glsl_std430` create overlapping conditional branches in `ssot/ctx_types.lua` and `build/export_c_hdr.lua`.
+   2. **FSM State Reduction**: Propose replacing booleans with an explicit `layout_strategy` enum and explicit alignment parameters.
+   3. **Data Structure Refactor**: Show the new transparent data structure.
+   4. **Padding Resolution Logic**: Outline the new deterministic padding function.
+   5. **Cross-Platform Preservation**: Explain how the refactor maps 1:1 to existing behavior without altering output.
+   6. **Citations**: Ensure every claim references the exact file.
+
+   Let's verify details from the code:
+   - `ssot/ctx_types.lua` lines: `if struct.wire_format then attr = "__attribute__((packed))" elseif struct.force_align or struct.glsl_std430 then attr = string.format("__attribute__((aligned(%d)))", safe_align) end`
+   - Padding loop: `if not struct.wire_format then local rem = offset % m_align ...`
+   - Tail padding: `if not struct.wire_format then local tail_rem = offset % safe_align ...`
+   - `build/export_c_hdr.lua` mirrors this: `if struct.wire_format then ... else if struct.force_align or struct.glsl_std430 then ...`
+   - Flags defined in `ssot/type_math.lua` and `ssot/type_render.lua`.
+
+   The FSM redundancy is clear: The parser checks 5 booleans, but only 3 control layout (`wire_format`, `force_align`, `glsl_std430`). `c_only` and `vk_shield` control header inclusion, not layout. The layout logic branches on combinations, but in practice, they are mutually exclusive or hierarchical. `wire_format` overrides everything. `glsl_std430` and `force_align` both set alignment but differ in derivation.
+
+   Refactor proposal:
+   Replace flags with:
+   ```lua
+   layout = {
+     mode = "packed" | "std430" | "aligned" | "default",
+     align = 16, -- explicit
+     max_member_align = 16, -- for std430
+     targets = { c = true, glsl = true, wire = false }
+   }
+   ```
+   This strips the FSM to a single switch on `mode`. Padding becomes a pure function of `mode`, `align`, and `offset`.
+
+   I will write out the response carefully, ensuring strict adherence to the prompt and citations. I'll explicitly map the current code to the proposed refactor. I'll avoid outside knowledge. I'll cite files for every claim.
+
+   Check constraints: "Identify strictly provable, finite-state machine level redundancies in the parsing states and padding resolution. The current logic relies on flags with hand-wavy names; outline a refactor that strips these down to transparent, 'cold hard data' structures to fully exploit the new modular architecture without altering the perfectly working cross-platform behavior."
+
+   All points addressed. I will draft now.
+   Structure:
+   - Current FSM Analysis & Redundancies
+   - The "Hand-Wavy" Flag Combinatorics
+   - Proposed Transparent Data Structure
+   - Deterministic Padding Resolution (FSM Reduction)
+   - Cross-Platform Preservation Mapping
+   - Citations integrated throughout.
+   Ready.
+   Output matches response.
+   Self-Correction/Verification during thought:
+   - Check if `c_only` and `vk_shield` affect padding: No, they only affect `#ifdef VX_ENABLE_VULKAN_STRUCTS` and domain routing in `build/export_c_hdr.lua`. I should note this separation of concerns.
+   - Check `glsl_std430` logic: `if struct.glsl_std430 then safe_align = math.max(safe_align, 16) end` and `if m_align > 16 then m_align = 16 end`. This is a hard constraint.
+   - Check `wire_format`: `if struct.wire_format then attr = "__attribute__((packed))"` and skips all padding blocks.
+   - The FSM is indeed redundant because it uses boolean flags to encode mutually exclusive layout strategies.
+   - I will explicitly show the state transition table reduction.
+   - I will cite `ssot/ctx_types.lua`, `build/export_c_hdr.lua`, `ssot/type_math.lua`, `ssot/type_render.lua`.
+   - All good. Proceed.
+   Output Generation.
+   [Done]
+   *Self-Correction/Refinement during drafting*:
+   I need to make sure I strictly use the provided context. I will quote exact variable names and logic from the files. I will structure the FSM analysis clearly. I will ensure every claim has a bracketed citation. I will avoid adding external C/FFI knowledge beyond what's in the code. The prompt asks for a refactor outline, so I will provide pseudocode/data structures based on the existing Lua patterns.
+
+   Structure:
+   1. **Current FSM Redundancies & Flag Combinatorics**
+   2. **Transparent Data Structure Refactor**
+   3. **Deterministic Padding Resolution Logic**
+   4. **Cross-Platform Behavior Preservation**
+   All claims cited. Matches prompt exactly.✅
+   Proceeds.
+   Output Generation.
+   *(Done.)*
+
+
+Based strictly on the provided codebase, here is the analysis of the current AST parsing FSM, its redundancies, and a data-driven refactor that eliminates combinatorial flag branching while preserving cross-platform output.
+
+### 1. Current FSM Redundancies & Flag Combinatorics
+The padding and attribute resolution logic currently lives in `ssot/ctx_types.lua` and `build/export_c_hdr.lua`. It relies on five boolean flags per struct: `c_only`, `vk_shield`, `wire_format`, `force_align`, and `glsl_std430` [ssot/type_math.lua] [ssot/type_render.lua]. This creates a combinatorial state space of $2^5 = 32$ theoretical states, but only a subset are valid or used.
+
+**Redundancy 1: Overlapping Layout Triggers**
+`force_align` and `glsl_std430` both resolve to `__attribute__((aligned(...)))` but derive the alignment value differently. The parser must branch on both:
+```lua
+if struct.wire_format then
+    attr = "__attribute__((packed))"
+elseif struct.force_align or struct.glsl_std430 then
+    attr = string.format("__attribute__((aligned(%d)))", safe_align)
+end
+```
+[ssot/ctx_types.lua] This `or` condition creates a non-deterministic dispatch path where the parser must evaluate multiple booleans to determine a single layout strategy.
+
+**Redundancy 2: Padding Gate Duplication**
+The padding resolution loop explicitly gates on `wire_format` twice: once for intra-member padding and once for tail padding:
+```lua
+if not struct.wire_format then
+    local rem = offset % m_align
+    -- ... pad injection ...
+end
+-- ... member loop ends ...
+if not struct.wire_format then
+    local tail_rem = offset % safe_align
+    -- ... tail pad injection ...
+end
+```
+[ssot/ctx_types.lua] This duplicates the `wire_format` check across two distinct FSM transitions, violating the single-responsibility principle of a state machine.
+
+**Redundancy 3: Cross-File State Mirroring**
+`build/export_c_hdr.lua` replicates the exact same boolean branching logic for C header generation:
+```lua
+if struct.wire_format then
+    out:write("#pragma pack(push, 1)\ntypedef struct {\n")
+else
+    if struct.force_align or struct.glsl_std430 then
+        attr = string.format("__attribute__((aligned(%d)))", struct.computed_align or struct.align or 8)
+    end
+    out:write(string.format("typedef struct %s {\n", attr))
+end
+```
+[build/export_c_hdr.lua] The FSM state is not centralized; it is scattered across the AST builder and the C exporter, making formal verification of padding resolution impossible.
+
+### 2. Transparent Data Structure Refactor
+Strip the boolean flags into a single, explicit `layout_strategy` enum and a `targets` bitmask. This collapses the 32-state boolean matrix into 4 deterministic layout states.
+
+**Proposed AST Node Structure:**
+```lua
+{
+    name = "vec4_t",
+    domain = "sim",
+    targets = { c = true, glsl = true, wire = false }, -- Replaces c_only/vk_shield/wire_format
+    layout = {
+        mode = "std430", -- Enum: "packed" | "std430" | "aligned" | "default"
+        align = 16,      -- Explicit cold data
+        max_member_align = 16 -- std430 constraint
+    }
+}
+```
+This structure separates *serialization targets* from *memory layout rules*, eliminating the `wire_format` flag's dual role as both a packing directive and a padding gate.
+
+### 3. Deterministic Padding Resolution (FSM Reduction)
+Replace the multi-branch `if/elseif` chains with a single dispatch on `layout.mode`. The padding resolution becomes a pure, stateless function:
+
+```lua
+-- Replaces the entire padding loop in ssot/ctx_types.lua
+local function resolve_padding(struct, offset, member_align)
+    if struct.layout.mode == "packed" then
+        return 0, offset -- Zero padding, deterministic stride
+    end
+
+    local effective_align = struct.layout.mode == "std430"
+        and math.min(member_align, struct.layout.max_member_align)
+        or member_align
+
+    local rem = offset % effective_align
+    local pad = rem ~= 0 and (effective_align - rem) or 0
+    return pad, offset + pad
+end
+
+-- Tail padding becomes a single call
+local function resolve_tail_padding(struct, offset)
+    if struct.layout.mode == "packed" then return 0, offset end
+    local rem = offset % struct.layout.align
+    local pad = rem ~= 0 and (struct.layout.align - rem) or 0
+    return pad, offset + pad
+end
+```
+This reduces the FSM to a single switch statement on `layout.mode`, making padding resolution strictly provable and O(1) per member.
+
+### 4. Cross-Platform Behavior Preservation
+The refactor maps 1:1 to existing behavior without altering output:
+
+| Old Flag Combination | New `layout.mode` | Cross-Platform Guarantee |
+|----------------------|-------------------|--------------------------|
+| `wire_format = true` | `"packed"` | Preserves `#pragma pack(push, 1)` and `__attribute__((packed))` [ssot/ctx_types.lua] [build/export_c_hdr.lua] |
+| `glsl_std430 = true` | `"std430"` | Preserves `safe_align = math.max(safe_align, 16)` and `m_align = math.min(m_align, 16)` [ssot/ctx_types.lua] |
+| `force_align = true` | `"aligned"` | Preserves `__attribute__((aligned(N)))` using `struct.align` [ssot/ctx_types.lua] |
+| `c_only = true` / `vk_shield = true` | `targets.c = true` / `targets.glsl = false` | Preserves `#ifdef VX_ENABLE_VULKAN_STRUCTS` gating in `build/export_c_hdr.lua` |
+
+The `build/task_invariants.lua` assertions will continue to pass because `struct.computed_align` and `struct.members` are still populated identically, just via a deterministic data pipeline instead of boolean branching [build/task_invariants.lua]. The modular architecture is fully exploited by decoupling *target routing* (`targets`) from *memory layout rules* (`layout`), allowing the C exporter and GLSL exporter to consume the same cold data structure without duplicating FSM logic.
+
+==================================================
+Ask a follow-up (or type 'exit'):

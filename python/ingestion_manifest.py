@@ -14,15 +14,15 @@ INGESTION_MANIFEST = [
     "build/task_shaders.lua",
 
     # Generated
-    "generated/net_constants.h",
-    "generated/net_ffi_bridge.h",
-    "generated/net_rollback_memory.h",
-    "generated/net_wire_packets.h",
-    "generated/net_world_state.h",
-    "generated/registry.glsl",
-    "generated/shared_structs.h",
-    "generated/ssot_render.h",
-    "generated/ssot_types.h",
+#    "generated/net_constants.h",
+#    "generated/net_ffi_bridge.h",
+#    "generated/net_rollback_memory.h",
+#    "generated/net_wire_packets.h",
+#    "generated/net_world_state.h",
+#    "generated/registry.glsl",
+#    "generated/shared_structs.h",
+#    "generated/ssot_render.h",
+#    "generated/ssot_types.h",
 
     # Host
 #    "host/boot/lifecycle.c",

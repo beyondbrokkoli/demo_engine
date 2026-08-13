@@ -1,22 +1,85 @@
-# rag_config.py
-import os
+# rag_chat_hetzner.py
+import sys
+from openai import OpenAI
+from rag_config import HETZNER_BASE_URL, HETZNER_API_KEY, HETZNER_MODEL
+from rag_qdrant import search_codebase
 
-# --- Vector Store & Embeddings ---
-QDRANT_URL = "http://localhost:6333"
-COLLECTION_NAME = "weaver_dev_nomic"
+def chat_loop_hetzner(initial_query, initial_context):
+    if not HETZNER_API_KEY:
+        print("❌ Error: HETZNER_API_KEY environment variable is not set.")
+        sys.exit(1)
 
-# Local Embeddings (Nomic via llama-server - used by both pipelines)
-LOCAL_EMBED_URL = "http://127.0.0.1:8081/v1/embeddings"
-LOCAL_EMBED_API_KEY = "TEST1234"
+    system_prompt = (
+        "Answer the user's question using ONLY the provided code context. "
+        "Do not use outside knowledge. "
+        "Cite the exact file name in brackets for every claim you make."
+    )
 
-# --- Local LLM Configuration (Qwen 2.5 Coder) ---
-LOCAL_LLM_URL = "http://127.0.0.1:8080/v1"
-LOCAL_LLM_API_KEY = "TEST1234"
-LOCAL_MODEL = "Qwen2.5-Coder-32B-Instruct"
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": f"RETRIEVED CODE CONTEXT:\n{initial_context}\n\nUSER QUESTION:\n{initial_query}"}
+    ]
 
-# --- Hetzner API Configuration ---
-HETZNER_BASE_URL = "https://inference.hetzner.com/api/v1"
-HETZNER_API_KEY = os.getenv("HETZNER_API_KEY", "")
+    client = OpenAI(base_url=HETZNER_BASE_URL, api_key=HETZNER_API_KEY)
 
-# Options: "Kimi-K2.7-Code", "Qwen/Qwen3.6-35B-A3B-FP8", "DeepSeek-V4-Flash-0731"
-HETZNER_MODEL = "Qwen/Qwen3.6-35B-A3B-FP8"
+    while True:
+        print(f"\n🤖 Hetzner ({HETZNER_MODEL}) is thinking...\n")
+
+        stream = client.chat.completions.create(
+            model=HETZNER_MODEL,
+            messages=messages,
+            temperature=0.1,
+            max_tokens=8192,
+            stream=True
+        )
+
+        full_response = ""
+        in_thinking = False
+        transitioned_to_content = False
+
+        for chunk in stream:
+            if not chunk.choices:
+                continue
+
+            delta = chunk.choices[0].delta
+
+            # 1. Parse Reasoning / Thinking Scratchpad Tokens
+            reasoning_chunk = getattr(delta, 'reasoning', None)
+            if reasoning_chunk is None and hasattr(delta, 'model_extra') and delta.model_extra:
+                reasoning_chunk = delta.model_extra.get('reasoning')
+
+            if reasoning_chunk:
+                if not in_thinking:
+                    print("--- INTERNAL THOUGHT PROCESS ---")
+                    in_thinking = True
+                sys.stdout.write(reasoning_chunk)
+                sys.stdout.flush()
+
+            # 2. Parse Final Answer Content
+            if delta.content is not None:
+                if not transitioned_to_content:
+                    if in_thinking:
+                        print("\n\n--- FINAL ANSWER ---")
+                    transitioned_to_content = True
+                sys.stdout.write(delta.content)
+                sys.stdout.flush()
+                full_response += delta.content
+
+        messages.append({"role": "assistant", "content": full_response})
+
+        print("\n\n" + "="*50)
+        next_query = input("Ask a follow-up (or type 'exit'): ")
+
+        if next_query.lower() in ['exit', 'quit']:
+            break
+
+        # --- MID-CONVERSATION RAG TRIGGER ---
+        print(f"\n🔍 Fetching fresh codebase context for: '{next_query}'...")
+        new_context = search_codebase(next_query, limit=3)
+
+        enriched_query = (
+            f"NEWLY RETRIEVED CONTEXT (Use if relevant):\n{new_context}\n\n"
+            f"FOLLOW-UP QUESTION:\n{next_query}"
+        )
+
+        messages.append({"role": "user", "content": enriched_query})
