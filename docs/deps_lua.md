@@ -99,7 +99,10 @@ flowchart LR
         worlds_chess_domain_base_lua["worlds/chess/domain_base.lua"]
         worlds_chess_domain_contract_lua["worlds/chess/domain_contract.lua"]
         worlds_chess_domain_contract_base_lua["worlds/chess/domain_contract_base.lua"]
+        worlds_chess_domain_contract_commit_lua["worlds/chess/domain_contract_commit.lua"]
+        worlds_chess_domain_contract_decode_lua["worlds/chess/domain_contract_decode.lua"]
         worlds_chess_domain_contract_logic_lua["worlds/chess/domain_contract_logic.lua"]
+        worlds_chess_domain_contract_simulate_lua["worlds/chess/domain_contract_simulate.lua"]
         worlds_chess_domain_lifecycle_lua["worlds/chess/domain_lifecycle.lua"]
         worlds_chess_domain_terrain_lua["worlds/chess/domain_terrain.lua"]
         worlds_isometric_domain_lua["worlds/isometric/domain.lua"]
@@ -267,11 +270,15 @@ flowchart LR
     worlds_chess_domain_base_lua --> worlds_luachess_global_lua
     worlds_chess_domain_contract_lua --> worlds_chess_domain_contract_base_lua
     worlds_chess_domain_contract_lua --> worlds_chess_domain_contract_logic_lua
-    worlds_chess_domain_contract_logic_lua --> worlds_chess_domain_base_lua
-    worlds_chess_domain_contract_logic_lua --> worlds_chess_domain_contract_base_lua
-    worlds_chess_domain_contract_logic_lua --> worlds_chess_domain_lifecycle_lua
-    worlds_chess_domain_contract_logic_lua --> worlds_chess_domain_terrain_lua
-    worlds_chess_domain_contract_logic_lua --> worlds_luachess_game_turn_lua
+    worlds_chess_domain_contract_commit_lua --> worlds_chess_domain_base_lua
+    worlds_chess_domain_contract_commit_lua --> worlds_chess_domain_lifecycle_lua
+    worlds_chess_domain_contract_commit_lua --> worlds_chess_domain_terrain_lua
+    worlds_chess_domain_contract_decode_lua --> worlds_chess_domain_base_lua
+    worlds_chess_domain_contract_logic_lua --> worlds_chess_domain_contract_commit_lua
+    worlds_chess_domain_contract_logic_lua --> worlds_chess_domain_contract_decode_lua
+    worlds_chess_domain_contract_logic_lua --> worlds_chess_domain_contract_simulate_lua
+    worlds_chess_domain_contract_simulate_lua --> worlds_chess_domain_base_lua
+    worlds_chess_domain_contract_simulate_lua --> worlds_luachess_game_turn_lua
     worlds_chess_domain_lifecycle_lua --> worlds_chess_domain_base_lua
     worlds_chess_domain_lifecycle_lua --> worlds_chess_domain_terrain_lua
     worlds_chess_domain_lifecycle_lua --> worlds_luachess_game_standard_lua
