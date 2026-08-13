@@ -24,26 +24,57 @@ end
 require("ssot.type_math")(ctx)
 require("ssot.type_render")(ctx)
 
+local function resolve_padding(struct, offset, member_align)
+    if struct.layout.mode == "packed" then
+        return 0, offset
+    end
+
+    local effective_align = member_align
+    if struct.layout.mode == "std430" then
+        local max_align = struct.layout.max_member_align or 16
+        effective_align = math.min(effective_align, max_align)
+    end
+
+    local rem = offset % effective_align
+    if rem ~= 0 then
+        local pad_bytes = effective_align - rem
+        return pad_bytes, offset + pad_bytes
+    end
+    return 0, offset
+end
+
+local function resolve_tail_padding(struct, offset, safe_align)
+    if struct.layout.mode == "packed" then
+        return 0, offset
+    end
+    local rem = offset % safe_align
+    if rem ~= 0 then
+        local tail_pad = safe_align - rem
+        return tail_pad, offset + tail_pad
+    end
+    return 0, offset
+end
+
 function ctx.compile_layouts()
     local cdef_builder = ""
 
     for _, struct in ipairs(ctx.specs) do
-        assert(struct.c_only ~= nil, "[FATAL] " .. struct.name .. " MUST define 'c_only'")
-        assert(struct.vk_shield ~= nil, "[FATAL] " .. struct.name .. " MUST define 'vk_shield'")
-        assert(struct.wire_format ~= nil, "[FATAL] " .. struct.name .. " MUST define 'wire_format'")
-        assert(struct.force_align ~= nil, "[FATAL] " .. struct.name .. " MUST define 'force_align'")
-        assert(struct.glsl_std430 ~= nil, "[FATAL] " .. struct.name .. " MUST define 'glsl_std430'")
+        assert(struct.targets ~= nil, "[FATAL] " .. struct.name .. " MUST define 'targets'")
+        assert(struct.layout ~= nil, "[FATAL] " .. struct.name .. " MUST define 'layout'")
+        assert(struct.layout.mode ~= nil, "[FATAL] " .. struct.name .. " MUST define 'layout.mode'")
 
-local safe_align = struct.align or 8
-        if struct.glsl_std430 then safe_align = math.max(safe_align, 16) end
+        local safe_align = struct.layout.align or struct.align or 8
+        if struct.layout.mode == "std430" then
+            safe_align = math.max(safe_align, 16)
+        end
 
-        -- [FIX]: Save computed alignment so the C Exporter matches EXACTLY
+        -- Save computed alignment so exporters match exactly
         struct.computed_align = safe_align
 
         local attr = ""
-        if struct.wire_format then
+        if struct.layout.mode == "packed" then
             attr = "__attribute__((packed))"
-        elseif struct.force_align or struct.glsl_std430 then
+        elseif struct.layout.mode == "aligned" or struct.layout.mode == "std430" then
             attr = string.format("__attribute__((aligned(%d)))", safe_align)
         end
 
@@ -57,20 +88,17 @@ local safe_align = struct.align or 8
             local m_size = ctx.get_base_size(m.type)
             local m_align = m_size
 
-            if struct.glsl_std430 then
+            if struct.layout.mode == "std430" then
                 if m.type == "mat4_t" then m_align = 16 end
                 if m_align > 16 then m_align = 16 end
             end
 
-            if not struct.wire_format then
-                local rem = offset % m_align
-                if rem ~= 0 then
-                    local pad_bytes = m_align - rem
-                    table.insert(compiled_members, { type = "uint8_t", name = "_pad_auto_" .. pad_id, count = pad_bytes, is_pad = true })
-                    cdef_builder = cdef_builder .. string.format("    uint8_t _pad_auto_%d[%d];\n", pad_id, pad_bytes)
-                    offset = offset + pad_bytes
-                    pad_id = pad_id + 1
-                end
+            local pad_bytes, new_offset = resolve_padding(struct, offset, m_align)
+            if pad_bytes > 0 then
+                table.insert(compiled_members, { type = "uint8_t", name = "_pad_auto_" .. pad_id, count = pad_bytes, is_pad = true })
+                cdef_builder = cdef_builder .. string.format("    uint8_t _pad_auto_%d[%d];\n", pad_id, pad_bytes)
+                offset = new_offset
+                pad_id = pad_id + 1
             end
 
             table.insert(compiled_members, m)
@@ -94,14 +122,11 @@ local safe_align = struct.align or 8
             offset = offset + (ctx.type_sizes[m.type] and ctx.type_sizes[m.type] * element_count or m_size * element_count)
         end
 
-        if not struct.wire_format then
-            local tail_rem = offset % safe_align
-            if tail_rem ~= 0 then
-                local tail_pad = safe_align - tail_rem
-                table.insert(compiled_members, { type = "uint8_t", name = "_pad_tail", count = tail_pad, is_pad = true })
-                cdef_builder = cdef_builder .. string.format("    uint8_t _pad_tail[%d];\n", tail_pad)
-                offset = offset + tail_pad
-            end
+        local tail_pad, final_offset = resolve_tail_padding(struct, offset, safe_align)
+        if tail_pad > 0 then
+            table.insert(compiled_members, { type = "uint8_t", name = "_pad_tail", count = tail_pad, is_pad = true })
+            cdef_builder = cdef_builder .. string.format("    uint8_t _pad_tail[%d];\n", tail_pad)
+            offset = final_offset
         end
 
         struct.members = compiled_members

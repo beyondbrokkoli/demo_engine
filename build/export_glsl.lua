@@ -15,7 +15,8 @@ return function(ctx)
 
     out:write("\n// --- std430 SSBO DEFINITIONS ---\n")
     for _, struct in ipairs(ctx.struct_specs) do
-        if not struct.c_only and not struct.wire_format then
+        -- The combinatorial negative check is gone, replaced by a pure data-driven intent
+        if struct.targets.glsl then
             out:write(string.format("struct %s {\n", struct.name))
             for _, m in ipairs(struct.members) do
                 local arr_str = type(m.count) == "table" and string.format("[%d][%d]", m.count[1], m.count[2]) or (m.count and string.format("[%d]", m.count) or "")

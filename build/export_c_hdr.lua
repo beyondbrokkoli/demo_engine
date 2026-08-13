@@ -31,32 +31,31 @@ return function(ctx)
     for _, d in pairs(domain_files) do d.file:write("\n// --- MEMORY STRUCTURES ---\n") end
 
     for _, struct in ipairs(ctx.struct_specs) do
-        local out = domain_files[struct.domain].file
+        -- Explicit opt-in for C generation
+        if struct.targets.c then
+            local out = domain_files[struct.domain].file
 
-        if struct.vk_shield then out:write("#ifdef VX_ENABLE_VULKAN_STRUCTS\n") end
-
-        if struct.wire_format then
-            out:write("#pragma pack(push, 1)\ntypedef struct {\n")
-        else
-            -- [FIX]: Sync alignment condition and value with ctx_types.lua
-            local attr = ""
-            if struct.force_align or struct.glsl_std430 then
-                attr = string.format("__attribute__((aligned(%d)))", struct.computed_align or struct.align or 8)
+            if struct.layout.mode == "packed" then
+                out:write("#pragma pack(push, 1)\ntypedef struct {\n")
+            else
+                local attr = ""
+                if struct.layout.mode == "aligned" or struct.layout.mode == "std430" then
+                    attr = string.format("__attribute__((aligned(%d)))", struct.computed_align or struct.layout.align or 8)
+                end
+                out:write(string.format("typedef struct %s {\n", attr))
             end
-            out:write(string.format("typedef struct %s {\n", attr))
-        end
 
-        for _, m in ipairs(struct.members) do
-            local arr_str = ""
-            if type(m.count) == "table" then
-                for _, dim in ipairs(m.count) do arr_str = arr_str .. string.format("[%d]", dim) end
-            elseif m.count then arr_str = string.format("[%d]", m.count)
+            for _, m in ipairs(struct.members) do
+                local arr_str = ""
+                if type(m.count) == "table" then
+                    for _, dim in ipairs(m.count) do arr_str = arr_str .. string.format("[%d]", dim) end
+                elseif m.count then arr_str = string.format("[%d]", m.count)
+                end
+                out:write(string.format("    %s %s%s;\n", m.type, m.name, arr_str))
             end
-            out:write(string.format("    %s %s%s;\n", m.type, m.name, arr_str))
-        end
 
-        out:write(struct.wire_format and ("} " .. struct.name .. ";\n#pragma pack(pop)\n\n") or ("} " .. struct.name .. ";\n\n"))
-        if struct.vk_shield then out:write("#endif // VX_ENABLE_VULKAN_STRUCTS\n\n") end
+            out:write((struct.layout.mode == "packed") and ("} " .. struct.name .. ";\n#pragma pack(pop)\n\n") or ("} " .. struct.name .. ";\n\n"))
+        end
     end
 
     for _, d in pairs(domain_files) do d.file:close() end

@@ -2,7 +2,8 @@ return function(ctx)
     local specs = {
         {
             name = "RenderThreadInit",
-            c_only = true, vk_shield = true, wire_format = false, force_align = false, glsl_std430 = false,
+            targets = { c = true, glsl = false, wire = false }, -- c_only & vk_shield were true
+            layout = { mode = "default" },
             members = {
                 { type = "VkDevice", name = "device" },
                 { type = "VkQueue", name = "queue" },
@@ -30,16 +31,18 @@ return function(ctx)
             }
         },
         {
-            name = "RtsTileInstance", align = 16,
-            c_only = false, vk_shield = false, wire_format = false, force_align = false, glsl_std430 = true,
+            name = "RtsTileInstance",
+            targets = { c = true, glsl = true, wire = false },
+            layout = { mode = "std430", align = 16 },
             members = {
                 { type = "float", name = "px" }, { type = "float", name = "py" },
                 { type = "float", name = "pz" }, { type = "uint32_t", name = "tile_data" }
             }
         },
         {
-            name = "PushConstants", align = 16,
-            c_only = false, vk_shield = false, wire_format = false, force_align = false, glsl_std430 = true,
+            name = "PushConstants",
+            targets = { c = true, glsl = true, wire = false },
+            layout = { mode = "std430", align = 16 },
             members = {
                 { type = "mat4_t", name = "viewProj" }, { type = "uint32_t", name = "aos_current_idx" },
                 { type = "uint32_t", name = "aos_prev_idx" }, { type = "float", name = "dt" },
@@ -48,8 +51,9 @@ return function(ctx)
             }
         },
         {
-            name = "DrawCommand", align = 64,
-            c_only = true, vk_shield = false, wire_format = false, force_align = true, glsl_std430 = false,
+            name = "DrawCommand",
+            targets = { c = true, glsl = false, wire = false },
+            layout = { mode = "aligned", align = 64 },
             members = {
                 { type = "uint64_t", name = "pipeline_id" }, { type = "uint64_t", name = "descriptor_set" },
                 { type = "uint32_t", name = "index_count" }, { type = "uint32_t", name = "instance_count" },
@@ -64,8 +68,9 @@ return function(ctx)
             }
         },
         {
-            name = "RenderPacket", align = 64,
-            c_only = true, vk_shield = false, wire_format = false, force_align = true, glsl_std430 = false,
+            name = "RenderPacket",
+            targets = { c = true, glsl = false, wire = false },
+            layout = { mode = "aligned", align = 64 },
             members = {
                 { type = "DrawCommand*", name = "draw_queue" }, { type = "uint32_t", name = "draw_count" },
                 { type = "uint32_t", name = "target_window_id" }, { type = "uint64_t", name = "gfx_layout" },
