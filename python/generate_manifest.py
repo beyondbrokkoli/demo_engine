@@ -7,7 +7,7 @@ def generate_manifest(root_dir):
     Walks the repository and returns a dictionary of valid files grouped by
     their top-level directory.
     """
-    ignore_dirs = {"venv", "bin", "logs", ".git", "__pycache__", ".vscode", ".idea"}
+    ignore_dirs = {".venv", "bin", "logs", ".git", "__pycache__", ".vscode", ".idea"}
     valid_exts = {".c", ".h", ".lua", ".glsl", ".vert", ".frag", ".py", ".md", ".txt", ".bat", ".sh"}
 
     # Dictionary to hold lists of files, grouped by top-level directory

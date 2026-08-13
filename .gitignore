@@ -6,7 +6,7 @@ logs/*
 nul
 *.log
 *.bin
-venv
+.venv
 storage
 snapshots
 .qdrant-initialized
