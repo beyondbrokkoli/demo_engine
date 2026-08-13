@@ -24,12 +24,16 @@ return function(ctx)
         if m.name == "target_window_id" and m.type == "uint32_t" then target_win_found = true end
     end
     assert(target_win_found, "[FATAL INVARIANT] RenderPacket missing 'target_window_id'.")
-    assert(r_packet.force_align and r_packet.align == 64, "[FATAL INVARIANT] RenderPacket not 64-byte aligned!")
+
+    -- [FIX]: Check the new layout schema instead of force_align boolean
+    assert(r_packet.layout.mode == "aligned" and r_packet.layout.align == 64, "[FATAL INVARIANT] RenderPacket not 64-byte aligned!")
 
     -- NEW: DrawCommand cache-line invariants
     local d_cmd = found["DrawCommand"]
     assert(d_cmd, "[FATAL] Gremlin removed DrawCommand!")
-    assert(d_cmd.force_align and d_cmd.align == 64, "[FATAL INVARIANT] DrawCommand must be 64-byte aligned to prevent L1 cache false-sharing!")
+
+    -- [FIX]: Check the new layout schema
+    assert(d_cmd.layout.mode == "aligned" and d_cmd.layout.align == 64, "[FATAL INVARIANT] DrawCommand must be 64-byte aligned to prevent L1 cache false-sharing!")
 
     -- NOTE: LockstepPacket invariants are now enforced at compile-time by C11 _Static_assert
     -- inside network/shared_structs.h. The Lua top-down builder no longer cares.
@@ -43,8 +47,9 @@ return function(ctx)
     assert(mat4, "[FATAL] Gremlin removed mat4_t!")
 
     -- 1. Check that the Lua AST was constructed with the correct properties
-    assert(vec4.force_align and vec4.align == 16, "[FATAL INVARIANT] vec4_t missing force_align=16 in AST")
-    assert(mat4.force_align and mat4.align == 16, "[FATAL INVARIANT] mat4_t missing force_align=16 in AST")
+    -- [FIX]: Math structs use std430 mode in our new schema, with align=16
+    assert((vec4.layout.mode == "std430" or vec4.layout.mode == "aligned") and vec4.layout.align == 16, "[FATAL INVARIANT] vec4_t missing layout.align=16 in AST")
+    assert((mat4.layout.mode == "std430" or mat4.layout.mode == "aligned") and mat4.layout.align == 16, "[FATAL INVARIANT] mat4_t missing layout.align=16 in AST")
 
     -- 2. The Ultimate Test: Ask LuaJIT FFI how it actually parsed the generated string!
     -- If our cdef generation failed to include __attribute__((aligned(16))), this will catch it.

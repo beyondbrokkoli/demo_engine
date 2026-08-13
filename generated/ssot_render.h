@@ -9,7 +9,6 @@
 #define MODE_POINTS 2
 
 // --- MEMORY STRUCTURES ---
-#ifdef VX_ENABLE_VULKAN_STRUCTS
 typedef struct  {
     VkDevice device;
     VkQueue queue;
@@ -36,8 +35,6 @@ typedef struct  {
     void* pfnSetDepthWriteEnable;
     void* pfnSetDepthCompareOp;
 } RenderThreadInit;
-
-#endif // VX_ENABLE_VULKAN_STRUCTS
 
 typedef struct __attribute__((aligned(16))) {
     float px;
