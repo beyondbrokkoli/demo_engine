@@ -18,10 +18,10 @@ local lockstep_size = 60 + (lookahead * 16)
 
 -- 2. ASSERT INVARIANTS
 assert(lookahead < (CFG_RING_SIZE / 4), "[FATAL] Lookahead exceeds safe ring buffer wrapping limits!")
-assert(lockstep_size <= 1200, "[FATAL] Packet size exceeds safe MTU thresholds! UDP fragmentation imminent.")
+assert(lockstep_size <= 1200, "[FATAL] Packet size <= 1200")
 
-print(string.format("[CODEGEN] Scaling Network Tier: %s (%d-tick lookahead)", TIER:upper(), lookahead))
-print(string.format("[CODEGEN] LockstepPacket size reduced to %d bytes", lockstep_size))
+print(string.format("[CODEGEN] Network: %s (%d-tick lookahead)", TIER:upper(), lookahead))
+print(string.format("[CODEGEN] LockstepPacket set to %d bytes", lockstep_size))
 
 -- 3. CHUNK DEFINITIONS
 local chunks = {}

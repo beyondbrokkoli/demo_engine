@@ -26,11 +26,11 @@ flowchart LR
         host_threading_thread_pool_c["host/threading/thread_pool.c"]
     end
     subgraph network
-        network_protocol_net_01_constants_h["network/protocol/net_01_constants.h"]
-        network_protocol_net_02_wire_h["network/protocol/net_02_wire.h"]
-        network_protocol_net_03_memory_h["network/protocol/net_03_memory.h"]
-        network_protocol_net_04_state_h["network/protocol/net_04_state.h"]
-        network_protocol_net_05_api_h["network/protocol/net_05_api.h"]
+        network_protocol_net_constants_h["network/protocol/net_constants.h"]
+        network_protocol_net_ffi_bridge_h["network/protocol/net_ffi_bridge.h"]
+        network_protocol_net_rollback_memory_h["network/protocol/net_rollback_memory.h"]
+        network_protocol_net_wire_packets_h["network/protocol/net_wire_packets.h"]
+        network_protocol_net_world_state_h["network/protocol/net_world_state.h"]
         network_protocol_shared_structs_h["network/protocol/shared_structs.h"]
         network_transport_vx_net_internal_h["network/transport/vx_net_internal.h"]
         network_transport_vx_net_io_c["network/transport/vx_net_io.c"]
@@ -71,11 +71,11 @@ flowchart LR
     host_boot_main_c --> render_transfer_vk_transfer_api_c
     host_boot_main_c --> render_transfer_vk_transfer_loop_c
     host_boot_main_headless_c --> host_ipc_sys_sync_c
-    network_protocol_shared_structs_h --> network_protocol_net_01_constants_h
-    network_protocol_shared_structs_h --> network_protocol_net_02_wire_h
-    network_protocol_shared_structs_h --> network_protocol_net_03_memory_h
-    network_protocol_shared_structs_h --> network_protocol_net_04_state_h
-    network_protocol_shared_structs_h --> network_protocol_net_05_api_h
+    network_protocol_shared_structs_h --> network_protocol_net_constants_h
+    network_protocol_shared_structs_h --> network_protocol_net_ffi_bridge_h
+    network_protocol_shared_structs_h --> network_protocol_net_rollback_memory_h
+    network_protocol_shared_structs_h --> network_protocol_net_wire_packets_h
+    network_protocol_shared_structs_h --> network_protocol_net_world_state_h
     network_transport_vx_net_internal_h --> network_protocol_shared_structs_h
     network_transport_vx_net_io_c --> network_transport_vx_net_internal_h
     network_transport_vx_net_state_c --> network_transport_vx_net_internal_h
