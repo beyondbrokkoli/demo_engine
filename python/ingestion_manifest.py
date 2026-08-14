@@ -11,8 +11,8 @@ INGESTION_MANIFEST = [
 #    "build/net_codegen.lua",
 #    "build/task_c_objects.lua",
 #    "build/task_headless.lua",
-    "build/task_invariants.lua",
-#    "build/task_shaders.lua",
+#    "build/task_invariants.lua",
+    "build/task_shaders.lua",
 
     # Generated
 #    "generated/net_constants.h",

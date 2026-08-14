@@ -31,6 +31,7 @@ You must wrap the vanilla code into ONE of these 4 strict paradigms:
    - Registration Function: TAKES arguments (e.g., `ctx`, `config`, or `tier`).
    - Uses these arguments to form a closure over the state.
    - Must return a table with a uniform lifecycle method named `run`.
+   - CLOSURE RULE: The returned lifecycle methods (like `run`) must NOT require the state (e.g., `ctx`) to be passed in as an argument, because they already capture it perfectly via the closure.
    - EXACT TEMPLATE: `Linker.register("name", "FACTORY", function(ctx) return { run = function() ... end } end)`
 
 4. **FACADE (Hub / Aggregator)**
