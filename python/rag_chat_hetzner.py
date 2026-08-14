@@ -1,5 +1,6 @@
 # rag_chat_hetzner.py
 import sys
+import os
 from openai import OpenAI
 from rag_config import HETZNER_BASE_URL, HETZNER_API_KEY, HETZNER_MODEL
 from rag_qdrant import search_codebase
@@ -9,10 +10,22 @@ def chat_loop_hetzner(initial_query, initial_context):
         print("❌ Error: HETZNER_API_KEY environment variable is not set.")
         sys.exit(1)
 
+    # --- INJECT SKILL.MD ---
+    skill_content = ""
+    try:
+        with open("skill.md", "r", encoding="utf-8") as f:
+            skill_content = f.read()
+            print("✅ Successfully loaded and injected skill.md into system prompt.")
+    except FileNotFoundError:
+        print("⚠️ Warning: skill.md not found in the current directory. Proceeding without it.")
+
     system_prompt = (
         "Answer the user's question using ONLY the provided code context. "
         "Do not use outside knowledge. "
-        "Cite the exact file name in brackets for every claim you make."
+        "Cite the exact file name in brackets for every claim you make.\n\n"
+        "--- ADDITIONAL DEVELOPER INSTRUCTIONS (skill.md) ---\n"
+        f"{skill_content}\n"
+        "----------------------------------------------------"
     )
 
     messages = [
