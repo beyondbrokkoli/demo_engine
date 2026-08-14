@@ -11,33 +11,36 @@ Lower-level dependencies are always transformed first. When you are tasked with 
 # THE LINKER CONTRACT
 Every generated file MUST begin with: `local Linker = require("core.linker")`
 
-The engine relies on a universal linker that supports exactly 4 strict module paradigms. 
-You must wrap the provided vanilla code into ONE of these paradigms, as requested by the user.
+Terminology: The "Registration Function" is the anonymous function passed as the 3rd argument to `Linker.register`. 
+
+You must wrap the vanilla code into ONE of these 4 strict paradigms:
 
 1. **DATA (Static Configs/Structs)**
-   - Loader takes NO arguments.
+   - Registration Function: Takes NO arguments.
    - Must return a pure Lua table (constants, arrays, layout specs).
-   - Execution: `Linker.get("name")`
+   - EXACT TEMPLATE: `Linker.register("name", "DATA", function() return { ... } end)`
 
 2. **LIB (Stateless Pure Functions)**
-   - Loader takes NO arguments.
-   - Must return a table of functions. These functions CAN accept arguments when called by the user.
-   - Holds ZERO internal state.
-   - Execution: `local utils = Linker.get("name"); utils.do_thing(arg1)`
+   - Registration Function: Takes NO arguments.
+   - Must return a table of functions. Holds ZERO internal state.
+   - The returned functions CAN accept arguments when called.
+   - NAMING SCHEME: Name the primary exported function descriptively (e.g., `verify`, `calculate`). DO NOT use `run`.
+   - EXACT TEMPLATE: `Linker.register("name", "LIB", function() return { verify = function(target) ... end } end)`
 
 3. **FACTORY (Stateful Closures / Build Tasks)**
-   - Loader TAKES arguments (e.g., `ctx`, `config`, or `tier`).
-   - Uses these arguments to form a closure.
-   - Must return a table with uniform lifecycle methods (e.g., `run = function() ... end`).
-   - Execution: `local task = Linker.get("name", ctx); task.run()`
+   - Registration Function: TAKES arguments (e.g., `ctx`, `config`, or `tier`).
+   - Uses these arguments to form a closure over the state.
+   - Must return a table with a uniform lifecycle method named `run`.
+   - EXACT TEMPLATE: `Linker.register("name", "FACTORY", function(ctx) return { run = function() ... end } end)`
 
 4. **FACADE (Hub / Aggregator)**
-   - Loader TAKES the `Linker` itself as an argument.
-   - Resolves sub-modules via `linker.get()` and maps them to a flat table.
+   - Registration Function: TAKES the `linker_instance` itself.
+   - Resolves sub-modules and maps them to a flat table.
+   - EXACT TEMPLATE: `Linker.register("name", "FACADE", function(linker_instance) local mod = linker_instance.get("x"); return { ... } end)`
 
 # STRICT RULES
 1. **PRESERVE LOGIC (HIGHEST PRIORITY):** The app is fully functional and perfect. Preserving every single mathematical operation, control flow step, assert, and print statement is your absolute highest priority. Do not optimize or "fix" the execution logic.
-2. **GLOBAL CLI ARGUMENTS:** Standalone scripts often read `arg[1]` or `arg[2]`. When converting to a module, you MUST strip the global `arg` parsing. Instead, accept those values as explicit parameters passed into the `FACTORY` loader or the exported `LIB` function.
+2. **GLOBAL CLI ARGUMENTS:** Standalone scripts often read `arg[1]` or `arg[2]`. When converting to a module, you MUST strip the global `arg` parsing. Instead, accept those values as explicit parameters passed into the `FACTORY` registration function or the exported `LIB` function.
 3. **NO MAGIC:** Do not invent new features, abstractions, or proxy classes.
 4. **KISS PRINCIPLE:** Keep the wrapping as minimal as humanly possible.
 5. **NO GLOBAL REQUIRES:** Replace all external dependencies (`require(...)`) inside the file with `Linker.get("module_name")`.
