@@ -51,7 +51,7 @@ INGESTION_MANIFEST = [
 #    "network/lockstep/wire_codec.lua",
 #    "network/protocol/config_net.lua",
 #    "network/protocol/json_util.lua",
-#    "network/protocol/structs.lua",
+    "network/protocol/structs.lua",
 #    "network/session/http_client.lua",
 #    "network/session/ice_handshake.lua",
 #    "network/session/matchmaker.lua",

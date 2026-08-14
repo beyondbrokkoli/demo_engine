@@ -12,7 +12,7 @@ if __name__ == "__main__":
     print(f"🔍 Initial search for: '{initial_query}'...")
 
     # Fetch initial context dump
-    context = search_codebase(initial_query, limit=15)
+    context = search_codebase(initial_query, limit=16)
 
     # Start interactive chat loop
     chat_loop_hetzner(initial_query, context)

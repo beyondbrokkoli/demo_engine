@@ -13,7 +13,7 @@ def extract_filenames(query):
     pattern = r'\b[\w/-]+\.(?:c|h|lua|py|glsl|frag|vert|md)\b'
     return re.findall(pattern, query)
 
-def search_codebase(query, limit=15):
+def search_codebase(query, limit=16):
     """Queries Qdrant for relevant modules and formats dependency metadata."""
     query_vector = get_query_vector(query)
 
