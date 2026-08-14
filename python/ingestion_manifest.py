@@ -5,13 +5,13 @@ INGESTION_MANIFEST = [
     "core/linker.lua",
     # Build
 #    "build/build.lua",
-    "build/check_build_dependencies.lua",
+#    "build/check_build_dependencies.lua",
 #    "build/export_c_hdr.lua",
 #    "build/export_glsl.lua",
 #    "build/net_codegen.lua",
 #    "build/task_c_objects.lua",
 #    "build/task_headless.lua",
-#    "build/task_invariants.lua",
+    "build/task_invariants.lua",
 #    "build/task_shaders.lua",
 
     # Generated

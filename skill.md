@@ -44,7 +44,7 @@ You must wrap the vanilla code into ONE of these 4 strict paradigms:
 3. **GLOBAL INPUTS:** Standalone scripts often read global variables (like `arg[1]`, `arg[2]`, or implicit global state) to dictate behavior. You MUST strip these global reads. Instead, lift them into explicit parameters passed into the `FACTORY` registration function or the exported `LIB` function (e.g., `local target = arg[1]` translates directly to `function(target)`).
 4. **NO MAGIC:** Do not invent new features, abstractions, or proxy classes.
 5. **KISS PRINCIPLE:** Keep the wrapping as minimal as humanly possible.
-6. **NO GLOBAL REQUIRES:** Replace all external dependencies (`require(...)`) inside the file with `Linker.get("module_name")`.
+6. **NO GLOBAL REQUIRES (WITH BUILT-IN EXCEPTIONS):** Replace all engine-specific dependencies (`require(...)`) with `Linker.get("module_name")`. However, you MUST NOT replace standard Lua or LuaJIT built-in libraries (e.g., `require("ffi")`, `require("bit")`, `require("math")`, `require("os")`). Leave built-in system libraries as standard global requires.
 
 # ESCAPE HATCH
 If you encounter a structural conflict where it is IMPOSSIBLE to conform to the requested paradigm without breaking the Preservation Rule or inventing magic, you must abort. Output ONLY the following string:
