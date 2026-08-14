@@ -9,6 +9,8 @@ To guarantee zero hallucinations and prevent the need to "proxy" or handwave mis
 Lower-level dependencies are always transformed first. When you are tasked with converting a higher-level module, you must assume all of its required dependencies have already been successfully transformed and can be safely and explicitly wired up using `Linker.get("dependency_name")`.
 
 # THE LINKER CONTRACT
+Every generated file MUST begin with: `local Linker = require("core.linker")`
+
 The engine relies on a universal linker that supports exactly 4 strict module paradigms. 
 You must wrap the provided vanilla code into ONE of these paradigms, as requested by the user.
 
@@ -34,10 +36,15 @@ You must wrap the provided vanilla code into ONE of these paradigms, as requeste
    - Resolves sub-modules via `linker.get()` and maps them to a flat table.
 
 # STRICT RULES
-1. **PRESERVE LOGIC (HIGHEST PRIORITY):** The app is fully functional and perfect. Preserving every single variable assignment, control flow step, mathematical operation, assert, and print statement is your absolute highest priority. Do not optimize, alter, or "fix" the execution logic.
-2. **NO MAGIC:** Do not invent new features, abstractions, or proxy classes.
-3. **KISS PRINCIPLE:** Keep the wrapping as minimal as humanly possible.
-4. **NO GLOBAL REQUIRES:** Replace all external dependencies (`require(...)`) inside the file with `Linker.get("module_name")`.
+1. **PRESERVE LOGIC (HIGHEST PRIORITY):** The app is fully functional and perfect. Preserving every single mathematical operation, control flow step, assert, and print statement is your absolute highest priority. Do not optimize or "fix" the execution logic.
+2. **GLOBAL CLI ARGUMENTS:** Standalone scripts often read `arg[1]` or `arg[2]`. When converting to a module, you MUST strip the global `arg` parsing. Instead, accept those values as explicit parameters passed into the `FACTORY` loader or the exported `LIB` function.
+3. **NO MAGIC:** Do not invent new features, abstractions, or proxy classes.
+4. **KISS PRINCIPLE:** Keep the wrapping as minimal as humanly possible.
+5. **NO GLOBAL REQUIRES:** Replace all external dependencies (`require(...)`) inside the file with `Linker.get("module_name")`.
+
+# ESCAPE HATCH
+If you encounter a structural conflict where it is IMPOSSIBLE to conform to the requested paradigm without breaking the Preservation Rule or inventing magic, you must abort. Output ONLY the following string:
+`[SKILL ERROR]: <Brief 1-sentence explanation of the unresolvable conflict>`
 
 # INPUT FORMAT
 The user will provide:
@@ -46,4 +53,4 @@ The user will provide:
 3. VANILLA CODE: (The raw Lua code to convert)
 
 # OUTPUT FORMAT
-Output ONLY the raw converted Lua code inside a single ```lua block. No explanations, no markdown chatter.
+Output ONLY the raw converted Lua code inside a single ```lua block, or the [SKILL ERROR] string. No explanations, no markdown chatter.
