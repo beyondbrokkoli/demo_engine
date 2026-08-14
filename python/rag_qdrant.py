@@ -17,25 +17,25 @@ def search_codebase(query, limit=16):
     """Queries Qdrant for relevant modules and formats dependency metadata."""
     query_vector = get_query_vector(query)
 
-    # --- AUTO-FILENAME DETECTION ---
-    mentioned_files = extract_filenames(query)
+    # --- AUTO-FILENAME DETECTION (TEMPORARILY DISABLED) ---
+    # mentioned_files = extract_filenames(query)
     qdrant_filter = None
 
-    if mentioned_files:
-        print(f"🎯 [FILTER] Detected specific files in query: {mentioned_files}")
-        # Build an OR filter (should) for any mentioned file
-        # Note: MatchValue requires exact payload match (e.g., 'src/main.c')
-        qdrant_filter = Filter(
-            should=[
-                FieldCondition(key="file", match=MatchValue(value=f))
-                for f in mentioned_files
-            ]
-        )
+    # if mentioned_files:
+    #     print(f"🎯 [FILTER] Detected specific files in query: {mentioned_files}")
+    #     # Build an OR filter (should) for any mentioned file
+    #     # Note: MatchValue requires exact payload match (e.g., 'src/main.c')
+    #     qdrant_filter = Filter(
+    #         should=[
+    #             FieldCondition(key="file", match=MatchValue(value=f))
+    #             for f in mentioned_files
+    #         ]
+    #     )
 
     results = qdrant.query_points(
         collection_name=COLLECTION_NAME,
         query=query_vector,
-        query_filter=qdrant_filter,
+        query_filter=qdrant_filter, # This now safely passes 'None'
         limit=limit
     )
 
