@@ -1,10 +1,15 @@
 -- build/task_invariants.lua
-local ffi = require("ffi") -- We need FFI to reflect on the loaded cdef
+local ffi = require("ffi")
 
-return function(ctx)
+return function(build_env)
     print(" |- [HARNESS] Running Invariant Asserts...")
+
+    -- Fetch specs and explicitly load the FFI cdef so we can validate it
+    local struct_specs, cdef_str = require("ssot.ctx_types")()
+    pcall(function() ffi.cdef(cdef_str) end)
+
     local found = {}
-    for _, struct in ipairs(ctx.struct_specs) do found[struct.name] = struct end
+    for _, struct in ipairs(struct_specs) do found[struct.name] = struct end
 
     local rt_init = found["RenderThreadInit"]
     assert(rt_init, "[FATAL] Gremlin removed RenderThreadInit!")
@@ -25,20 +30,13 @@ return function(ctx)
     end
     assert(target_win_found, "[FATAL INVARIANT] RenderPacket missing 'target_window_id'.")
 
-    -- [FIX]: Check the new layout schema instead of force_align boolean
     assert(r_packet.layout.mode == "aligned" and r_packet.layout.align == 64, "[FATAL INVARIANT] RenderPacket not 64-byte aligned!")
 
-    -- NEW: DrawCommand cache-line invariants
     local d_cmd = found["DrawCommand"]
     assert(d_cmd, "[FATAL] Gremlin removed DrawCommand!")
 
-    -- [FIX]: Check the new layout schema
     assert(d_cmd.layout.mode == "aligned" and d_cmd.layout.align == 64, "[FATAL INVARIANT] DrawCommand must be 64-byte aligned to prevent L1 cache false-sharing!")
 
-    -- NOTE: LockstepPacket invariants are now enforced at compile-time by C11 _Static_assert
-    -- inside network/shared_structs.h. The Lua top-down builder no longer cares.
-
-    -- --- NEW: Math Struct & FFI Alignment Asserts ---
     print(" |- [HARNESS] Validating Math Struct FFI Alignments...")
 
     local vec4 = found["vec4_t"]
@@ -46,13 +44,9 @@ return function(ctx)
     assert(vec4, "[FATAL] Gremlin removed vec4_t!")
     assert(mat4, "[FATAL] Gremlin removed mat4_t!")
 
-    -- 1. Check that the Lua AST was constructed with the correct properties
-    -- [FIX]: Math structs use std430 mode in our new schema, with align=16
     assert((vec4.layout.mode == "std430" or vec4.layout.mode == "aligned") and vec4.layout.align == 16, "[FATAL INVARIANT] vec4_t missing layout.align=16 in AST")
     assert((mat4.layout.mode == "std430" or mat4.layout.mode == "aligned") and mat4.layout.align == 16, "[FATAL INVARIANT] mat4_t missing layout.align=16 in AST")
 
-    -- 2. The Ultimate Test: Ask LuaJIT FFI how it actually parsed the generated string!
-    -- If our cdef generation failed to include __attribute__((aligned(16))), this will catch it.
     local ffi_vec4_size = ffi.sizeof("vec4_t")
     local ffi_vec4_align = ffi.alignof("vec4_t")
     local ffi_mat4_size = ffi.sizeof("mat4_t")

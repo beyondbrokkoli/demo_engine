@@ -6,9 +6,11 @@ local ffi = require("ffi")
 local core_abi = require("runtime.boot.core_abi")
 local cli_args = require("tools.cli_args")
 
-require("ssot.type_math")
-require("ssot.type_render")
-require("ssot.ctx_types")
+-- 1. Grab the SSoT factory and execute it to get the C definitions
+local struct_specs, cdef_str = require("ssot.ctx_types")()
+
+-- 2. Explicitly load the structs into the runtime FFI
+ffi.cdef(cdef_str)
 
 local cfg_gfx = require("ssot.config_gfx")
 local cfg_sim = require("ssot.config_sim")
