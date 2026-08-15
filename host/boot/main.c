@@ -28,7 +28,6 @@
     #include <netdb.h>
     #include <fcntl.h>
 #endif
-#define VX_ENABLE_VULKAN_STRUCTS
 
 /* ── Engine Includes ── */
 #include "../../generated/ssot_types.h"
