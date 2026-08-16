@@ -10,6 +10,7 @@
 #define RND_CMD_IDLE         0
 #define RND_CMD_REBUILD_WSI  1
 #define RND_CMD_HALT         2
+#define RND_CMD_INJECT_TENANT 3  // <-- NEW: Async window injection
 
 #define MAX_WINDOWS          4
 #define RING_SIZE            16

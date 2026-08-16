@@ -6,11 +6,22 @@ THREAD_FUNC render_thread_loop(void* arg) {
     while (L(g_render_thread_active) && L(g_engine.mailbox.is_running)) {
         for (int w = 0; w < MAX_WINDOWS; w++) {
 
-            // 1. Poll the new decoupled render channel using your macro
+            // 1. Poll the decoupled render channel
             int cmd = L(g_engine.mailbox.tenants[w].render_cmd);
 
-            // 2. Handle BOTH Rebuild and Halt commands
-            if (cmd == RND_CMD_REBUILD_WSI || cmd == RND_CMD_HALT) {
+            // --- [PHASE 3: ASYNC BOOT HANDSHAKE] ---
+            if (cmd == RND_CMD_INJECT_TENANT) {
+                // The C-Core stream initialization is complete on the Lua side.
+                // This block acts as a memory barrier across the FFI boundary.
+
+                // Explicitly turn on the render stream for this window
+                S(g_wsi_state[w], 1);
+
+                // Reset to IDLE to notify the Lua coroutine state machine we are ready
+                S(g_engine.mailbox.tenants[w].render_cmd, RND_CMD_IDLE);
+            }
+            // --- [DYNAMIC TEARDOWN / REBUILD] ---
+            else if (cmd == RND_CMD_REBUILD_WSI || cmd == RND_CMD_HALT) {
                 int timeout = 2000;
                 int spin_count = 0;
 
@@ -22,7 +33,6 @@ THREAD_FUNC render_thread_loop(void* arg) {
 
                 RenderThreadInit* wsi = &g_window_wsi[w];
                 if (wsi->device) {
-                    // Gracefully idle this specific tenant's queues
                     if (wsi->queue) {
                         vkQueueWaitIdle(wsi->queue);
                     }
@@ -38,18 +48,16 @@ THREAD_FUNC render_thread_loop(void* arg) {
                     }
                 }
 
-                // Suspend rendering for this tenant so it skips submission below
                 S(g_wsi_state[w], 0);
 
                 if (cmd == RND_CMD_REBUILD_WSI) {
-                    // Only reset resize state if we are actually rebuilding
                     S(g_engine.mailbox.tenants[w].window_resized, 0);
                 }
 
-                // 3. Reset the RENDER command, leaving the OS command untouched
                 S(g_engine.mailbox.tenants[w].render_cmd, RND_CMD_IDLE);
             }
         }
+
         for (int wid = 0; wid < MAX_WINDOWS; wid++) {
             int ready          = L(g_ring.ready_idx[wid]);
             int local_read_val = L(g_ring.local_read[wid]);

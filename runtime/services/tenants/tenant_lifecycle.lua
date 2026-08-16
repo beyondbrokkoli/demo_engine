@@ -6,7 +6,87 @@ local graphics_mod = require("runtime.presentation.graphics.graphics_pipeline")
 
 local Lifecycle = {}
 
-function Lifecycle.process_state_machine(win_id, tenant, WindowAPI, EngineAPI, vk_rt, desc, manifest, cfg_gfx, TenantRegistry)
+-- [PATCHED] Added 'memory' to the parameters
+function Lifecycle.process_state_machine(win_id, tenant, WindowAPI, EngineAPI, vk_rt, desc, manifest, cfg_gfx, TenantRegistry, memory)
+
+    -- [ASYNC BOOT HANDSHAKE]
+    if tenant.boot_state then
+        if tenant.boot_state == 1 then
+            -- Phase 1: Poll for OS Surface
+            local surface_ptr = WindowAPI.get_surface(win_id)
+            if surface_ptr ~= nil then
+                tenant.boot_state = 2
+            end
+            return true -- Skip Render, still waiting
+
+        elseif tenant.boot_state == 2 then
+            -- Phase 2: Surface acquired! Bake Vulkan objects safely.
+            -- Because we are in the main Lua thread and NOT executing vkQueueWaitIdle,
+            -- this does not block the C Render Thread from servicing other active windows.
+            local surface_ptr = WindowAPI.get_surface(win_id)
+            tenant.sc = swapchain_mod.Init(vk_rt.vk, vk_rt, tenant.width, tenant.height, nil, surface_ptr)
+            tenant.sync = renderer_mod.InitSync(vk_rt.vk, vk_rt.device, tenant.sc.imageCount)
+            tenant.gfx = graphics_mod.Init(vk_rt.vk, vk_rt, tenant.width, tenant.height, desc.pipelineLayout, tenant.sc.format, manifest.graphics)
+
+            local wsi = ffi.new("RenderThreadInit")
+            wsi.device = vk_rt.device
+            wsi.queue = vk_rt.queue
+            wsi.transfer_queue = vk_rt.transferQueue
+            wsi.swapchain = tenant.sc.handle
+            wsi.max_frames_in_flight = tenant.sc.imageCount
+
+            for i = 0, tenant.sc.imageCount - 1 do
+                wsi.swapchain_images[i] = ffi.cast("uint64_t", tenant.sc.images[i])
+                wsi.swapchain_views[i]  = ffi.cast("uint64_t", tenant.sc.imageViews[i])
+                wsi.image_available[i] = tenant.sync.imageAvailable[i]
+                wsi.render_finished[i] = tenant.sync.renderFinished[i]
+                wsi.in_flight[i]       = tenant.sync.inFlight[i]
+            end
+
+            -- Copied from tenant_registry.lua
+            local vk, dev = vk_rt.vk, vk_rt.device
+            wsi.vkWaitForFences = ffi.cast("void*", vk.vkGetDeviceProcAddr(dev, "vkWaitForFences"))
+            wsi.vkAcquireNextImageKHR = ffi.cast("void*", vk.vkGetDeviceProcAddr(dev, "vkAcquireNextImageKHR"))
+            wsi.vkResetFences = ffi.cast("void*", vk.vkGetDeviceProcAddr(dev, "vkResetFences"))
+            wsi.vkQueueSubmit = ffi.cast("void*", vk.vkGetDeviceProcAddr(dev, "vkQueueSubmit"))
+            wsi.vkQueuePresentKHR = ffi.cast("void*", vk.vkGetDeviceProcAddr(dev, "vkQueuePresentKHR"))
+            wsi.pfnBegin = ffi.cast("void*", vk.vkGetDeviceProcAddr(dev, "vkCmdBeginRenderingKHR"))
+            wsi.pfnEnd = ffi.cast("void*", vk.vkGetDeviceProcAddr(dev, "vkCmdEndRenderingKHR"))
+            wsi.pfnSetCullMode = vk.vkGetDeviceProcAddr(dev, "vkCmdSetCullModeEXT")
+            wsi.pfnSetFrontFace = vk.vkGetDeviceProcAddr(dev, "vkCmdSetFrontFaceEXT")
+            wsi.pfnSetPrimitiveTopology = vk.vkGetDeviceProcAddr(dev, "vkCmdSetPrimitiveTopologyEXT")
+            wsi.pfnSetDepthTestEnable = vk.vkGetDeviceProcAddr(dev, "vkCmdSetDepthTestEnableEXT")
+            wsi.pfnSetDepthWriteEnable = vk.vkGetDeviceProcAddr(dev, "vkCmdSetDepthWriteEnableEXT")
+            wsi.pfnSetDepthCompareOp = vk.vkGetDeviceProcAddr(dev, "vkCmdSetDepthCompareOpEXT")
+
+            -- Push the WSI struct to C-Core
+            EngineAPI.allocate_tenant(win_id, wsi, vk_rt.qIndex, vk_rt.tIndex)
+            EngineAPI.init_stream(win_id, wsi)
+
+            -- Phase 3: Initiate Injection Handshake
+            WindowAPI.inject_tenant(win_id) -- 3 = RND_CMD_INJECT_TENANT
+            tenant.boot_state = 3
+            return true -- Skip Render
+
+        elseif tenant.boot_state == 3 then
+            -- Phase 4: Await C Render Thread Acknowledgment
+            if WindowAPI.is_tenant_idle(win_id) == 1 then
+                tenant.boot_state = nil
+                tenant.suspended = false
+                print(string.format("[UI BOOTSTRAP] Tenant %d successfully injected!", win_id))
+
+                -- [VRAM COLOR STREAM INJECTION]
+                -- The first fully awakened window pipelines the global VRAM transfer
+                if not TenantRegistry.global_vram_transferred then
+                    print(string.format("[VRAM] Window %d streaming global Palette to GPU...", win_id))
+                    memory.TransferAsync(win_id, "PALETTE_STAGING", "PALETTE_HAVEN", 16384)
+                    TenantRegistry.global_vram_transferred = true
+                end
+            end
+            return true -- Skip Render
+        end
+    end
+
     -- Early Escape State
     if WindowAPI.get_last_key(win_id) == cfg_gfx.key.esc then
         if not tenant.kill_state then

@@ -84,8 +84,9 @@ function M.run(deps)
         total_time = total_time + frame_time
 
         for win_id, tenant in pairs(TenantRegistry.active) do
+            -- [PATCHED] Pass deps.memory as the final argument
             local skip_render = Lifecycle.process_state_machine(
-                win_id, tenant, WindowAPI, EngineAPI, deps.vk_rt, deps.desc, deps.manifest, deps.cfg_gfx, TenantRegistry
+                win_id, tenant, WindowAPI, EngineAPI, deps.vk_rt, deps.desc, deps.manifest, deps.cfg_gfx, TenantRegistry, deps.memory
             )
 
             if skip_render then goto continue_tenant end

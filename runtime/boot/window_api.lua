@@ -29,6 +29,9 @@ end
 function WindowAPI.halt_render(win_id)
     ffi.C.vx_sys_set_render_cmd(win_id, 2) -- 2 = RND_CMD_HALT
 end
+function WindowAPI.inject_tenant(win_id)
+    ffi.C.vx_sys_set_render_cmd(win_id, 3) -- 3 = RND_CMD_INJECT_TENANT
+end
 function WindowAPI.is_tenant_idle(win_id)
     return ffi.C.vx_sys_is_tenant_idle(win_id)
 end
