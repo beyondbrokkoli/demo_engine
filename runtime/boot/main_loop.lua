@@ -27,10 +27,7 @@ function M.run(deps)
     local master_ptr = ffi.cast("float*", memory.Mapped["MASTER_GPU_BLOCK"])
     local active_render_mode = deps.cfg_gfx.mode.dual
     local prev_mouse_left = { [0] = false, [1] = false, [2] = false, [3] = false }
-    local prev_f6_down = false -- Tracks F6 edge presses
     local last_time = sys_time.get_time_hires()
-
-    local palette_sent = false
 
     while EngineAPI.is_running() do
         local current_time = sys_time.get_time_hires()
@@ -82,64 +79,9 @@ function M.run(deps)
                 end
             end
             prev_mouse_left[active_win_id] = is_down
-
-            -- [DYNAMIC TENANT ALLOCATION]
-            local num1_down = WindowAPI.is_key_down(active_win_id, deps.cfg_gfx.key.num1)
-
-            if num1_down and not prev_f6_down then -- (reusing your debounce variable name is fine, or rename it to prev_num1_down)
-                local target_id = -1
-
-                -- Check bounds 0 through 3 (MAX_TENANTS = 4)
-                for id = 0, 3 do
-                    if not TenantRegistry.active[id] and not TenantRegistry.pending_boots[id] then
-                        target_id = id
-                        break
-                    end
-                end
-
-                if target_id ~= -1 then
-                    print(string.format("[VULKAN MULTIPLEXER] Num1 Pressed. Deploying dynamic tenant to slot %d...", target_id))
-                    TenantRegistry.boot_tenant_async(
-                        deps.vk_rt, target_id, deps.cfg_gfx.win.w, deps.cfg_gfx.win.h,
-                        deps.cfg_gfx.cfg.frame_slots, deps.desc, deps.manifest
-                    )
-                else
-                    print("[VULKAN MULTIPLEXER] Max capacity reached: All 4 tenant slots are active or booting.")
-                end
-            end
-            prev_f6_down = num1_down
-        else
-            -- If the active window loses focus, reset debounce state
-            prev_f6_down = false
         end
 
         total_time = total_time + frame_time
-
-        -- [COROUTINE PUMP] Advance any asynchronous window booting
-        for win_id, co in pairs(TenantRegistry.pending_boots) do
-            if coroutine.status(co) == "suspended" then
-                local ok, err = coroutine.resume(co)
-                if not ok then
-                    print(string.format("[FATAL] Tenant %d Boot Coroutine crashed: %s", win_id, tostring(err)))
-                    TenantRegistry.pending_boots[win_id] = nil
-                end
-            elseif coroutine.status(co) == "dead" then
-                -- Coroutine finished, clean it up
-                TenantRegistry.pending_boots[win_id] = nil
-            end
-        end
-
-        -- [VRAM COLOR STREAM INJECTION]
-        if not palette_sent then
-            local active_count = 0
-            for _ in pairs(TenantRegistry.active) do active_count = active_count + 1 end
-
-            if active_count > 0 then
-                print("[VRAM] First tenant active. Streaming Palette to GPU...")
-                deps.memory.TransferAsync(0, "PALETTE_STAGING", "PALETTE_HAVEN", 16384)
-                palette_sent = true
-            end
-        end
 
         for win_id, tenant in pairs(TenantRegistry.active) do
             local skip_render = Lifecycle.process_state_machine(

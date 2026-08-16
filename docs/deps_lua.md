@@ -81,7 +81,6 @@ flowchart LR
         runtime_simulation_raycast_lua["runtime/simulation/raycast.lua"]
     end
     subgraph ssot
-        ssot_compile_layouts_lua["ssot/compile_layouts.lua"]
         ssot_config_gfx_lua["ssot/config_gfx.lua"]
         ssot_config_sim_lua["ssot/config_sim.lua"]
         ssot_ctx_types_lua["ssot/ctx_types.lua"]
@@ -94,7 +93,6 @@ flowchart LR
         tools_cli_lobby_lua["tools/cli_lobby.lua"]
         tools_cli_readline_lua["tools/cli_readline.lua"]
         tools_cli_sys_lua["tools/cli_sys.lua"]
-        tools_helpers_lua["tools/helpers.lua"]
     end
     subgraph worlds
         worlds_chess_domain_lua["worlds/chess/domain.lua"]
@@ -126,18 +124,9 @@ flowchart LR
     build_build_lua --> build_task_headless_lua
     build_build_lua --> build_task_invariants_lua
     build_build_lua --> build_task_shaders_lua
-    build_export_c_hdr_lua --> ssot_config_gfx_lua
-    build_export_c_hdr_lua --> ssot_config_sim_lua
-    build_export_c_hdr_lua --> ssot_ctx_types_lua
-    build_export_c_hdr_lua --> tools_helpers_lua
-    build_export_glsl_lua --> ssot_config_gfx_lua
-    build_export_glsl_lua --> ssot_config_sim_lua
-    build_export_glsl_lua --> ssot_ctx_types_lua
-    build_export_glsl_lua --> tools_helpers_lua
-    build_task_c_objects_lua --> tools_helpers_lua
-    build_task_headless_lua --> tools_helpers_lua
-    build_task_invariants_lua --> ssot_ctx_types_lua
-    build_task_shaders_lua --> tools_helpers_lua
+    build_build_lua --> ssot_config_gfx_lua
+    build_build_lua --> ssot_config_sim_lua
+    build_build_lua --> ssot_ctx_types_lua
     network_lockstep_fsm_core_lua --> network_lockstep_fsm_pacing_lua
     network_lockstep_fsm_core_lua --> network_lockstep_fsm_simulator_lua
     network_lockstep_fsm_simulator_lua --> network_protocol_structs_lua
@@ -191,6 +180,8 @@ flowchart LR
     runtime_boot_main_setup_lua --> ssot_config_gfx_lua
     runtime_boot_main_setup_lua --> ssot_config_sim_lua
     runtime_boot_main_setup_lua --> ssot_ctx_types_lua
+    runtime_boot_main_setup_lua --> ssot_type_math_lua
+    runtime_boot_main_setup_lua --> ssot_type_render_lua
     runtime_boot_main_setup_lua --> tools_cli_args_lua
     runtime_presentation_graphics_compute_pipeline_lua --> runtime_services_gpu_registry_vk_lua
     runtime_presentation_graphics_graphics_pipeline_lua --> runtime_presentation_graphics_graphics_pipeline_init_lua
@@ -262,7 +253,6 @@ flowchart LR
     runtime_simulation_raycast_lua --> runtime_services_math_fixed_math_lua
     runtime_simulation_raycast_lua --> runtime_services_math_vmath_lua
     runtime_simulation_raycast_lua --> ssot_config_sim_lua
-    ssot_ctx_types_lua --> ssot_compile_layouts_lua
     ssot_ctx_types_lua --> ssot_type_math_lua
     ssot_ctx_types_lua --> ssot_type_render_lua
     tools_bot_lua --> network_session_netcode_lua

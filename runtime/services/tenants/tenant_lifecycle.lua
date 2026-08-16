@@ -8,7 +8,7 @@ local Lifecycle = {}
 
 function Lifecycle.process_state_machine(win_id, tenant, WindowAPI, EngineAPI, vk_rt, desc, manifest, cfg_gfx, TenantRegistry)
     -- Early Escape State
-    if WindowAPI.is_key_down(win_id, cfg_gfx.key.esc) then
+    if WindowAPI.get_last_key(win_id) == cfg_gfx.key.esc then
         if not tenant.kill_state then
             tenant.suspended = true
             tenant.kill_state = 1

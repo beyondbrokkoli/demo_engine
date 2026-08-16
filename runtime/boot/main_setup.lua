@@ -64,7 +64,14 @@ local function init_state(arg)
     EngineAPI.setup_transfer(vk_rt.tIndex or 0)
     EngineAPI.start_thread()
 
-    TenantRegistry.boot_tenant_async(vk_rt, 0, cfg_gfx.win.w, cfg_gfx.win.h, cfg_gfx.cfg.frame_slots, desc, manifest)
+    -- Collapsed Multiplexer Tenant Boot
+    for i = 0, 3 do
+        TenantRegistry.boot_tenant(vk_rt, i, cfg_gfx.win.w, cfg_gfx.win.h, cfg_gfx.cfg.frame_slots)
+        TenantRegistry.active[i].gfx = graphics_mod.Init(
+            vk_rt.vk, vk_rt, cfg_gfx.win.w, cfg_gfx.win.h,
+            desc.pipelineLayout, TenantRegistry.active[i].sc.format, manifest.graphics
+        )
+    end
 
     local vram_template = VRAM.init_static_buffers(memory, cfg_sim, ctx.total_tiles)
 
