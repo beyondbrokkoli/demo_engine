@@ -51,12 +51,8 @@ Typing these directly into the `weaver>` prompt will execute CLI-specific tasks:
 
 *(All native launcher commands like `swarm`, `clean`, and `attach` also work perfectly inside the Lua CLI).*
 
-## 📁 System Requirements & Directories
+## Overview
 
-For these scripts to function properly, your project root must contain:
-
-* `bin/`: Containing your compiled engine binaries (`boot` / `boot_headless`).
-* `logs/`: An existing directory where the scripts output node logs (e.g., `host.log`, `bot_1.log`).
 ```text
 demo_engine/                                      │   │   ├── main_setup.lua
 ├── build/                                        │   │   ├── path_weaver.lua
