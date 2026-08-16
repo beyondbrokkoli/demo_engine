@@ -9,6 +9,62 @@ local Lifecycle = {}
 -- [PATCHED] Added 'memory' to the parameters
 function Lifecycle.process_state_machine(win_id, tenant, WindowAPI, EngineAPI, vk_rt, desc, manifest, cfg_gfx, TenantRegistry, memory)
 
+    -- 1. SINGLE Destructive Read: Grab the key and clear the C-side atomic
+    local current_key = WindowAPI.get_last_key(win_id)
+
+    -- 2. Lua-Side Debounce
+    -- Only process if the key actually changed from the last frame's read
+    local is_new_press = false
+    if current_key ~= 0 then
+        if current_key ~= tenant.last_processed_key then
+            is_new_press = true
+            tenant.last_processed_key = current_key
+        end
+    else
+        tenant.last_processed_key = 0
+    end
+
+    -- 3. The Input Router
+    if is_new_press then
+
+        -- [ROUTING: DYNAMIC TEARDOWN]
+        if current_key == cfg_gfx.key.esc then
+            if not tenant.kill_state then
+                tenant.suspended = true
+                tenant.kill_state = 1
+                tenant.kill_wait = 0
+            end
+
+        -- [ROUTING: RING DUMP]
+        elseif current_key == cfg_gfx.key.f5 then
+            ffi.C.vx_sys_dump_ring_state(win_id)
+
+        -- [ROUTING: DYNAMIC SPAWNING]
+        elseif current_key == cfg_gfx.key.num1 then
+            -- Find the first available window ID (Max 4 windows: 0, 1, 2, 3)
+            local available_id = -1
+            for i = 0, 3 do
+                if not TenantRegistry.active[i] then
+                    available_id = i
+                    break
+                end
+            end
+
+            if available_id ~= -1 then
+                print(string.format("[INPUT] '1' Key Pressed. Dynamically allocating Tenant %d...", available_id))
+                TenantRegistry.async_boot_tenant(
+                    vk_rt,
+                    available_id,
+                    cfg_gfx.win.w,
+                    cfg_gfx.win.h,
+                    cfg_gfx.cfg.frame_slots
+                )
+            else
+                print("[INPUT] Cannot spawn window: MAX_WINDOWS (4) reached.")
+            end
+        end
+    end
+
     -- [ASYNC BOOT HANDSHAKE]
     if tenant.boot_state then
         if tenant.boot_state == 1 then

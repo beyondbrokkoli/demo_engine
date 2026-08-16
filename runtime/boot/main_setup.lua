@@ -64,16 +64,11 @@ local function init_state(arg)
     EngineAPI.setup_transfer(vk_rt.tIndex or 0)
     EngineAPI.start_thread()
 
-    -- Collapsed Multiplexer Tenant Boot
-    for i = 0, 3 do
-        -- 1. Just call the async boot function to spawn the skeleton structs.
-        -- The Lifecycle state machine takes care of the rest (Swapchain, Sync, Gfx Init).
+    -- [PATCHED] Boot only the primary window (Tenant 0)
+    for i = 0, 0 do
         TenantRegistry.async_boot_tenant(vk_rt, i, cfg_gfx.win.w, cfg_gfx.win.h, cfg_gfx.cfg.frame_slots)
     end
 
-    -- 2. VRAM template initialization remains right here!
-    -- It only depends on the core engine device and memory allocator,
-    -- so it can safely execute while the windows are acquiring their surfaces.
     local vram_template = VRAM.init_static_buffers(memory, cfg_sim, ctx.total_tiles)
 
     local MAX_DRAW_COMMANDS = 1024
