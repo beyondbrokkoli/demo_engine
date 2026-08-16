@@ -4,7 +4,7 @@ local sys = require("tools.cli_sys")
 local Lobby = {
     log_path = "logs/host.log",
     max_attempts = 50,
-    poll_interval_ms = 100
+    poll_interval_ms = 200
 }
 
 function Lobby.clear_log()

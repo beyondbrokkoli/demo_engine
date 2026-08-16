@@ -35,11 +35,23 @@ BLACKLIST = {
     "python/rag_config.py",
     "python/rag_embeddings.py",
     "python/rag_qdrant.py",
+    "python/ask_hetzner.py",
+    "python/ingestion_manifest.py",
+    "python/rag_chat_hetzner.py",
+    "python/rag_chat_local.py",
     "python/requirements.txt",
     "python/trace_deps_c.py",
     "python/trace_deps_glsl.py",
     "python/trace_deps_lua.py",
     "python/trace_tree.py",
+    "server/api.py",
+    "server/matchmaker.py",
+    "server/models.py",
+    "server/relay.py",
+    "server/state.py",
+    "tools/cli_lobby.lua",
+    "tools/cli_readline.lua",
+    "tools/cli_sys.lua",
 }
 
 def generate_manifest(root_dir):
