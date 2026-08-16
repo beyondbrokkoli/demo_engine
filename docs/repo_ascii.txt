@@ -54,10 +54,10 @@ demo_engine/                                      │   │   ├── main_set
 │   ├── protocol/                                 │   ├── render.vert                               
 │   │   ├── config_net.lua                        │   └── shared.glsl                               
 │   │   ├── dkjson.lua                            ├── ssot/                                         
-│   │   ├── json_util.lua                         │   ├── config_gfx.lua                            
-│   │   └── structs.lua                           │   ├── config_sim.lua                            
-│   ├── session/                                  │   ├── ctx_types.lua                             
-│   │   ├── http_client.lua                       │   ├── registry.glsl                             
+│   │   ├── json_util.lua                         │   ├── compile_layouts.lua                       
+│   │   └── structs.lua                           │   ├── config_gfx.lua                            
+│   ├── session/                                  │   ├── config_sim.lua                            
+│   │   ├── http_client.lua                       │   ├── ctx_types.lua                             
 │   │   ├── ice_handshake.lua                     │   ├── type_math.lua                             
 │   │   ├── matchmaker.lua                        │   └── type_render.lua                           
 │   │   ├── net_utils.lua                         └── worlds/                                       
