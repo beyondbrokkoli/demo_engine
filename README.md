@@ -1,3 +1,62 @@
+## 💻 1. Native Launchers (`launch.bat` & `launch.sh`)
+1. **`launch.bat`**: The native Windows batch script (manages `.exe` binaries).
+2. **`launch.sh`**: The native Linux bash script (manages `.elf` binaries).
+3. **`launch.lua`**: An interactive, platform-agnostic CLI wrapper that provides command history, auto-completion, and automatic Lobby ID parsing.
+
+### Command Reference
+
+| Command | Arguments | Description |
+| --- | --- | --- |
+| `swarm` | `[graphical_count]` `[bot_count]` | Spins up a local cluster. Automatically starts a Host, waits for a Lobby ID, and injects the specified clients and bots. Max 8 players total. |
+| `lab` | None | Developer shortcut to spin up a pre-configured swarm. *(Note: Windows spawns 3 nodes total; Linux spawns 8 nodes total).* |
+| `host` | `[size]` | Boots a standalone Graphical Host Node. The max lobby `size` is 8. |
+| `client` | `[lobby_id]` | Boots a single Graphical Client and connects it to the specified `lobby_id`. |
+| `attach` | `[bot_count]` `[lobby_id]` | Injects the specified number of headless bots into an active lobby. |
+| `clean` | None | Force-kills all active `boot` and `boot_headless` processes. Use this to release network sockets. |
+
+### Examples
+
+```bash
+# Start a custom swarm with 2 graphical clients and 3 headless bots
+./launch.sh swarm 2 3
+
+# Kill all dangling processes if a crash occurs
+launch.bat clean
+
+# Manually host a 6-player lobby, then attach 5 bots to it
+./launch.sh host 6
+./launch.sh attach 5 <LOBBY_ID>
+
+```
+
+## 🎮 2. Interactive CLI (`launch.lua`)
+
+**To start:** `lua launch.lua`
+
+* **Auto Lobby-ID Extraction:** When you run `host`, `lab`, or `swarm`, the CLI actively monitors the engine logs and prints the `LOBBY_ID` directly to your screen in a prominent box. No need to dig through log files.
+* **Smart Tab Completion:**
+* Press `TAB` to auto-complete commands (e.g., typing `sw` + `TAB` yields `swarm `).
+* If you need to enter a Lobby ID, typing the first few characters and pressing `TAB` will automatically grab the latest active ID from your logs.
+
+
+* **Command History:** Use the `UP` and `DOWN` arrow keys to cycle through previous commands.
+* **Orphan Management:** Validates and cleans up dangling processes when you exit.
+
+Typing these directly into the `weaver>` prompt will execute CLI-specific tasks:
+
+| Command | Description |
+| --- | --- |
+| `status` / `orphans` | Scans the system for lingering Weaver nodes without executing a kill command. |
+| `exit` / `quit` | Gracefully shuts down the CLI wrapper and performs a final orphan check. |
+
+*(All native launcher commands like `swarm`, `clean`, and `attach` also work perfectly inside the Lua CLI).*
+
+## 📁 System Requirements & Directories
+
+For these scripts to function properly, your project root must contain:
+
+* `bin/`: Containing your compiled engine binaries (`boot` / `boot_headless`).
+* `logs/`: An existing directory where the scripts output node logs (e.g., `host.log`, `bot_1.log`).
 ```text
 demo_engine/                                      │   │   ├── main_setup.lua
 ├── build/                                        │   │   ├── path_weaver.lua
@@ -90,63 +149,3 @@ demo_engine/                                      │   │   ├── main_set
 │   │   ├── main.lua                                  └── router_plugin.lua
 │   │   ├── main_loop.lua
 ```
-
-## 💻 1. Native Launchers (`launch.bat` & `launch.sh`)
-1. **`launch.bat`**: The native Windows batch script (manages `.exe` binaries).
-2. **`launch.sh`**: The native Linux bash script (manages `.elf` binaries).
-3. **`launch.lua`**: An interactive, platform-agnostic CLI wrapper that provides command history, auto-completion, and automatic Lobby ID parsing.
-
-### Command Reference
-
-| Command | Arguments | Description |
-| --- | --- | --- |
-| `swarm` | `[graphical_count]` `[bot_count]` | Spins up a local cluster. Automatically starts a Host, waits for a Lobby ID, and injects the specified clients and bots. Max 8 players total. |
-| `lab` | None | Developer shortcut to spin up a pre-configured swarm. *(Note: Windows spawns 3 nodes total; Linux spawns 8 nodes total).* |
-| `host` | `[size]` | Boots a standalone Graphical Host Node. The max lobby `size` is 8. |
-| `client` | `[lobby_id]` | Boots a single Graphical Client and connects it to the specified `lobby_id`. |
-| `attach` | `[bot_count]` `[lobby_id]` | Injects the specified number of headless bots into an active lobby. |
-| `clean` | None | Force-kills all active `boot` and `boot_headless` processes. Use this to release network sockets. |
-
-### Examples
-
-```bash
-# Start a custom swarm with 2 graphical clients and 3 headless bots
-./launch.sh swarm 2 3
-
-# Kill all dangling processes if a crash occurs
-launch.bat clean
-
-# Manually host a 6-player lobby, then attach 5 bots to it
-./launch.sh host 6
-./launch.sh attach 5 <LOBBY_ID>
-
-```
-
-## 🎮 2. Interactive CLI (`launch.lua`)
-
-**To start:** `lua launch.lua`
-
-* **Auto Lobby-ID Extraction:** When you run `host`, `lab`, or `swarm`, the CLI actively monitors the engine logs and prints the `LOBBY_ID` directly to your screen in a prominent box. No need to dig through log files.
-* **Smart Tab Completion:**
-* Press `TAB` to auto-complete commands (e.g., typing `sw` + `TAB` yields `swarm `).
-* If you need to enter a Lobby ID, typing the first few characters and pressing `TAB` will automatically grab the latest active ID from your logs.
-
-
-* **Command History:** Use the `UP` and `DOWN` arrow keys to cycle through previous commands.
-* **Orphan Management:** Validates and cleans up dangling processes when you exit.
-
-Typing these directly into the `weaver>` prompt will execute CLI-specific tasks:
-
-| Command | Description |
-| --- | --- |
-| `status` / `orphans` | Scans the system for lingering Weaver nodes without executing a kill command. |
-| `exit` / `quit` | Gracefully shuts down the CLI wrapper and performs a final orphan check. |
-
-*(All native launcher commands like `swarm`, `clean`, and `attach` also work perfectly inside the Lua CLI).*
-
-## 📁 System Requirements & Directories
-
-For these scripts to function properly, your project root must contain:
-
-* `bin/`: Containing your compiled engine binaries (`boot` / `boot_headless`).
-* `logs/`: An existing directory where the scripts output node logs (e.g., `host.log`, `bot_1.log`).
