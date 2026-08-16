@@ -82,6 +82,35 @@ function M.run(deps)
                 end
             end
             prev_mouse_left[active_win_id] = is_down
+
+            -- [DYNAMIC TENANT ALLOCATION]
+            local num1_down = WindowAPI.is_key_down(active_win_id, deps.cfg_gfx.key.num1)
+
+            if num1_down and not prev_f6_down then -- (reusing your debounce variable name is fine, or rename it to prev_num1_down)
+                local target_id = -1
+
+                -- Check bounds 0 through 3 (MAX_TENANTS = 4)
+                for id = 0, 3 do
+                    if not TenantRegistry.active[id] and not TenantRegistry.pending_boots[id] then
+                        target_id = id
+                        break
+                    end
+                end
+
+                if target_id ~= -1 then
+                    print(string.format("[VULKAN MULTIPLEXER] Num1 Pressed. Deploying dynamic tenant to slot %d...", target_id))
+                    TenantRegistry.boot_tenant_async(
+                        deps.vk_rt, target_id, deps.cfg_gfx.win.w, deps.cfg_gfx.win.h,
+                        deps.cfg_gfx.cfg.frame_slots, deps.desc, deps.manifest
+                    )
+                else
+                    print("[VULKAN MULTIPLEXER] Max capacity reached: All 4 tenant slots are active or booting.")
+                end
+            end
+            prev_f6_down = num1_down
+        else
+            -- If the active window loses focus, reset debounce state
+            prev_f6_down = false
         end
 
         total_time = total_time + frame_time

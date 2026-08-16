@@ -64,10 +64,7 @@ local function init_state(arg)
     EngineAPI.setup_transfer(vk_rt.tIndex or 0)
     EngineAPI.start_thread()
 
-    -- Asynchronous Multiplexer Tenant Boot
-    for i = 0, 3 do
-        TenantRegistry.boot_tenant_async(vk_rt, i, cfg_gfx.win.w, cfg_gfx.win.h, cfg_gfx.cfg.frame_slots, desc, manifest)
-    end
+    TenantRegistry.boot_tenant_async(vk_rt, 0, cfg_gfx.win.w, cfg_gfx.win.h, cfg_gfx.cfg.frame_slots, desc, manifest)
 
     local vram_template = VRAM.init_static_buffers(memory, cfg_sim, ctx.total_tiles)
 
