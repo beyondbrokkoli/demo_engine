@@ -17,9 +17,10 @@ int main(int argc, char** argv) {
         glfwPollEvents();
 
         for (int id = 0; id < MAX_WINDOWS; id++) {
+            // Polling the glfw_cmd channel for OS lifecycle events
             int cmd = L(g_engine.mailbox.tenants[id].glfw_cmd);
 
-            if (cmd == CMD_BOOT_WINDOW && windows[id] == NULL) {
+            if (cmd == OS_CMD_BOOT_WINDOW && windows[id] == NULL) {
                 int w = L_R(g_engine.mailbox.tenants[id].glfw_arg_w);
                 int h = L_R(g_engine.mailbox.tenants[id].glfw_arg_h);
 
@@ -51,13 +52,16 @@ int main(int argc, char** argv) {
                         S(g_engine.mailbox.tenants[id].vk_surface, (void*)surface);
                     }
                 }
-                S(g_engine.mailbox.tenants[id].glfw_cmd, CMD_IDLE);
+                S(g_engine.mailbox.tenants[id].glfw_cmd, OS_CMD_IDLE);
             }
-            else if (cmd == CMD_KILL_WINDOW && windows[id] != NULL) {
+            else if (cmd == OS_CMD_KILL_WINDOW && windows[id] != NULL) {
                 S(g_wsi_state[id], 0);
                 int timeout = 2000;
                 int spin_count = 0;
 
+                // With the new architecture, Lua guarantees the GPU is idle before 
+                // sending OS_CMD_KILL_WINDOW, making this loop a near-instant fallthrough.
+                // Kept as an absolute safety net.
                 while ((L(g_render_busy[id]) || L(g_transfer_busy[id])) && timeout > 0) {
                     if (spin_count >= 2000) { timeout--; }
                     vx_spin_wait(&spin_count);
@@ -66,7 +70,7 @@ int main(int argc, char** argv) {
                 glfwDestroyWindow(windows[id]);
                 windows[id] = NULL;
                 S(g_engine.mailbox.tenants[id].vk_surface, NULL);
-                S(g_engine.mailbox.tenants[id].glfw_cmd, CMD_IDLE);
+                S(g_engine.mailbox.tenants[id].glfw_cmd, OS_CMD_IDLE);
             }
 
             if (windows[id] && glfwWindowShouldClose(windows[id])) {

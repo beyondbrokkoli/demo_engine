@@ -13,7 +13,8 @@ function Lifecycle.process_state_machine(win_id, tenant, WindowAPI, EngineAPI, v
             tenant.suspended = true
             tenant.kill_state = 1
             tenant.kill_wait = 0
-            WindowAPI.trigger_wsi_rebuild(win_id)
+            -- [FIX] Removed WindowAPI.trigger_wsi_rebuild(win_id).
+            -- The phase-gate below now issues the explicit RND_CMD_HALT command.
         end
     end
 
@@ -23,7 +24,16 @@ function Lifecycle.process_state_machine(win_id, tenant, WindowAPI, EngineAPI, v
 
     -- [PHASE-GATE DYNAMIC TEARDOWN]
     if tenant.kill_state == 1 then
+        -- 1. Request Render Thread to halt and idle the queue
+        ffi.C.vx_sys_set_render_cmd(win_id, 2) -- 2 = RND_CMD_HALT
+        tenant.kill_state = 2
+        return true -- Skip Render
+
+    elseif tenant.kill_state == 2 then
+        -- 2. Wait for C Render Thread to acknowledge and idle
         if WindowAPI.is_tenant_idle(win_id) == 1 then
+
+            -- SAFE TO DESTROY VULKAN RESOURCES
             graphics_mod.Destroy(vk_rt.vk, vk_rt, tenant.gfx)
             renderer_mod.Destroy(vk_rt.vk, vk_rt.device, tenant.sync)
             swapchain_mod.Destroy(vk_rt.vk, vk_rt, tenant.sc)
@@ -34,12 +44,15 @@ function Lifecycle.process_state_machine(win_id, tenant, WindowAPI, EngineAPI, v
                 vk_rt.vk.vkDestroySurfaceKHR(vk_rt.instance, vk_surface, nil)
             end
 
-            ffi.C.vx_sys_set_cmd(win_id, cfg_gfx.sys.kill, 0, 0)
-            tenant.kill_state = 2
+            -- 3. Trigger GLFW Window Teardown
+            ffi.C.vx_sys_set_glfw_cmd(win_id, 2, 0, 0) -- 2 = OS_CMD_KILL_WINDOW
+            tenant.kill_state = 3
         end
         return true -- Skip Render
-    elseif tenant.kill_state == 2 then
-        if WindowAPI.get_surface(win_id) == nil and WindowAPI.is_tenant_idle(win_id) == 1 then
+
+    elseif tenant.kill_state == 3 then
+        -- 4. Wait for Main C Thread to destroy the GLFW window
+        if WindowAPI.get_surface(win_id) == nil then
             TenantRegistry.active[win_id] = nil
             local active_count = 0
             for _ in pairs(TenantRegistry.active) do active_count = active_count + 1 end

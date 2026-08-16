@@ -1,19 +1,26 @@
-/* host/state_types.c */
+/* host/state/state_types.c */
 
 /* ── Engine Constants */
-#define CMD_IDLE           0
-#define CMD_BOOT_WINDOW    1
-#define CMD_KILL_WINDOW    2
-#define CMD_REBUILD_WSI    3
-#define MAX_WINDOWS        4
-#define RING_SIZE          16
-#define TRANSFER_RING_SIZE 16
+// OS-Level Commands (Main Thread)
+#define OS_CMD_IDLE          0
+#define OS_CMD_BOOT_WINDOW   1
+#define OS_CMD_KILL_WINDOW   2
+
+// Render-Level Commands (Render Thread)
+#define RND_CMD_IDLE         0
+#define RND_CMD_REBUILD_WSI  1
+#define RND_CMD_HALT         2
+
+#define MAX_WINDOWS          4
+#define RING_SIZE            16
+#define TRANSFER_RING_SIZE   16
 
 /* ── Core Data Types */
 typedef struct {
     _Atomic(void*)  vk_instance;
     _Atomic(void*)  vk_surface;
     _Atomic int     glfw_cmd;
+    _Atomic int     render_cmd;  // <-- Decoupled render synchronization channel
     _Atomic int     glfw_arg_w;
     _Atomic int     glfw_arg_h;
     _Atomic int     last_key_pressed;
@@ -31,7 +38,7 @@ typedef struct {
     _Atomic int     mouse_left;
     _Atomic int     mouse_right;
     _Atomic int     key_space;
-    uint8_t         _pad[40];
+    uint8_t         _pad[36];    // <-- Reduced from 40 to maintain 128 bytes
 } TenantMailbox;
 
 _Static_assert(sizeof(TenantMailbox) == 128, "TenantMailbox must prevent false sharing");
@@ -51,7 +58,7 @@ typedef struct {
 } EngineState;
 
 typedef struct {
-    alignas(64) RenderPacket packets[RING_SIZE]; // Provided by SSOT header
+    alignas(64) RenderPacket packets[RING_SIZE];
     alignas(64) _Atomic int  ready_idx[MAX_WINDOWS];
     alignas(64) _Atomic int  local_read[MAX_WINDOWS];
     alignas(64) int          active_ring_slots[MAX_WINDOWS][10];

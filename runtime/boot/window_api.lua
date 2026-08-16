@@ -1,10 +1,9 @@
 -- lua/window_api.lua
 local ffi = require("ffi")
--- Assuming core_abi.lua has already been required by main.lua
 
 local WindowAPI = {}
 function WindowAPI.boot(win_id, w, h)
-    ffi.C.vx_sys_set_cmd(win_id, 1, w, h)
+    ffi.C.vx_sys_set_glfw_cmd(win_id, 1, w, h) -- 1 = OS_CMD_BOOT_WINDOW
 end
 function WindowAPI.is_mouse_down(win_id, button)
     return ffi.C.vx_input_mouse_btn(win_id, button) == 1
@@ -19,18 +18,20 @@ function WindowAPI.get_surface(win_id)
     return ffi.C.vx_sys_get_surface(win_id)
 end
 function WindowAPI.destroy(win_id)
-    ffi.C.vx_sys_set_cmd(win_id, 2, 0, 0)
+    ffi.C.vx_sys_set_glfw_cmd(win_id, 2, 0, 0) -- 2 = OS_CMD_KILL_WINDOW
 end
 function WindowAPI.get_resize_state(win_id)
     return ffi.C.vx_sys_get_resize_state(win_id) == 1
 end
 function WindowAPI.trigger_wsi_rebuild(win_id)
-    ffi.C.vx_sys_set_cmd(win_id, 3, 0, 0) -- 3 = CMD_REBUILD_WSI
+    ffi.C.vx_sys_set_render_cmd(win_id, 1) -- 1 = RND_CMD_REBUILD_WSI
+end
+function WindowAPI.halt_render(win_id)
+    ffi.C.vx_sys_set_render_cmd(win_id, 2) -- 2 = RND_CMD_HALT
 end
 function WindowAPI.is_tenant_idle(win_id)
     return ffi.C.vx_sys_is_tenant_idle(win_id)
 end
--- [FIX APPLIED] Removed root-level _w_ptr and _h_ptr
 function WindowAPI.get_window_size(win_id)
     local _w_ptr = ffi.new("int[1]")
     local _h_ptr = ffi.new("int[1]")

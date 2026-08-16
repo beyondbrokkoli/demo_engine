@@ -2,20 +2,27 @@
 
 THREAD_FUNC render_thread_loop(void* arg) {
     uint32_t t_frame[MAX_WINDOWS] = {0};
+
     while (L(g_render_thread_active) && L(g_engine.mailbox.is_running)) {
         for (int w = 0; w < MAX_WINDOWS; w++) {
-            int cmd = atomic_load_explicit(
-                &g_engine.mailbox.tenants[w].glfw_cmd,
-                memory_order_acquire);
-            if (cmd == CMD_REBUILD_WSI) {
+
+            // 1. Poll the new decoupled render channel using your macro
+            int cmd = L(g_engine.mailbox.tenants[w].render_cmd);
+
+            // 2. Handle BOTH Rebuild and Halt commands
+            if (cmd == RND_CMD_REBUILD_WSI || cmd == RND_CMD_HALT) {
                 int timeout = 2000;
                 int spin_count = 0;
+
+                // Wait for any in-flight memory transfers
                 while (L(g_transfer_busy[w]) && timeout > 0) {
                     if (spin_count >= 2000) { timeout--; }
                     vx_spin_wait(&spin_count);
                 }
+
                 RenderThreadInit* wsi = &g_window_wsi[w];
                 if (wsi->device) {
+                    // Gracefully idle this specific tenant's queues
                     if (wsi->queue) {
                         vkQueueWaitIdle(wsi->queue);
                     }
@@ -26,18 +33,21 @@ THREAD_FUNC render_thread_loop(void* arg) {
                     if (g_render_cmd_pools[w]) {
                        vkResetCommandPool(wsi->device, g_render_cmd_pools[w], 0);
                     }
-
                     if (g_transfer_cmd_pools[w]) {
                         vkResetCommandPool(wsi->device, g_transfer_cmd_pools[w], 0);
                     }
                 }
+
+                // Suspend rendering for this tenant so it skips submission below
                 S(g_wsi_state[w], 0);
-                atomic_store_explicit(
-                    &g_engine.mailbox.tenants[w].window_resized, 0,
-                    memory_order_release);
-                atomic_store_explicit(
-                    &g_engine.mailbox.tenants[w].glfw_cmd, CMD_IDLE,
-                    memory_order_release);
+
+                if (cmd == RND_CMD_REBUILD_WSI) {
+                    // Only reset resize state if we are actually rebuilding
+                    S(g_engine.mailbox.tenants[w].window_resized, 0);
+                }
+
+                // 3. Reset the RENDER command, leaving the OS command untouched
+                S(g_engine.mailbox.tenants[w].render_cmd, RND_CMD_IDLE);
             }
         }
         for (int wid = 0; wid < MAX_WINDOWS; wid++) {

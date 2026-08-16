@@ -1,9 +1,14 @@
+-- runtime/boot/core_abi.lua
 local ffi = require("ffi")
 
 ffi.cdef[[
 // C-Core Multi-Tenant Window & Input API
 void vx_sys_publish_instance(int win_id, void* instance);
-void vx_sys_set_cmd(int win_id, int cmd, int w, int h);
+
+// [PATCHED] Decoupled Command Channels
+void vx_sys_set_glfw_cmd(int win_id, int cmd, int w, int h);
+void vx_sys_set_render_cmd(int win_id, int cmd);
+
 void* vx_sys_get_surface(int win_id);
 int vx_sys_get_resize_state(int win_id);
 void vx_sys_window_size(int win_id, int* w, int* h);

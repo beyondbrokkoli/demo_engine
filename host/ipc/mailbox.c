@@ -9,7 +9,8 @@ EXPORT void vx_init_mailbox(void) {
     for (int i = 0; i < MAX_WINDOWS; i++) {
         atomic_init(&g_engine.mailbox.tenants[i].vk_instance,    NULL);
         atomic_init(&g_engine.mailbox.tenants[i].vk_surface,     NULL);
-        atomic_init(&g_engine.mailbox.tenants[i].glfw_cmd,       CMD_IDLE);
+        atomic_init(&g_engine.mailbox.tenants[i].glfw_cmd,       OS_CMD_IDLE);
+        atomic_init(&g_engine.mailbox.tenants[i].render_cmd,     RND_CMD_IDLE);
         atomic_init(&g_engine.mailbox.tenants[i].glfw_arg_w,     0);
         atomic_init(&g_engine.mailbox.tenants[i].glfw_arg_h,     0);
         atomic_init(&g_engine.mailbox.tenants[i].last_key_pressed, 0);
