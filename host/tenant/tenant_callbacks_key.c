@@ -6,31 +6,13 @@ void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, in
 
     S(g_engine.mailbox.active_window, id);
 
-    if (action == GLFW_PRESS || action == GLFW_RELEASE) {
-        uint32_t bit = 0;
-        if      (key == GLFW_KEY_W) bit = 1;
-        else if (key == GLFW_KEY_S) bit = 2;
-        else if (key == GLFW_KEY_A) bit = 4;
-        else if (key == GLFW_KEY_D) bit = 8;
-        else if (key == GLFW_KEY_E) bit = 16;
-        else if (key == GLFW_KEY_Q) bit = 32;
-
-        if (bit) {
-            uint32_t mask = L(g_engine.mailbox.tenants[id].wasd_mask);
-            uint32_t new_mask;
-            do {
-                new_mask = (action == GLFW_PRESS) ? (mask | bit) : (mask & ~bit);
-            } while (!CWX(g_engine.mailbox.tenants[id].wasd_mask, mask, new_mask));
-        }
+    // --- GOD BUFFER ROUTING ---
+    // Safely clamp bounds and write the GLFW action (PRESS=1, RELEASE=0, REPEAT=2)
+    if (key >= 0 && key < 512) {
+        S(g_engine.mailbox.tenants[id].keys[key], (uint8_t)action);
     }
 
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-        S(g_engine.mailbox.tenants[id].last_key_pressed, GLFW_KEY_ESCAPE);
-    }
-    if (key == GLFW_KEY_SPACE) {
-        S(g_engine.mailbox.tenants[id].key_space, (action != GLFW_RELEASE) ? 1 : 0);
-    }
-
+    // --- OS-LEVEL INTERCEPTS ---
     if (key == GLFW_KEY_F11 && action == GLFW_PRESS) {
         if (!s_is_fullscreen[id]) {
             glfwGetWindowPos(window, &s_win_x[id], &s_win_y[id]);
@@ -58,13 +40,6 @@ void glfw_key_callback(GLFWwindow* window, int key, int scancode, int action, in
         } else {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             printf("[C-CORE] Tenant %d: Mouse Freed (F10)\n", id);
-        }
-    }
-
-    if (action == GLFW_PRESS) {
-        if (key == GLFW_KEY_1 || key == GLFW_KEY_2 || key == GLFW_KEY_3 || key == GLFW_KEY_4 ||
-            key == GLFW_KEY_F5 || key == GLFW_KEY_ENTER || key == GLFW_KEY_KP_ENTER) {
-            S(g_engine.mailbox.tenants[id].last_key_pressed, key);
         }
     }
 

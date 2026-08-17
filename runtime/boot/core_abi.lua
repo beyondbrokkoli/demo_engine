@@ -18,8 +18,9 @@ int vx_sys_is_tenant_idle(int win_id);
 
 void vx_sys_dump_ring_state(int win_id);
 
-int vx_input_last_key(int win_id);
-uint32_t vx_input_wasd(int win_id);
+int vx_input_key_state(int win_id, int key);
+void vx_input_poll_keys(int win_id, uint8_t* out_buffer);
+
 float vx_input_mouse_dx(int win_id);
 float vx_input_mouse_dy(int win_id);
 float vx_input_mouse_x(int win_id);
@@ -27,8 +28,9 @@ float vx_input_mouse_y(int win_id);
 float vx_input_click_x(int win_id);
 float vx_input_click_y(int win_id);
 int vx_input_is_captured(int win_id);
+
 int vx_input_mouse_btn(int win_id, int btn);
-int vx_input_spacebar(int win_id);
+void vx_input_poll_mouse(int win_id, uint8_t* out_buffer);
 
 // C-Core Engine & Stream API
 int vx_core_is_running();

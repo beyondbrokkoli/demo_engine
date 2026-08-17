@@ -3,8 +3,7 @@ import re
 from collections import defaultdict
 
 ROOT_LUA_FILES = []
-#LUA_DIRS = ["build", "ssot", "runtime", "network", "worlds", "tools"]
-LUA_DIRS = ["runtime"]
+LUA_DIRS = ["build", "ssot", "runtime", "network", "worlds", "tools"]
 REQUIRE_PATTERN = re.compile(r"require\s*(?:\(\s*['\"]([^'\"]+)['\"]\s*\)|['\"]([^'\"]+)['\"])")
 
 # Blacklist to strip ubiquitous utilities and reduce graph clutter

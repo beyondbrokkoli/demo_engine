@@ -37,17 +37,16 @@ void glfw_mouse_button_callback(GLFWwindow* window, int button, int action, int 
         S(g_engine.mailbox.active_window, id);
     }
 
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
-        if (action == GLFW_PRESS) {
+    // GLFW guarantees mouse buttons are mapped 0 through 7
+    if (button >= 0 && button < 8) {
+        S(g_engine.mailbox.tenants[id].mouse_btns[button], (action == GLFW_PRESS) ? 1 : 0);
+
+        // Preserve your specific click_x / click_y raycast logic
+        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
             double cx, cy;
             glfwGetCursorPos(window, &cx, &cy);
             S(g_engine.mailbox.tenants[id].click_x, (float)cx);
             S(g_engine.mailbox.tenants[id].click_y, (float)cy);
-            S(g_engine.mailbox.tenants[id].mouse_left, 1);
-        } else {
-            S(g_engine.mailbox.tenants[id].mouse_left, 0);
         }
-    } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-        S(g_engine.mailbox.tenants[id].mouse_right, (action == GLFW_PRESS) ? 1 : 0);
     }
 }

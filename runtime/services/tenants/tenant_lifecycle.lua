@@ -1,4 +1,4 @@
--- runtime/services/tenant/tenant_lifecycle.lua
+-- runtime/services/tenants/tenant_lifecycle.lua
 local ffi = require("ffi")
 local swapchain_mod = require("runtime.services.gpu.swapchain")
 local renderer_mod = require("runtime.presentation.graphics.renderer")
@@ -6,62 +6,34 @@ local graphics_mod = require("runtime.presentation.graphics.graphics_pipeline")
 
 local Lifecycle = {}
 
--- [PATCHED] Added 'memory' to the parameters
 function Lifecycle.process_state_machine(win_id, tenant, WindowAPI, EngineAPI, vk_rt, desc, manifest, cfg_gfx, TenantRegistry, memory)
 
-    -- 1. SINGLE Destructive Read: Grab the key and clear the C-side atomic
-    local current_key = WindowAPI.get_last_key(win_id)
-
-    -- 2. Lua-Side Debounce
-    -- Only process if the key actually changed from the last frame's read
-    local is_new_press = false
-    if current_key ~= 0 then
-        if current_key ~= tenant.last_processed_key then
-            is_new_press = true
-            tenant.last_processed_key = current_key
-        end
-    else
-        tenant.last_processed_key = 0
+    -- [ROUTING: RING DUMP]
+    if WindowAPI.is_key_just_pressed(win_id, cfg_gfx.key.f5) then
+        ffi.C.vx_sys_dump_ring_state(win_id)
     end
 
-    -- 3. The Input Router
-    if is_new_press then
-
-        -- [ROUTING: DYNAMIC TEARDOWN]
-        if current_key == cfg_gfx.key.esc then
-            if not tenant.kill_state then
-                tenant.suspended = true
-                tenant.kill_state = 1
-                tenant.kill_wait = 0
+    -- [ROUTING: DYNAMIC SPAWNING]
+    if WindowAPI.is_key_just_pressed(win_id, cfg_gfx.key.num1) then
+        local available_id = -1
+        for i = 0, 3 do
+            if not TenantRegistry.active[i] then
+                available_id = i
+                break
             end
+        end
 
-        -- [ROUTING: RING DUMP]
-        elseif current_key == cfg_gfx.key.f5 then
-            ffi.C.vx_sys_dump_ring_state(win_id)
-
-        -- [ROUTING: DYNAMIC SPAWNING]
-        elseif current_key == cfg_gfx.key.num1 then
-            -- Find the first available window ID (Max 4 windows: 0, 1, 2, 3)
-            local available_id = -1
-            for i = 0, 3 do
-                if not TenantRegistry.active[i] then
-                    available_id = i
-                    break
-                end
-            end
-
-            if available_id ~= -1 then
-                print(string.format("[INPUT] '1' Key Pressed. Dynamically allocating Tenant %d...", available_id))
-                TenantRegistry.async_boot_tenant(
-                    vk_rt,
-                    available_id,
-                    cfg_gfx.win.w,
-                    cfg_gfx.win.h,
-                    cfg_gfx.cfg.frame_slots
-                )
-            else
-                print("[INPUT] Cannot spawn window: MAX_WINDOWS (4) reached.")
-            end
+        if available_id ~= -1 then
+            print(string.format("[INPUT] '1' Key Pressed. Dynamically allocating Tenant %d...", available_id))
+            TenantRegistry.async_boot_tenant(
+                vk_rt,
+                available_id,
+                cfg_gfx.win.w,
+                cfg_gfx.win.h,
+                cfg_gfx.cfg.frame_slots
+            )
+        else
+            print("[INPUT] Cannot spawn window: MAX_WINDOWS (4) reached.")
         end
     end
 
@@ -131,45 +103,33 @@ function Lifecycle.process_state_machine(win_id, tenant, WindowAPI, EngineAPI, v
                 tenant.suspended = false
                 print(string.format("[UI BOOTSTRAP] Tenant %d successfully injected!", win_id))
 
-                -- [VRAM COLOR STREAM INJECTION]
-                -- The first fully awakened window pipelines the global VRAM transfer
                 if not TenantRegistry.global_vram_transferred then
                     print(string.format("[VRAM] Window %d streaming global Palette to GPU...", win_id))
                     memory.TransferAsync(win_id, "PALETTE_STAGING", "PALETTE_HAVEN", 16384)
                     TenantRegistry.global_vram_transferred = true
                 end
             end
-            return true -- Skip Render
+            return true
         end
     end
 
-    -- Early Escape State
-    if WindowAPI.get_last_key(win_id) == cfg_gfx.key.esc then
+    -- [ROUTING: DYNAMIC TEARDOWN]
+    if WindowAPI.is_key_just_pressed(win_id, cfg_gfx.key.esc) then
         if not tenant.kill_state then
             tenant.suspended = true
             tenant.kill_state = 1
             tenant.kill_wait = 0
-            -- [FIX] Removed WindowAPI.trigger_wsi_rebuild(win_id).
-            -- The phase-gate below now issues the explicit RND_CMD_HALT command.
         end
-    end
-
-    if WindowAPI.is_key_down(win_id, cfg_gfx.key.f5) then
-        ffi.C.vx_sys_dump_ring_state(win_id)
     end
 
     -- [PHASE-GATE DYNAMIC TEARDOWN]
     if tenant.kill_state == 1 then
-        -- 1. Request Render Thread to halt and idle the queue
         ffi.C.vx_sys_set_render_cmd(win_id, 2) -- 2 = RND_CMD_HALT
         tenant.kill_state = 2
-        return true -- Skip Render
+        return true
 
     elseif tenant.kill_state == 2 then
-        -- 2. Wait for C Render Thread to acknowledge and idle
         if WindowAPI.is_tenant_idle(win_id) == 1 then
-
-            -- SAFE TO DESTROY VULKAN RESOURCES
             graphics_mod.Destroy(vk_rt.vk, vk_rt, tenant.gfx)
             renderer_mod.Destroy(vk_rt.vk, vk_rt.device, tenant.sync)
             swapchain_mod.Destroy(vk_rt.vk, vk_rt, tenant.sc)
@@ -180,28 +140,26 @@ function Lifecycle.process_state_machine(win_id, tenant, WindowAPI, EngineAPI, v
                 vk_rt.vk.vkDestroySurfaceKHR(vk_rt.instance, vk_surface, nil)
             end
 
-            -- 3. Trigger GLFW Window Teardown
             ffi.C.vx_sys_set_glfw_cmd(win_id, 2, 0, 0) -- 2 = OS_CMD_KILL_WINDOW
             tenant.kill_state = 3
         end
-        return true -- Skip Render
+        return true
 
     elseif tenant.kill_state == 3 then
-        -- 4. Wait for Main C Thread to destroy the GLFW window
         if WindowAPI.get_surface(win_id) == nil then
             TenantRegistry.active[win_id] = nil
             local active_count = 0
             for _ in pairs(TenantRegistry.active) do active_count = active_count + 1 end
             if active_count == 0 then EngineAPI.shutdown() end
         end
-        return true -- Skip Render
+        return true
     end
 
-    -- Suspension / WSI Rebuild
+    -- [SUSPENSION / WSI REBUILD]
     if WindowAPI.get_resize_state(win_id) and not tenant.suspended then
         WindowAPI.trigger_wsi_rebuild(win_id)
         tenant.suspended = true
-        return true -- Skip Render
+        return true
     end
 
     if tenant.suspended then

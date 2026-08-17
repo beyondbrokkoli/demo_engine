@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
                 int timeout = 2000;
                 int spin_count = 0;
 
-                // With the new architecture, Lua guarantees the GPU is idle before 
+                // With the new architecture, Lua guarantees the GPU is idle before
                 // sending OS_CMD_KILL_WINDOW, making this loop a near-instant fallthrough.
                 // Kept as an absolute safety net.
                 while ((L(g_render_busy[id]) || L(g_transfer_busy[id])) && timeout > 0) {
@@ -69,12 +69,31 @@ int main(int argc, char** argv) {
 
                 glfwDestroyWindow(windows[id]);
                 windows[id] = NULL;
+
+                // [THE FIX] Exorcise the ghost inputs!
+                // Zero out the entire God Buffer so the next tenant gets a clean slate.
+                for (int k = 0; k < 512; k++) {
+                    S(g_engine.mailbox.tenants[id].keys[k], 0);
+                }
+                for (int b = 0; b < 8; b++) {
+                    S(g_engine.mailbox.tenants[id].mouse_btns[b], 0);
+                }
+
+                // Reset standard mouse states
+                S(g_engine.mailbox.tenants[id].mouse_captured, 0);
+                S(g_engine.mailbox.tenants[id].mouse_dx, 0.0f);
+                S(g_engine.mailbox.tenants[id].mouse_dy, 0.0f);
+                S(g_engine.mailbox.tenants[id].mouse_x, 0.0f);
+                S(g_engine.mailbox.tenants[id].mouse_y, 0.0f);
+                S(g_engine.mailbox.tenants[id].click_x, -1.0f);
+                S(g_engine.mailbox.tenants[id].click_y, -1.0f);
+
                 S(g_engine.mailbox.tenants[id].vk_surface, NULL);
                 S(g_engine.mailbox.tenants[id].glfw_cmd, OS_CMD_IDLE);
             }
 
             if (windows[id] && glfwWindowShouldClose(windows[id])) {
-                S(g_engine.mailbox.tenants[id].last_key_pressed, GLFW_KEY_ESCAPE);
+                S(g_engine.mailbox.tenants[id].keys[GLFW_KEY_ESCAPE], 1);
             }
         }
         SLEEP_MS(1);

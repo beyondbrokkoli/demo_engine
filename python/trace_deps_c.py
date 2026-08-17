@@ -2,8 +2,7 @@ import os
 import re
 from collections import defaultdict
 
-#C_DIRS = ["host", "network", "render", "generated"]
-C_DIRS = ["host"]
+C_DIRS = ["host", "network", "render", "generated"]
 INCLUDE_PATTERN = re.compile(r'#include\s+"([^"]+)"')
 
 def sanitize_id(filepath):

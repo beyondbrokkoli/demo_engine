@@ -26,7 +26,6 @@ function M.run(deps)
     local total_time = 0.0
     local master_ptr = ffi.cast("float*", memory.Mapped["MASTER_GPU_BLOCK"])
     local active_render_mode = deps.cfg_gfx.mode.dual
-    local prev_mouse_left = { [0] = false, [1] = false, [2] = false, [3] = false }
     local last_time = sys_time.get_time_hires()
 
     while EngineAPI.is_running() do
@@ -50,26 +49,21 @@ function M.run(deps)
         for i = 0, count - 1 do
             local actual_idx = (start_idx + i) % 2048
             local mod = state.tiles[actual_idx]
-
-            -- We paint everything to Layer 0. The renderer and raycaster don't care about network player layers.
             visual_canvas.terrain[0][mod.tile_idx] = mod.terrain_type
             visual_canvas.elevation[0][mod.tile_idx] = mod.elevation
         end
 
-        local active_win_id = ffi.C.vx_input_get_active_window()
+        WindowAPI.pump_input_states(TenantRegistry.active)
 
-        for win_id in pairs(TenantRegistry.active) do
-            if win_id ~= active_win_id then prev_mouse_left[win_id] = false end
-        end
+        local active_win_id = ffi.C.vx_input_get_active_window()
 
         if active_win_id >= 0 and TenantRegistry.active[active_win_id] then
             local tenant = TenantRegistry.active[active_win_id]
-            local is_down = WindowAPI.is_mouse_down(active_win_id, 0)
 
-            if is_down and not prev_mouse_left[active_win_id] then
+            -- [UPDATE THIS TO USE DEBOUNCE]
+            if WindowAPI.is_mouse_just_pressed(active_win_id, 0) then
                 local click_x, click_y = WindowAPI.get_click_pos(active_win_id)
 
-                -- [POINTER SWAP] Pass visual_canvas instead of ssot_render_ptr
                 local clicked_idx = Raycast.matrix_raycast_terrain(
                     click_x, click_y, tenant.width, tenant.height,
                     tenant.inv_vp, visual_canvas, 0
@@ -78,7 +72,6 @@ function M.run(deps)
                     net_driver.inject_local_command(net_engine, 1, clicked_idx)
                 end
             end
-            prev_mouse_left[active_win_id] = is_down
         end
 
         total_time = total_time + frame_time

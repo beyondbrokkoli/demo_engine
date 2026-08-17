@@ -21,11 +21,13 @@ typedef struct {
     _Atomic(void*)  vk_instance;
     _Atomic(void*)  vk_surface;
     _Atomic int     glfw_cmd;
-    _Atomic int     render_cmd;  // <-- Decoupled render synchronization channel
+    _Atomic int     render_cmd;
     _Atomic int     glfw_arg_w;
     _Atomic int     glfw_arg_h;
-    _Atomic int     last_key_pressed;
-    _Atomic uint32_t wasd_mask;
+
+    // --- NEW GOD BUFFER ---
+    _Atomic uint8_t keys[512];
+
     _Atomic float   mouse_dx;
     _Atomic float   mouse_dy;
     _Atomic float   mouse_x;
@@ -36,13 +38,12 @@ typedef struct {
     _Atomic int     win_h;
     _Atomic float   click_x;
     _Atomic float   click_y;
-    _Atomic int     mouse_left;
-    _Atomic int     mouse_right;
-    _Atomic int     key_space;
-    uint8_t         _pad[36];    // <-- Reduced from 40 to maintain 128 bytes
+    _Atomic uint8_t mouse_btns[8];
+
+    uint8_t         _pad[48];    // <-- Adjusted to hit 640 bytes exactly
 } TenantMailbox;
 
-_Static_assert(sizeof(TenantMailbox) == 128, "TenantMailbox must prevent false sharing");
+_Static_assert(sizeof(TenantMailbox) == 640, "TenantMailbox must prevent false sharing");
 
 typedef struct {
     alignas(64) _Atomic int ready_index;

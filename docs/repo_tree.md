@@ -51,10 +51,10 @@ flowchart LR
     node_build_task_headless_lua["📄 task_headless.lua"]
     node_build_task_invariants_lua["📄 task_invariants.lua"]
     node_build_task_shaders_lua["📄 task_shaders.lua"]
+    node_ssot_compile_layouts_lua["📄 compile_layouts.lua"]
     node_ssot_config_gfx_lua["📄 config_gfx.lua"]
     node_ssot_config_sim_lua["📄 config_sim.lua"]
     node_ssot_ctx_types_lua["📄 ctx_types.lua"]
-    node_ssot_registry_glsl["📄 registry.glsl"]
     node_ssot_type_math_lua["📄 type_math.lua"]
     node_ssot_type_render_lua["📄 type_render.lua"]
     node_shaders_render_frag["📄 render.frag"]
@@ -87,7 +87,7 @@ flowchart LR
     node_worlds_chess_domain_lifecycle_lua["📄 domain_lifecycle.lua"]
     node_worlds_chess_domain_terrain_lua["📄 domain_terrain.lua"]
     node_python_ascii_tree_cols_py["📄 ascii_tree_cols.py"]
-    node_python_ask_py["📄 ask.py"]
+    node_python_ask_hetzner_py["📄 ask_hetzner.py"]
     node_python_ask_local_py["📄 ask_local.py"]
     node_python_generate_manifest_py["📄 generate_manifest.py"]
     node_python_ingest_codebase_py["📄 ingest_codebase.py"]
@@ -96,7 +96,8 @@ flowchart LR
     node_python_ingest_topology_py["📄 ingest_topology.py"]
     node_python_ingest_validators_py["📄 ingest_validators.py"]
     node_python_ingestion_manifest_py["📄 ingestion_manifest.py"]
-    node_python_rag_chat_py["📄 rag_chat.py"]
+    node_python_rag_chat_hetzner_py["📄 rag_chat_hetzner.py"]
+    node_python_rag_chat_local_py["📄 rag_chat_local.py"]
     node_python_rag_config_py["📄 rag_config.py"]
     node_python_rag_embeddings_py["📄 rag_embeddings.py"]
     node_python_rag_qdrant_py["📄 rag_qdrant.py"]
@@ -217,6 +218,7 @@ flowchart LR
     node_tools_cli_lobby_lua["📄 cli_lobby.lua"]
     node_tools_cli_readline_lua["📄 cli_readline.lua"]
     node_tools_cli_sys_lua["📄 cli_sys.lua"]
+    node_tools_helpers_lua["📄 helpers.lua"]
     node_server_api_py["📄 api.py"]
     node_server_matchmaker_py["📄 matchmaker.py"]
     node_server_models_py["📄 models.py"]
@@ -289,10 +291,10 @@ flowchart LR
     node_build --> node_build_task_headless_lua
     node_build --> node_build_task_invariants_lua
     node_build --> node_build_task_shaders_lua
+    node_ssot --> node_ssot_compile_layouts_lua
     node_ssot --> node_ssot_config_gfx_lua
     node_ssot --> node_ssot_config_sim_lua
     node_ssot --> node_ssot_ctx_types_lua
-    node_ssot --> node_ssot_registry_glsl
     node_ssot --> node_ssot_type_math_lua
     node_ssot --> node_ssot_type_render_lua
     node_shaders --> node_shaders_render_frag
@@ -325,7 +327,7 @@ flowchart LR
     node_worlds_chess --> node_worlds_chess_domain_lifecycle_lua
     node_worlds_chess --> node_worlds_chess_domain_terrain_lua
     node_python --> node_python_ascii_tree_cols_py
-    node_python --> node_python_ask_py
+    node_python --> node_python_ask_hetzner_py
     node_python --> node_python_ask_local_py
     node_python --> node_python_generate_manifest_py
     node_python --> node_python_ingest_codebase_py
@@ -334,7 +336,8 @@ flowchart LR
     node_python --> node_python_ingest_topology_py
     node_python --> node_python_ingest_validators_py
     node_python --> node_python_ingestion_manifest_py
-    node_python --> node_python_rag_chat_py
+    node_python --> node_python_rag_chat_hetzner_py
+    node_python --> node_python_rag_chat_local_py
     node_python --> node_python_rag_config_py
     node_python --> node_python_rag_embeddings_py
     node_python --> node_python_rag_qdrant_py
@@ -455,6 +458,7 @@ flowchart LR
     node_tools --> node_tools_cli_lobby_lua
     node_tools --> node_tools_cli_readline_lua
     node_tools --> node_tools_cli_sys_lua
+    node_tools --> node_tools_helpers_lua
     node_server --> node_server_api_py
     node_server --> node_server_matchmaker_py
     node_server --> node_server_models_py
@@ -528,10 +532,10 @@ flowchart LR
     class node_build_task_headless_lua file
     class node_build_task_invariants_lua file
     class node_build_task_shaders_lua file
+    class node_ssot_compile_layouts_lua file
     class node_ssot_config_gfx_lua file
     class node_ssot_config_sim_lua file
     class node_ssot_ctx_types_lua file
-    class node_ssot_registry_glsl file
     class node_ssot_type_math_lua file
     class node_ssot_type_render_lua file
     class node_shaders_render_frag file
@@ -564,7 +568,7 @@ flowchart LR
     class node_worlds_chess_domain_lifecycle_lua file
     class node_worlds_chess_domain_terrain_lua file
     class node_python_ascii_tree_cols_py file
-    class node_python_ask_py file
+    class node_python_ask_hetzner_py file
     class node_python_ask_local_py file
     class node_python_generate_manifest_py file
     class node_python_ingest_codebase_py file
@@ -573,7 +577,8 @@ flowchart LR
     class node_python_ingest_topology_py file
     class node_python_ingest_validators_py file
     class node_python_ingestion_manifest_py file
-    class node_python_rag_chat_py file
+    class node_python_rag_chat_hetzner_py file
+    class node_python_rag_chat_local_py file
     class node_python_rag_config_py file
     class node_python_rag_embeddings_py file
     class node_python_rag_qdrant_py file
@@ -694,6 +699,7 @@ flowchart LR
     class node_tools_cli_lobby_lua file
     class node_tools_cli_readline_lua file
     class node_tools_cli_sys_lua file
+    class node_tools_helpers_lua file
     class node_server_api_py file
     class node_server_matchmaker_py file
     class node_server_models_py file

@@ -1,10 +1,14 @@
+-- runtime/simulation/camera.lua
 local ffi = require("ffi")
 local math = require("math")
-local bit = require("bit")
 local vmath = require("runtime.services.math.vmath")
 local WindowAPI = require("runtime.boot.window_api")
 
 local Camera = {}
+
+-- GLFW keycodes for Q and E
+local GLFW_KEY_E = 69
+local GLFW_KEY_Q = 81
 
 function Camera.new()
     return {
@@ -18,12 +22,10 @@ function Camera.new()
     }
 end
 
--- [UPDATED] Pass win_id as the final parameter
 function Camera.update(cam, frame_time, mouse_x, mouse_y, width, height, win_id)
     local EDGE_THRESHOLD = 40.0
     local pan_x, pan_z = 0.0, 0.0
 
-    -- [UPDATED] Use WindowAPI
     if WindowAPI.is_captured(win_id) then
         if mouse_x < EDGE_THRESHOLD then pan_x = -1.0
         elseif mouse_x > width - EDGE_THRESHOLD then pan_x = 1.0 end
@@ -41,11 +43,10 @@ function Camera.update(cam, frame_time, mouse_x, mouse_y, width, height, win_id)
     cam.pos.x = cam.pos.x + (right_x * pan_x + fwd_x * -pan_z) * frame_speed
     cam.pos.z = cam.pos.z + (right_z * pan_x + fwd_z * -pan_z) * frame_speed
 
-    -- [UPDATED] Use WindowAPI
-    local wasd = WindowAPI.get_wasd_mask(win_id)
+    -- [UPDATED] Direct reads from the God Buffer
     local zoom_dir = 0
-    if bit.band(wasd, 16) ~= 0 then zoom_dir = -1 end -- E key
-    if bit.band(wasd, 32) ~= 0 then zoom_dir = 1 end  -- Q key
+    if WindowAPI.is_key_down(win_id, GLFW_KEY_E) then zoom_dir = -1 end
+    if WindowAPI.is_key_down(win_id, GLFW_KEY_Q) then zoom_dir = 1 end 
 
     if zoom_dir ~= 0 then
         cam.ortho_zoom = cam.ortho_zoom * math.exp(zoom_dir * frame_time * 3.0)
